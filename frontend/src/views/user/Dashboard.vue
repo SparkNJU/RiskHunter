@@ -5,16 +5,14 @@ import {parseRole, parseTime} from "../../utils"
 import {router} from '../../router'
 import {UserFilled} from "@element-plus/icons-vue";
 
-const role = sessionStorage.getItem("role")
-const name = ref('')
-const storeName = ref('')
-const tel = ref('')
-const address = ref('')
+const role = ref(Number(sessionStorage.getItem("role")))
+const username = ref('')
+const phone = ref('')
 const regTime = ref()
 
 const newName = ref('')
 
-const displayInfoCard = ref(false)
+const displayInfoCard = ref(true)
 
 const password = ref('')
 const confirmPassword = ref('')
@@ -29,21 +27,18 @@ getUserInfo()
 
 function getUserInfo() {
   userInfo().then(res => {
-    name.value = res.data.result.name
-    tel.value = res.data.result.phone
-    storeName.value = res.data.result.storeName
-    address.value = res.data.result.address
+    role.value = res.data.result.role
+    username.value = res.data.result.username
+    phone.value = res.data.result.phone
     regTime.value = parseTime(res.data.result.createTime)
-
-    newName.value = name.value
+    newName.value = username.value
   })
 }
 
 function updateInfo() {
   userInfoUpdate({
-    name: newName.value,
+    username: newName.value,
     password: undefined,
-    address: address.value,
   }).then(res => {
     if (res.data.code === '000') {
       ElMessage({
@@ -64,9 +59,8 @@ function updateInfo() {
 
 function updatePassword() {
   userInfoUpdate({
-    name: undefined,
+    username: undefined,
     password: password.value,
-    address: undefined
   }).then(res => {
     if (res.data.code === '000') {
       password.value = ''
@@ -102,7 +96,7 @@ function updatePassword() {
       <div class="avatar-area">
         <el-avatar :icon="UserFilled" :size="80">
         </el-avatar>
-        <span class="avatar-text"> 欢迎您，{{ name }}</span>
+        <span class="avatar-text"> 欢迎您，{{ username }}</span>
       </div>
 
       <el-divider></el-divider>
@@ -124,16 +118,8 @@ function updatePassword() {
           <el-tag>{{ parseRole(role) }}</el-tag>
         </el-descriptions-item>
 
-        <el-descriptions-item label="所属商店" v-if="role === 'STAFF'">
-          {{ storeName }}
-        </el-descriptions-item>
-
         <el-descriptions-item label="联系电话">
-          {{ tel }}
-        </el-descriptions-item>
-
-        <el-descriptions-item label="地址" v-if="role === 'CUSTOMER' || role === 'STAFF'">
-          {{ address }}
+          {{ phone }}
         </el-descriptions-item>
 
         <el-descriptions-item label="注册时间">
@@ -152,21 +138,15 @@ function updatePassword() {
 
       <el-form>
         <el-form-item>
-          <label for="name">昵称</label>
+          <label for="name">用户名</label>
           <el-input type="text" id="name" v-model="newName"/>
         </el-form-item>
 
         <el-form-item>
           <label for="phone">手机号</label>
-          <el-input id="phone" v-model="tel" disabled/>
+          <el-input id="phone" v-model="phone" disabled/>
         </el-form-item>
 
-        <el-form-item v-if="role === 'CUSTOMER' || role === 'STAFF'">
-          <label for="address">收货地址</label>
-          <el-input id="address" type="textarea"
-                    rows="4"
-                    v-model="address" placeholder="中华门"></el-input>
-        </el-form-item>
       </el-form>
     </el-card>
 

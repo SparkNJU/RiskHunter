@@ -7,16 +7,14 @@ type LoginInfo = {
 }
 
 type RegisterInfo = {
-    role: string,
-    name: string,
+    role: number,
+    username: string,
     phone: string,
     password: string,
-    address: string,
-    storeId?: number,
 }
 
 type UpdateInfo = {
-    name?: string,
+    username?: string,
     password?: string,
     address?: string,
 }

@@ -1,13 +1,9 @@
 //将身份转化为中文显示
-export function parseRole(role: string | null) {
-    if (role === 'MANAGER') {
-        return "管理员"
-    } else if (role === 'CUSTOMER') {
-        return "顾客"
-    } else if (role === 'STAFF') {
-        return "商家"
-    } else if (role === 'CEO') {
-        return "CEO"
+export function parseRole(role: number | null) {
+    if (role === 1) {
+        return "企业"
+    } else if (role === 2) {
+        return "金融机构"
     }
 }
 

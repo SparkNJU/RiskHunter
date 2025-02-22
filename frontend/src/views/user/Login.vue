@@ -1,30 +1,48 @@
 <script setup lang="ts">
-import {ElForm, ElFormItem} from "element-plus"
-import {ref, computed} from 'vue'
-import {router} from '../../router'
-import {userInfo, userLogin} from "../../api/user.ts"
+import { ElForm, ElFormItem } from "element-plus"
+import { ref, computed, onMounted } from 'vue'
+import { router } from '../../router'
+import { userInfo, userLogin } from "../../api/user.ts"
+import { captchaGenerator } from '../../utils/captcha'
 
-// 输入框值（需要在前端拦截不合法输入：是否为空+额外规则）
-const tel = ref('')
+const phone = ref('')
 const password = ref('')
+const captcha = ref('')
+const captchaImage = ref('')
+const captchaCode = ref('')
 
-// 电话号码是否为空
-const hasTelInput = computed(() => tel.value != '')
-// 密码是否为空
-const hasPasswordInput = computed(() => password.value != '')
-// 电话号码的规则
-const chinaMobileRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
-const telLegal = computed(() => chinaMobileRegex.test(tel.value))
-// 密码不设置特殊规则
-// 登录按钮可用性
+const hasPhoneInput = computed(() => phone.value !== '')
+const hasPasswordInput = computed(() => password.value !== '')
+const hasCaptchaInput = computed(() => captcha.value !== '')
+
+const phoneRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
+const isPhoneValid = computed(() => phoneRegex.test(phone.value))
+
 const loginDisabled = computed(() => {
-  return !(hasTelInput.value && telLegal.value && hasPasswordInput.value)
+  return !(hasPhoneInput.value && isPhoneValid.value &&
+    hasPasswordInput.value && hasCaptchaInput.value)
 })
 
-// 登录按钮触发
+const getCaptcha = async () => {
+  const { image, code } = captchaGenerator.generate()
+  captchaImage.value = image
+  captchaCode.value = code
+}
+
 function handleLogin() {
+  if (!captchaGenerator.validate(captcha.value)) {
+    ElMessage({
+      message: "验证码错误",
+      type: 'error',
+      center: true,
+    })
+    getCaptcha()
+    captcha.value = ''
+    return
+  }
+
   userLogin({
-    phone: tel.value,
+    phone: phone.value,
     password: password.value
   }).then(res => {
     if (res.data.code === '000') {
@@ -37,9 +55,9 @@ function handleLogin() {
       sessionStorage.setItem('token', token)
 
       userInfo().then(res => {
-        sessionStorage.setItem('name', res.data.result.name)
+        sessionStorage.setItem('username', res.data.result.username)
         sessionStorage.setItem('role', res.data.result.role)
-        router.push({path: "/dashboard"})
+        router.push({ path: "/dashboard" })
       })
     } else if (res.data.code === '400') {
       ElMessage({
@@ -47,10 +65,17 @@ function handleLogin() {
         type: 'error',
         center: true,
       })
+      getCaptcha()
+      captcha.value = ''
       password.value = ''
     }
   })
 }
+
+// 组件挂载时获取验证码
+onMounted(() => {
+  getCaptcha()
+})
 </script>
 
 
@@ -61,27 +86,31 @@ function handleLogin() {
         <h1>登入您的账户</h1>
         <el-form>
           <el-form-item>
-            <label v-if="!hasTelInput" for="tel">注册手机号</label>
-            <label v-else-if="!telLegal" for="tel" class="error-warn">手机号不合法</label>
-            <label v-else for="tel">注册手机号</label>
-            <el-input id="tel" type="text" v-model="tel"
-                      required :class="{'error-warn-input' :(hasTelInput && !telLegal)}"
-                      placeholder="请输入手机号"/>
+            <label v-if="!hasPhoneInput || isPhoneValid">手机号</label>
+            <label v-else class="error-warn">手机号格式不正确</label>
+            <el-input v-model="phone" :class="{ 'error-warn-input': hasPhoneInput && !isPhoneValid }"
+              placeholder="请输入手机号" />
           </el-form-item>
 
           <el-form-item>
-            <label for="password">账户密码</label>
-            <el-input id="password" type="password" v-model="password"
-                      required
-                      placeholder="••••••••"/>
+            <label for="password">密码</label>
+            <el-input id="password" type="password" v-model="password" required placeholder="••••••••" />
+          </el-form-item>
+
+          <el-form-item>
+            <div class="captcha-container">
+              <el-input id="captcha" v-model="captcha" placeholder="请输入验证码" />
+              <div class="captcha-image" @click="getCaptcha">
+                <img :src="captchaImage" alt="验证码" title="点击刷新" />
+              </div>
+            </div>
           </el-form-item>
 
           <span class="button-group">
-              <el-button @click.prevent="handleLogin" :disabled="loginDisabled"
-                         type="primary">登入</el-button>
-              <router-link to="/register" v-slot="{navigate}">
-                <el-button @click="navigate">去注册</el-button>
-              </router-link>
+            <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登入</el-button>
+            <router-link to="/register" v-slot="{ navigate }">
+              <el-button @click="navigate">前往注册</el-button>
+            </router-link>
           </span>
         </el-form>
       </div>
@@ -117,6 +146,23 @@ function handleLogin() {
   --el-input-focus-border-color: red;
 }
 
+.captcha-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.captcha-container .el-input {
+  flex: 1;
+}
+
+.captcha-image {
+  width: 120px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
 .button-group {
   padding-top: 10px;
   display: flex;
@@ -126,3 +172,4 @@ function handleLogin() {
   justify-content: right;
 }
 </style>
+
