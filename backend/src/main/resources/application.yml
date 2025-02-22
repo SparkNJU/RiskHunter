@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/BlueWhale?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: NJUSE2023
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8080

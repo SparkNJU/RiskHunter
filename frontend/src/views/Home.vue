@@ -1,12 +1,13 @@
 <script setup lang="ts">
-
+import Header from "../components/Header.vue"
 </script>
 
+
 <template>
-  <el-container direction="vertical">
-    <router-view />
-  </el-container>
+  <Header/>
+  <router-view />
 </template>
+
 
 <style scoped>
 </style>
