@@ -10,7 +10,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import './style.css'
 
-//设置后端地址（本地或服务器），会将请求转发到后端端口
+// 设置后端地址（本地或服务器），会将请求转发到后端端口
 axios.defaults.baseURL = ("http://localhost:8080")
 axios.defaults.timeout = 30000;
 
