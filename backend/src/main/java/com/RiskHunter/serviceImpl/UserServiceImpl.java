@@ -1,6 +1,6 @@
 package com.RiskHunter.serviceImpl;
 
-import com.RiskHunter.exception.BlueWhaleException;
+import com.RiskHunter.exception.RiskHunterException;
 import com.RiskHunter.repository.UserRepository;
 import com.RiskHunter.util.SecurityUtil;
 import com.RiskHunter.util.TokenUtil;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     public Boolean register(UserVO userVO) {
         User user = userRepository.findByPhone(userVO.getPhone());
         if (user != null) {
-            throw BlueWhaleException.phoneAlreadyExists();
+            throw RiskHunterException.phoneAlreadyExists();
         }
         User newUser = userVO.toPO();
         newUser.setCreateTime(new Date());
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public String login(String phone, String password) {
         User user = userRepository.findByPhoneAndPassword(phone, password);
         if (user == null) {
-            throw BlueWhaleException.phoneOrPasswordError();
+            throw RiskHunterException.phoneOrPasswordError();
         }
         return tokenUtil.getToken(user);
     }

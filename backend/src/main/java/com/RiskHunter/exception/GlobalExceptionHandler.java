@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(value = BlueWhaleException.class)
-    public ResultVO<String> handleAIExternalException(BlueWhaleException e) {
+    @ExceptionHandler(value = RiskHunterException.class)
+    public ResultVO<String> handleAIExternalException(RiskHunterException e) {
         e.printStackTrace();
         return ResultVO.buildFailure(e.getMessage());
     }

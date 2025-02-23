@@ -20,11 +20,13 @@ const hasVerificationCode = computed(() => verificationCode.value !== '')
 const phoneRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
 const isPhoneValid = computed(() => phoneRegex.test(phone.value))
 const isPasswordMatching = computed(() => password.value === confirmPassword.value)
+const isPasswordValid = computed(() => password.value.length >= 6)
 
 const registerDisabled = computed(() => {
   return !(hasPhoneInput.value && hasPasswordInput.value &&
     hasConfirmPasswordInput.value && hasUsernameInput.value &&
-    hasRoleSelected.value && isPhoneValid.value && isPasswordMatching.value && hasVerificationCode.value)
+    hasRoleSelected.value && isPhoneValid.value && isPasswordMatching.value &&
+    hasVerificationCode.value && isPasswordValid.value)
 })
 
 function handleRegister() {
@@ -57,7 +59,6 @@ const sendVerificationCode = () => {
 }
 </script>
 
-
 <template>
   <el-main class="main-frame bgimage">
     <el-card class="login-card">
@@ -69,7 +70,6 @@ const sendVerificationCode = () => {
             <label>用户名</label>
             <el-input v-model="username" placeholder="请输入用户名" />
           </el-form-item>
-
 
           <el-form-item>
             <label>身份</label>
@@ -100,15 +100,19 @@ const sendVerificationCode = () => {
           </el-form-item>
 
           <el-form-item>
-            <label>密码</label>
-            <el-input type="password" v-model="password" placeholder="请输入密码" />
+            <label v-if="!hasPasswordInput || isPasswordValid">密码</label>
+            <label v-else class="error-warn">密码长度至少为6位</label>
+            <el-input type="password" v-model="password" 
+            :class="{ 'error-warn-input': hasPasswordInput && !isPasswordValid }" placeholder="请输入密码" 
+            show-password/>
           </el-form-item>
 
           <el-form-item>
             <label v-if="!hasConfirmPasswordInput || isPasswordMatching">确认密码</label>
             <label v-else class="error-warn">密码不匹配</label>
             <el-input type="password" v-model="confirmPassword"
-              :class="{ 'error-warn-input': hasConfirmPasswordInput && !isPasswordMatching }" placeholder="请再次输入密码" />
+              :class="{ 'error-warn-input': hasConfirmPasswordInput && !isPasswordMatching }" placeholder="请再次输入密码" 
+              show-password/>
           </el-form-item>
 
           <span class="button-group">
@@ -130,7 +134,6 @@ const sendVerificationCode = () => {
   </el-main>
 
 </template>
-
 
 <style scoped>
 .main-frame {

@@ -94,7 +94,8 @@ onMounted(() => {
 
           <el-form-item>
             <label for="password">密码</label>
-            <el-input id="password" type="password" v-model="password" required placeholder="••••••••" />
+            <el-input id="password" type="password" v-model="password" required placeholder="请输入您的密码" 
+            show-password/>
           </el-form-item>
 
           <el-form-item>

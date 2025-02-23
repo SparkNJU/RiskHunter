@@ -1,6 +1,6 @@
 package com.RiskHunter.configure;
 
-import com.RiskHunter.exception.BlueWhaleException;
+import com.RiskHunter.exception.RiskHunterException;
 import com.RiskHunter.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             request.getSession().setAttribute("currentUser",tokenUtil.getUser(token));
             return true;
         }else {
-            throw BlueWhaleException.notLogin();
+            throw RiskHunterException.notLogin();
         }
     }
 

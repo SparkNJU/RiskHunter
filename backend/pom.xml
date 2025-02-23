@@ -14,7 +14,7 @@
 	<name>RiskHunter</name>
 	<description>2025花旗杯</description>
 	<properties>
-		<java.version>22</java.version>
+		<java.version>8</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
