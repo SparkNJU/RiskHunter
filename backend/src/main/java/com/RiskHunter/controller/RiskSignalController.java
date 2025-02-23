@@ -8,6 +8,7 @@ import com.RiskHunter.service.RiskSignalService;
 import com.RiskHunter.vo.ResultVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,8 +45,12 @@ public class RiskSignalController {
      */
     @GetMapping
     public ResultVO<Page<RiskSignal>> list(
-            @RequestParam(required = false) LocalDateTime startTime,
-            @RequestParam(required = false) LocalDateTime endTime,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
+            LocalDateTime startTime,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
+            LocalDateTime endTime,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         // 设置默认开始时间为1900年1月1日
