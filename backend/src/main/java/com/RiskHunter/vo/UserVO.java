@@ -21,13 +21,10 @@ public class UserVO {
 
     private String password;
 
-    private Integer storeId;
-
     private String address;
 
-    private RoleEnum role;
+    private Integer role;
 
-    private Date createTime;
 
     public User toPO(){
         User user=new User();
@@ -36,9 +33,7 @@ public class UserVO {
         user.setName(this.name);
         user.setPhone(this.phone);
         user.setRole(this.role);
-        user.setStoreId(this.storeId);
         user.setPassword(this.password);
-        user.setCreateTime(this.createTime);
         return user;
     }
 }

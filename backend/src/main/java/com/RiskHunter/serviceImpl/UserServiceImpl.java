@@ -32,7 +32,6 @@ public class UserServiceImpl implements UserService {
             throw RiskHunterException.phoneAlreadyExists();
         }
         User newUser = userVO.toPO();
-        newUser.setCreateTime(new Date());
         userRepository.save(newUser);
         return true;
     }
