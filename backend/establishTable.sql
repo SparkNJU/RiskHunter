@@ -1,3 +1,10 @@
+
+-- 创建 riskhunter 数据库
+CREATE DATABASE IF NOT EXISTS riskhunter;
+
+-- 使用 riskhunter 数据库
+USE riskhunter;
+
 CREATE TABLE risk_signal(
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     time DATETIME NOT NULL,
@@ -33,11 +40,6 @@ INSERT INTO risk_signal (time, emp, exchange_rate, interest_rate, fx_reserves, a
 ('2023-10-15 00:00:00', 100.5, 1.12, 2.5, 495.0, 'Economy returning to normal, exchange rate stabilizing.', 'Maintain prudent fiscal and monetary policies.');
 
 
--- 创建 riskhunter 数据库
-CREATE DATABASE IF NOT EXISTS riskhunter;
-
--- 使用 riskhunter 数据库
-USE riskhunter;
 
 -- 创建 user 表
 CREATE TABLE IF NOT EXISTS `user` (

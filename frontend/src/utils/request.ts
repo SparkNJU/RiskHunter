@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { SERVER_ADDR } from '../config'
+//import { SERVER_ADDR } from '../config'
 
 //创建一个axios的实例service
 const service = axios.create(
