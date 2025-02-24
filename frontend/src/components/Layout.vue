@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { defineComponent, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import {
   InfoFilled,
   Warning,
@@ -26,10 +26,10 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter()
+    const route = useRoute()
 
     const isLoggedIn = computed(() => {
       return !!sessionStorage.getItem('token')
-      // return true
     })
 
     const handleLogout = () => {
@@ -52,6 +52,12 @@ export default defineComponent({
       })
     }
 
+    // 监听路由变化
+    watch(route, () => {
+      // 刷新组件
+      router.go(0)
+    })
+
     return {
       isLoggedIn,
       handleLogout
@@ -62,88 +68,89 @@ export default defineComponent({
 
 <template>
   <div class="layout">
+    <el-affix :offset="0">
+      <el-menu class="el-menu" mode="horizontal" :ellipsis="false" router>
+        <!-- LOGO -->
+        <!-- <div class="brand">
+          <img src="../assets/logo.png" alt="Logo" class="brand-logo" />
+          <span class="brand-text">RiskHunter</span>
+        </div> -->
 
-    <el-menu class="el-menu" mode="horizontal" :ellipsis="false" router>
-      <!-- LOGO -->
-      <!-- <div class="brand">
-        <img src="../assets/logo.png" alt="Logo" class="brand-logo" />
-        <span class="brand-text">RiskHunter</span>
-      </div> -->
-
-      <!-- 主导航 -->
-      <div class="nav-group">
-        <el-menu-item index="/about">
-          <el-icon>
-            <InfoFilled />
-          </el-icon>
-          <span>关于我们</span>
-        </el-menu-item>
-        <el-menu-item index="/risk-signal">
-          <el-icon>
-            <Warning />
-          </el-icon>
-          <span>风险信号</span>
-        </el-menu-item>
-        <el-menu-item index="/about">
-          <el-icon>
-            <DataLine />
-          </el-icon>
-          <span>外汇数据</span>
-        </el-menu-item>
-        <el-menu-item index="/about">
-          <el-icon>
-            <Memo />
-          </el-icon>
-          <span>新闻展示</span>
-        </el-menu-item>
-      </div>
-
-      <div class="flex-grow" />
-
-      <!-- 用户区 -->
-      <div class="user-group">
-        <template v-if="!isLoggedIn">
-
-          <el-menu-item index="/login">
-            <el-button type="primary" text>
-              <el-icon>
-                <User />
-              </el-icon>
-              登录
-            </el-button>
-          </el-menu-item>
-
-          <el-menu-item index="/register">
-            <el-button type="primary" class="register-btn">
-              <el-icon>
-                <Plus />
-              </el-icon>
-              注册
-            </el-button>
-          </el-menu-item>
-        </template>
-
-        <template v-else>
-
-          <el-menu-item index="/dashboard">
+        <!-- 主导航 -->
+        <div class="nav-group">
+          <el-menu-item index="/about">
             <el-icon>
-              <UserFilled />
+              <InfoFilled />
             </el-icon>
-            <span>个人信息</span>
-
+            <span>关于我们</span>
           </el-menu-item>
-          <el-menu-item @click="handleLogout">
-            <el-button type="danger" text>
+          <el-menu-item index="/risk-signal">
+            <el-icon>
+              <Warning />
+            </el-icon>
+            <span>风险信号</span>
+          </el-menu-item>
+          <el-menu-item index="/about">
+            <el-icon>
+              <DataLine />
+            </el-icon>
+            <span>外汇数据</span>
+          </el-menu-item>
+          <el-menu-item index="/about">
+            <el-icon>
+              <Memo />
+            </el-icon>
+            <span>新闻展示</span>
+          </el-menu-item>
+        </div>
+
+        <div class="flex-grow" />
+
+        <!-- 用户区 -->
+        <div class="user-group">
+          <template v-if="!isLoggedIn">
+
+            <el-menu-item index="/login">
+              <el-button type="primary" text>
+                <el-icon>
+                  <User />
+                </el-icon>
+                登录
+              </el-button>
+            </el-menu-item>
+
+            <el-menu-item index="/register">
+              <el-button type="primary" class="register-btn">
+                <el-icon>
+                  <Plus />
+                </el-icon>
+                注册
+              </el-button>
+            </el-menu-item>
+          </template>
+
+          <template v-else>
+
+            <el-menu-item index="/dashboard">
               <el-icon>
-                <SwitchButton />
+                <UserFilled />
               </el-icon>
-              退出
-            </el-button>
-          </el-menu-item>
+              <span>个人信息</span>
 
-        </template>
-      </div>
-    </el-menu>
+            </el-menu-item>
+            <el-menu-item @click="handleLogout">
+              <el-button type="danger" text>
+                <el-icon>
+                  <SwitchButton />
+                </el-icon>
+                退出
+              </el-button>
+            </el-menu-item>
+
+          </template>
+        </div>
+      </el-menu>
+    </el-affix>
 
     <!-- 主视图 -->
     <router-view />
@@ -160,10 +167,7 @@ export default defineComponent({
 .el-menu {
   padding: 0 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background-color: #fff;
+  background-color: #ffffff00; /* 修改为偏灰黑色 */
   display: flex;
   align-items: center;
   height: 60px;
@@ -217,13 +221,13 @@ export default defineComponent({
 }
 
 :deep(.el-menu-item:hover) {
-  background-color: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
+  color: #3a3a3a; /* 修改为稍浅的灰黑色 */
+  --el-menu-text-color: #00ff00; /* 修改为绿色 */
 }
 
 :deep(.el-menu-item.is-active) {
-  color: var(--el-color-primary);
-  border-bottom: 2px solid var(--el-color-primary);
+  color: #ffd700; /* 修改为金色 */
+  border-bottom: 2px solid #ffd700; /* 修改为金色 */
 }
 
 :deep(.el-button) {

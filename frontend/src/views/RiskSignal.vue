@@ -9,7 +9,6 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const signals = ref<RiskSignal[]>([])
-const expandedSignal = ref<number | null>(null)
 const CurrencyList = [
   { number: 1, code: 'CNY', name: '人民币' },
   { number: 2, code: 'USD', name: '美元' },
@@ -17,7 +16,6 @@ const CurrencyList = [
   { number: 4, code: 'JPY', name: '日元' },
   { number: 5, code: 'GBP', name: '英镑' }
 ];
-
 
 // 查询条件
 const queryForm = ref<RiskSignalQueryDTO>({
@@ -92,11 +90,6 @@ function handleReset() {
   }
   currentPage.value = 1
   loadData()
-}
-
-// 展开/收起详情
-function toggleExpand(id: number) {
-  expandedSignal.value = expandedSignal.value === id ? null : id
 }
 
 // 初始加载
@@ -225,17 +218,6 @@ loadData()
         <el-table-column prop="fxReserves" label="外汇储备" width="120">
           <template #default="{ row }">
             {{ row.fxReserves.toFixed(2) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <el-button
-              type="primary"
-              link
-              @click="toggleExpand(row.id)"
-            >
-              {{ expandedSignal === row.id ? '收起' : '展开' }}
-            </el-button>
           </template>
         </el-table-column>
 

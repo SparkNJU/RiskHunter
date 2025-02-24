@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ElForm, ElFormItem } from "element-plus"
 import { ref, computed, onMounted } from 'vue'
-import { router } from '../../router'
+import { useRouter } from 'vue-router'
 import { userInfo, userLogin } from "../../api/user.ts"
 import { captchaGenerator } from '../../utils/captcha'
 
+const router = useRouter()
 const phone = ref('')
 const password = ref('')
 const captcha = ref('')
@@ -72,12 +73,15 @@ function handleLogin() {
   })
 }
 
+function navigateToRegister() {
+  router.push({ path: '/register' })
+}
+
 // 组件挂载时获取验证码
 onMounted(() => {
   getCaptcha()
 })
 </script>
-
 
 <template>
   <el-main class="main-frame bgimage">
@@ -108,17 +112,14 @@ onMounted(() => {
           </el-form-item>
 
           <span class="button-group">
-            <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登入</el-button>
-            <router-link to="/register" v-slot="{ navigate }">
-              <el-button @click="navigate">前往注册</el-button>
-            </router-link>
+            <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登录</el-button>
+            <el-button @click="navigateToRegister" type="default">前往注册</el-button>
           </span>
         </el-form>
       </div>
     </el-card>
   </el-main>
 </template>
-
 
 <style scoped>
 .main-frame {
@@ -173,4 +174,3 @@ onMounted(() => {
   justify-content: right;
 }
 </style>
-

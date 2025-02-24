@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { router } from '../../router'
+import { useRouter } from 'vue-router'
 import { userRegister } from "../../api/user.ts"
 
+const router = useRouter()
 const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -56,6 +57,10 @@ function handleRegister() {
 
 const sendVerificationCode = () => {
   // TODO
+}
+
+function navigateToLogin() {
+  router.push({ path: '/login' })
 }
 </script>
 
@@ -120,11 +125,9 @@ const sendVerificationCode = () => {
               注册
             </el-button>
 
-            <router-link to="/login" v-slot="{ navigate }">
-              <el-button @click="navigate">
-                返回登录
-              </el-button>
-            </router-link>
+            <el-button @click="navigateToLogin" type="default">
+              返回登录
+            </el-button>
           </span>
 
         </el-form>
@@ -132,7 +135,6 @@ const sendVerificationCode = () => {
 
     </el-card>
   </el-main>
-
 </template>
 
 <style scoped>
