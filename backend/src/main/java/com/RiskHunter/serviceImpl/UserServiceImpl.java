@@ -10,8 +10,6 @@ import com.RiskHunter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -58,7 +56,7 @@ public class UserServiceImpl implements UserService {
             user.setPassword(userVO.getPassword());
         }
         if (userVO.getName()!=null){
-            user.setName(userVO.getName());
+            user.setUsername(userVO.getName());
         }
         if (userVO.getAddress()!=null){
             user.setAddress(userVO.getAddress());

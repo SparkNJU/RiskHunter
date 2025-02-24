@@ -1,12 +1,9 @@
 package com.RiskHunter.vo;
 
-import com.RiskHunter.enums.RoleEnum;
 import com.RiskHunter.po.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -30,7 +27,7 @@ public class UserVO {
         User user=new User();
         user.setId(this.id);
         user.setAddress(this.address);
-        user.setName(this.name);
+        user.setUsername(this.name);
         user.setPhone(this.phone);
         user.setRole(this.role);
         user.setPassword(this.password);

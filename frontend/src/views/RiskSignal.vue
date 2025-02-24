@@ -10,6 +10,14 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const signals = ref<RiskSignal[]>([])
 const expandedSignal = ref<number | null>(null)
+const CurrencyList = [
+  { number: 1, code: 'CNY', name: '人民币' },
+  { number: 2, code: 'USD', name: '美元' },
+  { number: 3, code: 'EUR', name: '欧元' },
+  { number: 4, code: 'JPY', name: '日元' },
+  { number: 5, code: 'GBP', name: '英镑' }
+];
+
 
 // 查询条件
 const queryForm = ref<RiskSignalQueryDTO>({

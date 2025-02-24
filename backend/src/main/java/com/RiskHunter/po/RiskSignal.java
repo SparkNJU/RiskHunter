@@ -20,8 +20,9 @@ public class RiskSignal {
     private Long id;
 
     @Column(nullable = false, updatable = false)  // 使用 @Column 注解
+    private int BaseCurrency;
+    private int TargetCurrency;
     private LocalDateTime time;
-
     private Double emp;
     private Double exchangeRate;
     private Double interestRate;

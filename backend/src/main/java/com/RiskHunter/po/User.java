@@ -1,13 +1,11 @@
 package com.RiskHunter.po;
 
-import com.RiskHunter.enums.RoleEnum;
 import com.RiskHunter.vo.UserVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -21,8 +19,8 @@ public class User {
     private Integer id;
 
     @Basic
-    @Column(name = "name")
-    private String name;
+    @Column(name = "username")
+    private String username;
 
     @Basic
     @Column(name = "phone")
@@ -45,7 +43,7 @@ public class User {
         UserVO userVO=new UserVO();
         userVO.setId(this.id);
         userVO.setAddress(this.address);
-        userVO.setName(this.name);
+        userVO.setName(this.username);
         userVO.setRole(this.role);
         userVO.setPhone(this.phone);
         userVO.setPassword(this.password);
