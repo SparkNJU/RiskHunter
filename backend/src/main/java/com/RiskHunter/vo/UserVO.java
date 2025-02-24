@@ -12,7 +12,7 @@ public class UserVO {
 
     private Integer id;
 
-    private String name;
+    private String username;
 
     private String phone;
 
@@ -27,7 +27,7 @@ public class UserVO {
         User user=new User();
         user.setId(this.id);
         user.setAddress(this.address);
-        user.setUsername(this.name);
+        user.setUsername(this.username);
         user.setPhone(this.phone);
         user.setRole(this.role);
         user.setPassword(this.password);

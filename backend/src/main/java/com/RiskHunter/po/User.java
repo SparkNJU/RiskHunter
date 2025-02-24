@@ -43,7 +43,7 @@ public class User {
         UserVO userVO=new UserVO();
         userVO.setId(this.id);
         userVO.setAddress(this.address);
-        userVO.setName(this.username);
+        userVO.setUsername(this.username);
         userVO.setRole(this.role);
         userVO.setPhone(this.phone);
         userVO.setPassword(this.password);
