@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory} from "vue-router"
+import { createRouter, createWebHashHistory } from "vue-router"
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -33,6 +33,12 @@ const router = createRouter({
                 name: 'Dashboard',
                 component: () => import('../views/user/Dashboard.vue'),
                 meta: { title: '个人信息', requiresAuth: true }
+            },
+            {
+                path: '/risk-signal',
+                name: 'RiskSignals',
+                component: () => import('../views/RiskSignal.vue'),
+                meta: { title: '风险信号', requiresAuth: true }
             }
         ]
     }, {
@@ -76,4 +82,4 @@ const router = createRouter({
 //    next()
 //})
 
-export {router}
+export { router }
