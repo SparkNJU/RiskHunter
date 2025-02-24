@@ -4,6 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 import { router } from '../../router'
 import { userInfo, userLogin } from "../../api/user.ts"
 import { captchaGenerator } from '../../utils/captcha'
+import { User, Lock, PictureRounded } from '@element-plus/icons-vue'
 
 const phone = ref('')
 const password = ref('')
@@ -23,12 +24,14 @@ const loginDisabled = computed(() => {
     hasPasswordInput.value && hasCaptchaInput.value)
 })
 
+// 从前端获取验证码
 const getCaptcha = async () => {
   const { image, code } = captchaGenerator.generate()
   captchaImage.value = image
   captchaCode.value = code
 }
 
+// 登录处理
 function handleLogin() {
   if (!captchaGenerator.validate(captcha.value)) {
     ElMessage({
@@ -78,82 +81,151 @@ onMounted(() => {
 })
 </script>
 
-
 <template>
-  <el-main class="main-frame bgimage">
-    <el-card class="login-card">
-      <div>
-        <h1>登入您的账户</h1>
-        <el-form>
+  <el-main class="main-frame">
+    <div class="login-container">
+      <el-card class="login-card" shadow="hover">
+        <div class="login-header">
+          <h1 class="login-title">登录</h1>
+        </div>
+
+        <el-form class="login-form">
           <el-form-item>
-            <label v-if="!hasPhoneInput || isPhoneValid">手机号</label>
-            <label v-else class="error-warn">手机号格式不正确</label>
-            <el-input v-model="phone" :class="{ 'error-warn-input': hasPhoneInput && !isPhoneValid }"
-              placeholder="请输入手机号" />
+            <label class="custom-label" :class="{ 'error': hasPhoneInput && !isPhoneValid }">
+              <el-icon><User /></el-icon>
+              <span>{{ !hasPhoneInput || isPhoneValid ? '手机号' : '手机号格式不正确' }}</span>
+            </label>
+            <el-input 
+              v-model="phone" 
+              :class="{ 'error-input': hasPhoneInput && !isPhoneValid }"
+              placeholder="请输入手机号"
+            />
           </el-form-item>
 
           <el-form-item>
-            <label for="password">密码</label>
-            <el-input id="password" type="password" v-model="password" required placeholder="请输入您的密码" 
-            show-password/>
+            <label class="custom-label">
+              <el-icon><Lock /></el-icon>
+              <span>密码</span>
+            </label>
+            <el-input 
+              type="password" 
+              v-model="password" 
+              show-password
+              placeholder="请输入密码"
+            />
           </el-form-item>
 
           <el-form-item>
-            <div class="captcha-container">
-              <el-input id="captcha" v-model="captcha" placeholder="请输入验证码" />
+            <label class="custom-label">
+              <el-icon><PictureRounded /></el-icon>
+              <span>验证码</span>
+            </label>
+            <div class="captcha-group">
+              <el-input 
+                v-model="captcha" 
+                placeholder="请输入验证码"
+              />
               <div class="captcha-image" @click="getCaptcha">
                 <img :src="captchaImage" alt="验证码" title="点击刷新" />
               </div>
             </div>
           </el-form-item>
 
-          <span class="button-group">
-            <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登入</el-button>
-            <router-link to="/register" v-slot="{ navigate }">
-              <el-button @click="navigate">前往注册</el-button>
+          <div class="button-group">
+            <el-button 
+              type="primary" 
+              @click.prevent="handleLogin" 
+              :disabled="loginDisabled"
+              class="login-btn"
+            >
+              登录
+            </el-button>
+
+            <router-link to="/register" custom v-slot="{ navigate }">
+              <el-button @click="navigate" class="register-btn">
+                注册
+              </el-button>
             </router-link>
-          </span>
+          </div>
         </el-form>
-      </div>
-    </el-card>
+      </el-card>
+    </div>
   </el-main>
 </template>
 
-
 <style scoped>
+/* 主布局样式 */
 .main-frame {
-  width: 100%;
-  height: 100%;
-
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--el-color-primary-light-9) 0%, var(--el-color-primary-light-5) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
 }
 
-.bgimage {
-  background-image: url("../../assets/shopping-1s-1084px.svg");
+.login-container {
+  width: 100%;
+  max-width: 440px;
 }
 
+/* 卡片样式 */
 .login-card {
-  width: 60%;
-  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.error-warn {
-  color: red;
+/* 悬停效果 */
+.login-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
-.error-warn-input {
-  --el-input-focus-border-color: red;
+/* 标题样式 */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-.captcha-container {
+.login-title {
+  font-size: 24px;
+  color: var(--el-color-primary);
+  margin-bottom: 8px;
+}
+
+/* 表单样式 */
+.login-form {
+  padding: 0 20px;
+}
+
+.custom-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--el-text-color-primary);
+  font-size: 14px;
+}
+
+.custom-label.error {
+  color: var(--el-color-danger);
+}
+
+.error-input {
+  --el-input-border-color: var(--el-color-danger);
+  --el-input-focus-border-color: var(--el-color-danger);
+}
+
+/* 验证码样式 */
+.captcha-group {
   display: flex;
   gap: 10px;
+  width: 100%;
   align-items: center;
 }
 
-.captcha-container .el-input {
+.captcha-group .el-input {
   flex: 1;
 }
 
@@ -162,15 +234,74 @@ onMounted(() => {
   height: 40px;
   cursor: pointer;
   border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
+.captcha-image:hover {
+  opacity: 0.8;
+}
+
+.captcha-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 统一输入框 */
+:deep(.el-input__wrapper) {
+  height: 40px;
+  line-height: 40px;
+  border-radius: 6px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* 按钮组样式 */
 .button-group {
-  padding-top: 10px;
   display: flex;
-  flex-direction: row;
-  gap: 30px;
-  align-items: center;
-  justify-content: right;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 16px;
+}
+
+.login-btn, .register-btn {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 16px;
+  border-radius: 6px;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .login-container {
+    max-width: 100%;
+  }
+
+  .login-form {
+    padding: 0 10px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .login-btn, .register-btn {
+    width: 100%;
+  }
+}
+
+/* 暗色主题适配 */
+:deep(.dark) {
+  .main-frame {
+    background: linear-gradient(135deg, 
+      var(--el-color-primary-dark-9) 0%, 
+      var(--el-color-primary-dark-5) 100%
+    );
+  }
 }
 </style>
 

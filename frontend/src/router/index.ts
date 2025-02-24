@@ -39,6 +39,18 @@ const router = createRouter({
                 name: 'RiskSignals',
                 component: () => import('../views/RiskSignal.vue'),
                 meta: { title: '风险信号', requiresAuth: true }
+            },
+            {
+                path: '/fx-data',
+                name: 'FXData',
+                component: () => import('../views/FXData.vue'),
+                meta: { title: '外汇数据', requiresAuth: true }
+            },
+            {
+                path: '/news',
+                name: 'News',
+                component: () => import('../views/News.vue'),
+                meta: { title: '新闻资讯', requiresAuth: true }
             }
         ]
     }, {
@@ -52,7 +64,7 @@ const router = createRouter({
     }]
 })
 
-//router.beforeEach((to, _, next) => {
+router.beforeEach((to, _, next) => {
     // const token: string | null = sessionStorage.getItem('token');
     // const role: string | null = sessionStorage.getItem('role')
 
@@ -79,7 +91,7 @@ const router = createRouter({
     //         next('/login')
     //     }
     // }
-//    next()
-//})
+    next()
+})
 
 export { router }
