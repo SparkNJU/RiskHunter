@@ -2,7 +2,7 @@
 import { defineComponent, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
-  InfoFilled,
+  House,
   Warning,
   DataLine,
   Memo,
@@ -15,7 +15,7 @@ import {
 export default defineComponent({
   name: 'Layout',
   components: {
-    InfoFilled,
+    House,
     Warning,
     DataLine,
     Memo,
@@ -72,37 +72,37 @@ export default defineComponent({
       <el-menu class="el-menu" mode="horizontal" :ellipsis="false" router>
         <!-- LOGO -->
         <!-- <div class="brand">
-          <img src="../assets/logo.png" alt="Logo" class="brand-logo" />
+          <img src="../assets/vue.svg" alt="Logo" class="brand-logo" />
           <span class="brand-text">RiskHunter</span>
         </div> -->
 
-        <!-- 主导航 -->
-        <div class="nav-group">
-          <el-menu-item index="/about">
-            <el-icon>
-              <InfoFilled />
-            </el-icon>
-            <span>关于我们</span>
-          </el-menu-item>
-          <el-menu-item index="/risk-signal">
-            <el-icon>
-              <Warning />
-            </el-icon>
-            <span>风险信号</span>
-          </el-menu-item>
-          <el-menu-item index="/about">
-            <el-icon>
-              <DataLine />
-            </el-icon>
-            <span>外汇数据</span>
-          </el-menu-item>
-          <el-menu-item index="/about">
-            <el-icon>
-              <Memo />
-            </el-icon>
-            <span>新闻展示</span>
-          </el-menu-item>
-        </div>
+      <!-- 主导航 -->
+      <div class="nav-group">
+        <el-menu-item index="/about">
+          <el-icon>
+            <House />
+          </el-icon>
+          <span>关于我们</span>
+        </el-menu-item>
+        <el-menu-item index="/risk-signal">
+          <el-icon>
+            <Warning />
+          </el-icon>
+          <span>风险信号</span>
+        </el-menu-item>
+        <el-menu-item index="/fx-data">
+          <el-icon>
+            <DataLine />
+          </el-icon>
+          <span>外汇数据</span>
+        </el-menu-item>
+        <el-menu-item index="/news">
+          <el-icon>
+            <Memo />
+          </el-icon>
+          <span>新闻展示</span>
+        </el-menu-item>
+      </div>
 
         <div class="flex-grow" />
 
@@ -158,22 +158,29 @@ export default defineComponent({
 </template>
 
 <style scoped>
+/* 主布局样式 */
 .layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--el-bg-color-page);
 }
 
+/* 导航栏样式 */
 .el-menu {
-  padding: 0 20px;
+  padding: 0 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff00; /* 修改为偏灰黑色 */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--el-bg-color);
   display: flex;
   align-items: center;
   height: 60px;
+  transition: all 0.3s ease;
 }
 
-/* LOGO相关 */
+/* LOGO样式 */
 .brand {
   display: flex;
   align-items: center;
@@ -185,8 +192,12 @@ export default defineComponent({
 .brand-logo {
   height: 32px;
   margin-right: 10px;
+  transition: transform 0.3s ease;
 }
 
+.brand-logo:hover {
+  transform: scale(1.05);
+}
 
 .brand-text {
   font-size: 1.5rem;
@@ -194,7 +205,7 @@ export default defineComponent({
   color: var(--el-color-primary);
 }
 
-/* 导航栏 */
+/* 导航组样式 */
 .nav-group {
   display: flex;
   gap: 10px;
@@ -204,13 +215,14 @@ export default defineComponent({
   flex-grow: 1;
 }
 
+/* 用户区域样式 */
 .user-group {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* ELEMEMT PLUS */
+/* Element Plus 组件深度样式 */
 :deep(.el-menu-item) {
   display: flex;
   align-items: center;
@@ -234,23 +246,35 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 5px;
+  transition: all 0.3s ease;
 }
 
+/* 按钮样式 */
 .register-btn {
   border-radius: 20px;
   padding: 8px 24px;
 }
 
+/* 菜单样式 */
 :deep(.el-menu--horizontal) {
   border-bottom: none;
 }
 
 :deep(.el-icon) {
   margin-right: 4px;
+  transition: transform 0.3s ease;
+}
+
+:deep(.el-menu-item:hover .el-icon) {
+  transform: scale(1.1);
 }
 
 /* 响应式设计 */
 @media screen and (max-width: 768px) {
+  .el-menu {
+    padding: 0 12px;
+  }
+
   .brand-text {
     display: none;
   }
@@ -261,6 +285,26 @@ export default defineComponent({
 
   :deep(.el-menu-item) {
     padding: 0 12px;
+  }
+
+  .register-btn {
+    padding: 8px 16px;
+  }
+}
+
+/* 暗色主题适配 */
+:deep(.dark) {
+  .layout {
+    background-color: var(--el-bg-color-overlay);
+  }
+
+  .el-menu {
+    background-color: var(--el-bg-color-overlay);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.el-menu-item:hover) {
+    background-color: var(--el-color-primary-dark-9);
   }
 }
 </style>

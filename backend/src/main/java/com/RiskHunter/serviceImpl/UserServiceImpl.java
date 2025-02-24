@@ -55,8 +55,8 @@ public class UserServiceImpl implements UserService {
         if (userVO.getPassword()!=null){
             user.setPassword(userVO.getPassword());
         }
-        if (userVO.getName()!=null){
-            user.setUsername(userVO.getName());
+        if (userVO.getUsername()!=null){
+            user.setUsername(userVO.getUsername());
         }
         if (userVO.getAddress()!=null){
             user.setAddress(userVO.getAddress());
