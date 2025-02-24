@@ -52,12 +52,12 @@ export default defineComponent({
       })
     }
 
-    // 监听路由变化
-    watch(route, () => {
-      // 刷新组件
-      router.go(0)
-    })
-
+    watch(route, (newRoute, oldRoute) => {
+  if (newRoute.path === '/dashboard' || oldRoute.path === '/login') {
+    // 刷新组件
+    router.go(0)
+  }
+})
     return {
       isLoggedIn,
       handleLogout

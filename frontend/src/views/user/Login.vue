@@ -76,10 +76,6 @@ function handleLogin() {
   })
 }
 
-function navigateToRegister() {
-  router.push({ path: '/register' })
-}
-
 // 组件挂载时获取验证码
 onMounted(() => {
   getCaptcha()
@@ -136,10 +132,22 @@ onMounted(() => {
             </div>
           </el-form-item>
 
-          <span class="button-group">
-            <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登录</el-button>
-            <el-button @click="navigateToRegister" type="default">前往注册</el-button>
-          </span>
+          <div class="button-group">
+            <el-button 
+              type="primary" 
+              @click.prevent="handleLogin" 
+              :disabled="loginDisabled"
+              class="login-btn"
+            >
+              登录
+            </el-button>
+
+            <router-link to="/register" custom v-slot="{ navigate }">
+              <el-button @click="navigate" class="register-btn">
+                注册
+              </el-button>
+            </router-link>
+          </div>
         </el-form>
       </el-card>
     </div>
