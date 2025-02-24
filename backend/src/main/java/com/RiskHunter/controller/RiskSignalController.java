@@ -90,7 +90,6 @@ public class RiskSignalController {
         riskSignalService.removeById(id);
         return ResultVO.buildSuccess(null);
     }
-
     /**
      * 高级查询 RiskSignal 列表
      *
@@ -127,4 +126,5 @@ public class RiskSignalController {
     public ResultVO<Page<RiskSignal>> advancedSearch(@RequestBody RiskSignalQueryDTO queryDTO) {
         return ResultVO.buildSuccess(riskSignalService.advancedSearch(queryDTO));
     }
+
 }

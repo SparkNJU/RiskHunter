@@ -40,6 +40,8 @@ public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSig
                 .between(queryDTO.getStartTime() != null && queryDTO.getEndTime() != null,
                         RiskSignal::getTime, queryDTO.getStartTime(), queryDTO.getEndTime())
                 .like(StringUtils.isNotBlank(queryDTO.getKeyword()), RiskSignal::getAnalysis, queryDTO.getKeyword())
+                .eq(queryDTO.getBaseCurrency() != null, RiskSignal::getBaseCurrency, queryDTO.getBaseCurrency())
+                .eq(queryDTO.getTargetCurrency() != null, RiskSignal::getTargetCurrency, queryDTO.getTargetCurrency())
                 .orderByDesc(RiskSignal::getTime)
                 .page(new Page<>(queryDTO.getPage(), queryDTO.getSize()));
     }

@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 public class RiskSignalQueryDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private int baseCurrency;
-    private int targetCurrency;
+    private Integer baseCurrency;
+    private Integer targetCurrency;
     private Double minEmp;
     private Double maxEmp;
     private Double minExchangeRate;
