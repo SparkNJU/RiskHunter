@@ -18,11 +18,10 @@ const CurrencyList = [
   { number: 5, code: 'GBP', name: '英镑' }
 ];
 
-
 // 查询条件
 const queryForm = ref<RiskSignalQueryDTO>({
   baseCurrency: '',
-  quoteCurrency: '',
+  targetCurrency: '',
   startTime: '',
   endTime: '',
   page: 1,
@@ -54,7 +53,7 @@ function loadData() {
     .then(res => {
       if (res.data.code === '000') {
         signals.value = res.data.result.records
-        // total.value = res.data.result.total
+        total.value = res.data.result.total
       } else {
         ElMessage({
           customClass: 'customMessage',
@@ -85,7 +84,7 @@ function handleSearch() {
 function handleReset() {
   queryForm.value = {
     baseCurrency: '',
-    quoteCurrency: '',
+    targetCurrency: '',
     startTime: '',
     endTime: '',
     page: 1,
@@ -96,6 +95,19 @@ function handleReset() {
     transactionTerm: ''
   }
   currentPage.value = 1
+  loadData()
+}
+
+// 每页条数改变时触发
+function handleSizeChange(val: number) {
+  pageSize.value = val
+  currentPage.value = 1
+  loadData()
+}
+
+// 当前页改变时触发
+function handleCurrentChange(val: number) {
+  currentPage.value = val
   loadData()
 }
 
@@ -142,7 +154,7 @@ loadData()
           </el-col>
           <el-col :span="12">
             <el-form-item label="报价货币">
-              <el-select v-model="queryForm.quoteCurrency" placeholder="请选择报价货币" clearable>
+              <el-select v-model="queryForm.targetCurrency" placeholder="请选择报价货币" clearable>
                 <el-option v-for="currency in CurrencyList" :key="currency.code"
                   :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
               </el-select>
@@ -209,17 +221,17 @@ loadData()
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="signals" style="width: 100%">
+      <el-table v-loading="loading" :data="signals.slice((currentPage-1)*pageSize, currentPage*pageSize)" style="width: 100%">
         <el-table-column prop="baseCurrency" label="基准货币" width="100">
           <template #default="{ row }">
             {{ parseCurrencyName(row.baseCurrency) }}
           </template>
-        </el-table-column>/>
-        <el-table-column prop="baseCurrency" label="报价货币" width="100">
+        </el-table-column>
+        <el-table-column prop="targetCurrency" label="报价货币" width="100">
           <template #default="{ row }">
-            {{ parseCurrencyName(row.quoteCurrency) }}
+            {{ parseCurrencyName(row.targetCurrency) }}
           </template>
-        </el-table-column>/>
+        </el-table-column>
         <el-table-column label="时间" width="180">
           <template #default="{ row }">
             {{ parseTime(row.time) }}
@@ -272,9 +284,15 @@ loadData()
 
       <!-- 分页 -->
       <div class="pagination">
-        <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :total="total"
-          :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next" @size-change="loadData"
-          @current-change="loadData" />
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
     </el-card>
   </el-main>

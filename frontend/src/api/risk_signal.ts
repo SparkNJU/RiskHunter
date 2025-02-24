@@ -14,7 +14,7 @@ export type RiskSignalQueryDTO = {
     page?: number          // 页码，默认1
     size?: number          // 每页记录数，默认10
     baseCurrency?: string  // 基准货币
-    quoteCurrency?: string // 报价货币
+    targetCurrency?: string // 报价货币
 }
 
 /**
@@ -30,7 +30,7 @@ export type RiskSignal = {
     analysis: string      // 分析文本
     advice: string       // 建议文本
     baseCurrency: string // 基准货币
-    quoteCurrency: string // 报价货币
+    targetCurrency: string // 报价货币
     createTime?: string   // 创建时间
 }
 
