@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../api/risk_signal'
 import { parseTime } from '../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
@@ -18,6 +18,7 @@ const CurrencyList = [
   { number: 5, code: 'GBP', name: '英镑' }
 ];
 
+
 // 查询条件
 const queryForm = ref<RiskSignalQueryDTO>({
   baseCurrency: '',
@@ -34,6 +35,11 @@ const tradingForm = ref({
   transactionTerm: ''
 })
 
+function parseCurrencyName(index: number): string {
+  const currency = CurrencyList.find(c => c.number === index)
+  return currency ? `${currency.code}` : 'null'
+}
+
 // 加载数据
 function loadData() {
   loading.value = true
@@ -48,7 +54,7 @@ function loadData() {
     .then(res => {
       if (res.data.code === '000') {
         signals.value = res.data.result.records
-        total.value = res.data.result.total
+        // total.value = res.data.result.total
       } else {
         ElMessage({
           customClass: 'customMessage',
@@ -128,12 +134,18 @@ loadData()
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="基准货币">
-              <el-input v-model="queryForm.baseCurrency" placeholder="请输入基准货币" />
+              <el-select v-model="queryForm.baseCurrency" placeholder="请选择基准货币" clearable>
+                <el-option v-for="currency in CurrencyList" :key="currency.code"
+                  :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="报价货币">
-              <el-input v-model="queryForm.quoteCurrency" placeholder="请输入报价货币" />
+              <el-select v-model="queryForm.quoteCurrency" placeholder="请选择报价货币" clearable>
+                <el-option v-for="currency in CurrencyList" :key="currency.code"
+                  :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -168,12 +180,12 @@ loadData()
       <el-form :model="tradingForm" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="最大回撤比例">
+            <el-form-item label="最大回撤比例 (%)">
               <el-input v-model="tradingForm.maximumDrawdownRatio" type="number" placeholder="请输入最大回撤比例" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="交易期限">
+            <el-form-item label="交易期限 (天)">
               <el-input v-model="tradingForm.transactionTerm" type="number" placeholder="请输入交易期限" />
             </el-form-item>
           </el-col>
@@ -198,8 +210,16 @@ loadData()
       </template>
 
       <el-table v-loading="loading" :data="signals" style="width: 100%">
-        <el-table-column prop="baseCurrency" label="基准货币" width="100" />
-        <el-table-column prop="quoteCurrency" label="报价货币" width="100" />
+        <el-table-column prop="baseCurrency" label="基准货币" width="100">
+          <template #default="{ row }">
+            {{ parseCurrencyName(row.baseCurrency) }}
+          </template>
+        </el-table-column>/>
+        <el-table-column prop="baseCurrency" label="报价货币" width="100">
+          <template #default="{ row }">
+            {{ parseCurrencyName(row.quoteCurrency) }}
+          </template>
+        </el-table-column>/>
         <el-table-column label="时间" width="180">
           <template #default="{ row }">
             {{ parseTime(row.time) }}
@@ -424,10 +444,9 @@ loadData()
 /* 暗色主题适配 */
 :deep(.dark) {
   .main-container {
-    background: linear-gradient(135deg, 
-      var(--el-color-primary-dark-9) 0%, 
-      var(--el-color-primary-dark-5) 100%
-    );
+    background: linear-gradient(135deg,
+        var(--el-color-primary-dark-9) 0%,
+        var(--el-color-primary-dark-5) 100%);
   }
 
   .filter-card,
