@@ -6,10 +6,9 @@ import { router } from '../../router'
 import { User, UserFilled, Calendar, Phone, LocationInformation, Lock } from '@element-plus/icons-vue'
 
 const role = ref(1);
-const username = ref('test')
-const phone = ref('13800000000')
-const address = ref('中国江苏省南京市栖霞区南京大学软件学院')
-const regTime = ref('')
+const username = ref('')
+const phone = ref('')
+const address = ref('')
 
 const newName = ref('')
 
@@ -33,7 +32,6 @@ function getUserInfo() {
     role.value = res.data.result.role
     username.value = res.data.result.username
     phone.value = res.data.result.phone
-    regTime.value = parseTime(res.data.result.createTime)
     newName.value = username.value
   })
 }
@@ -42,7 +40,6 @@ function updateInfo() {
   userInfoUpdate({
     username: newName.value,
     password: undefined,
-    address: address.value,
   }).then(res => {
     if (res.data.code === '000') {
       ElMessage({
@@ -135,18 +132,6 @@ function updatePassword() {
             </div>
           </template>
           {{ phone }}
-        </el-descriptions-item>
-
-        <el-descriptions-item>
-          <template #label>
-            <div style="display: flex; align-items: center; gap: 8px">
-              <el-icon>
-                <Calendar />
-              </el-icon>
-              <span>注册时间</span>
-            </div>
-          </template>
-          {{ regTime }}
         </el-descriptions-item>
 
       </el-descriptions>

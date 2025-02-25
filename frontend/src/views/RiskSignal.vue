@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../api/risk_signal'
 import { parseTime } from '../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
