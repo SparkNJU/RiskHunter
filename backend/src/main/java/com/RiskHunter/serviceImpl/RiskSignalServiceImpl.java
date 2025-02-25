@@ -1,6 +1,4 @@
-package com.RiskHunter.serviceImpl;/*
- * @date 02/23 18:03
- */
+package com.RiskHunter.serviceImpl;
 
 import com.RiskHunter.DTO.RiskSignalQueryDTO;
 import com.RiskHunter.Mapper.RiskSignalMapper;
@@ -10,7 +8,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,20 +28,43 @@ public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSig
         }
         return page(new Page<>(page, size), wrapper);
     }
+
     @Override
     public Page<RiskSignal> advancedSearch(RiskSignalQueryDTO queryDTO) {
-        return lambdaQuery()
-                .ge(queryDTO.getMinEmp() != null, RiskSignal::getEmp, queryDTO.getMinEmp())
-                .le(queryDTO.getMaxEmp() != null, RiskSignal::getEmp, queryDTO.getMaxEmp())
-                .ge(queryDTO.getMinExchangeRate() != null, RiskSignal::getExchangeRate, queryDTO.getMinExchangeRate())
-                .between(queryDTO.getStartTime() != null && queryDTO.getEndTime() != null,
-                        RiskSignal::getTime, queryDTO.getStartTime(), queryDTO.getEndTime())
-                .like(StringUtils.isNotBlank(queryDTO.getKeyword()), RiskSignal::getAnalysis, queryDTO.getKeyword())
-                .eq(queryDTO.getBaseCurrency() != null, RiskSignal::getBaseCurrency, queryDTO.getBaseCurrency())
-                .eq(queryDTO.getTargetCurrency() != null, RiskSignal::getTargetCurrency, queryDTO.getTargetCurrency())
-                .orderByDesc(RiskSignal::getTime)
-                .page(new Page<>(queryDTO.getPage(), queryDTO.getSize()));
+        Page<RiskSignal> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
+        QueryWrapper<RiskSignal> wrapper = new QueryWrapper<>();
+        
+        if (queryDTO.getMinEmp() != null) {
+            wrapper.ge("emp", queryDTO.getMinEmp());
+        }
+        if (queryDTO.getMaxEmp() != null) {
+            wrapper.le("emp", queryDTO.getMaxEmp());
+        }
+        if (queryDTO.getMinExchangeRate() != null) {
+            wrapper.ge("exchange_rate", queryDTO.getMinExchangeRate());
+        }
+        if (queryDTO.getStartTime() != null && queryDTO.getEndTime() != null) {
+            wrapper.between("time", queryDTO.getStartTime(), queryDTO.getEndTime());
+        }
+        if (StringUtils.isNotBlank(queryDTO.getKeyword())) {
+            wrapper.like("analysis", queryDTO.getKeyword());
+        }
+        if (queryDTO.getBaseCurrency() != null) {
+            wrapper.eq("base_currency", queryDTO.getBaseCurrency());
+        }
+        if (queryDTO.getTargetCurrency() != null) {
+            wrapper.eq("target_currency", queryDTO.getTargetCurrency());
+        }
+        
+        wrapper.orderByDesc("time");
+
+        // 获取总记录数
+        long total = count(wrapper);
+        page.setTotal(total);
+
+        // 获取分页数据
+        page.setRecords(baseMapper.selectPage(page, wrapper).getRecords());
+
+        return page;
     }
-
-
 }
