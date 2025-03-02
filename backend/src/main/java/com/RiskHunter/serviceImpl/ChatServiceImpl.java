@@ -48,14 +48,20 @@ public class ChatServiceImpl implements ChatService {
         session.setUserId(userId);
         session.setCreateTime(LocalDateTime.now());
         sessionMapper.insert(session);
-        log.info("创建新会话: {}", session.getId());
+        log.info("user {} 创建新会话: {}", userId,session.getId());
         return session.getId();
     }
 
     @Override
     public String chat(Long sessionId, String message, Long userId) {
+        // 检查三个参数都合法
+        if (sessionId == null || userId == null || message == null) {
+            throw new IllegalArgumentException("参数不完整");
+        }
+
         // 调用大模型API
         String fullResponse = completeChat(message, sessionId, userId);
+        log.info("API响应: {}", fullResponse);
         // 保存用户消息
         saveChatRecord(sessionId, userId, message, true);
         // 保存AI响应
