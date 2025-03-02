@@ -110,23 +110,19 @@ import { InfoFilled, Operation, Phone, Location, Message } from '@element-plus/i
   background: linear-gradient(135deg, var(--el-color-primary-light-9) 0%, var(--el-color-primary-light-5) 100%);
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 0; /* 移除内边距 */
   align-items: center;
 }
 
 /* 卡片基础样式 */
 .info-card {
-  width: 800px;
+  width: 100vw; /* 设置宽度为视口宽度 */
   max-width: 100%;
   transition: all 0.3s ease;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-radius: 0; /* 移除边框圆角 */
+  box-shadow: none; /* 移除阴影 */
   background-color: var(--el-bg-color);
-}
-
-.info-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  margin: 0; /* 移除外边距 */
 }
 
 /* 标题样式 */
@@ -138,7 +134,7 @@ import { InfoFilled, Operation, Phone, Location, Message } from '@element-plus/i
 }
 
 .title {
-  font-size: 32px;
+  font-size: 64px;
   font-weight: bold;
   color: var(--el-color-primary);
   margin-bottom: 12px;
@@ -160,7 +156,8 @@ import { InfoFilled, Operation, Phone, Location, Message } from '@element-plus/i
 .inner-card {
   margin-bottom: 20px;
   transition: all 0.3s ease;
-  border-radius: 8px;
+  border-radius: 0; /* 移除边框圆角 */
+  box-shadow: none; /* 移除阴影 */
 }
 
 .section-header {
@@ -168,6 +165,8 @@ import { InfoFilled, Operation, Phone, Location, Message } from '@element-plus/i
   align-items: center;
   gap: 12px;
   padding: 4px 0;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .section-icon {
@@ -248,7 +247,7 @@ import { InfoFilled, Operation, Phone, Location, Message } from '@element-plus/i
 /* 响应式设计 */
 @media (max-width: 840px) {
   .main-container {
-    padding: 12px;
+    padding: 0;
   }
 
   .info-card {
