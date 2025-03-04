@@ -74,6 +74,12 @@ const handleLogout = () => {
           </el-icon>
           <span>风险信号</span>
         </el-menu-item>
+        <el-menu-item index="/chat">
+          <el-icon>
+            <Memo />
+          </el-icon>
+          <span>智能体</span>
+        </el-menu-item>
         <el-menu-item index="/fx-data">
           <el-icon>
             <DataLine />

@@ -62,7 +62,7 @@ public class ChatController {
     @GetMapping("/history/{sessionId}")
     public ResultVO<List<ChatRecord>> getHistory(
             @PathVariable Long sessionId,
-            @RequestHeader Long userId) {
+            @RequestParam Long userId) {
         return ResultVO.buildSuccess(chatService.getHistory(sessionId, userId));
     }
 }

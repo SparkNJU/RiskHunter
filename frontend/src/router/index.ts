@@ -51,6 +51,12 @@ const router = createRouter({
                 name: 'News',
                 component: () => import('../views/News.vue'),
                 meta: { title: '新闻资讯', requiresAuth: true }
+            },
+            {
+                path: '/chat',
+                name: 'Chat',
+                component: () => import('../views/Chat.vue'),
+                meta: { title: '智能体', requiresAuth: true }
             }
         ]
     }, {

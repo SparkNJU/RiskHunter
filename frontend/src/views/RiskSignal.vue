@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../api/risk_signal'
-import { parseTime } from '../utils'
+import { parseTime, parseCurrencyName } from '../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
 
 // 表格数据和分页
@@ -33,11 +33,6 @@ const tradingForm = ref({
   maximumDrawdownRatio: '',
   transactionTerm: ''
 })
-
-function parseCurrencyName(index: number): string {
-  const currency = CurrencyList.find(c => c.number === index)
-  return currency ? `${currency.code}` : 'null'
-}
 
 // 加载数据
 function loadData() {

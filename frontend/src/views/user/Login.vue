@@ -61,6 +61,7 @@ function handleLogin() {
       userInfo().then(res => {
         sessionStorage.setItem('username', res.data.result.username)
         sessionStorage.setItem('role', res.data.result.role)
+        sessionStorage.setItem('userId', res.data.result.id)
         router.push({ path: "/dashboard" })
       })
     } else if (res.data.code === '400') {
