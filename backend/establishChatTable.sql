@@ -3,7 +3,7 @@ CREATE TABLE chat_record (
                              session_id BIGINT NOT NULL COMMENT '会话ID',
                              user_id BIGINT NOT NULL COMMENT '用户ID',
                              direction BOOLEAN NOT NULL COMMENT '消息方向：true=用户消息，false=AI消息',
-                             content TEXT NOT NULL COMMENT '消息内容',
+                             content MEDIUMTEXT NOT NULL COMMENT '消息内容',
                              create_time DATETIME NOT NULL COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天记录表';
 

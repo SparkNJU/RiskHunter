@@ -269,12 +269,21 @@ const handleStreamMessage = async (messageToSend: string) => {
           // 累积思考内容，添加到当前思考块
           currentThoughtBlock += thoughtContent
 
-          // 更新思考块，使用特殊样式
-          const contentParts = messages.value[aiMessageIndex].content.split(/(<em class="text-gray-500 italic">[\s\S]*?<\/em>)/)
-          const normalContent = contentParts.filter(part => !part.startsWith('<em')).join('')
-
-          messages.value[aiMessageIndex].content = normalContent +
-            `\n<em class="text-gray-500 italic">${currentThoughtBlock}</em>\n`
+          // 更新思考块，使用更优化的方法
+          // 检查是否已经有思考块
+          if (messages.value[aiMessageIndex].content.includes('<em class="text-gray-500 italic">')) {
+            // 已有思考块，替换思考块内容
+            messages.value[aiMessageIndex].content = messages.value[aiMessageIndex].content.replace(
+              /<em class="text-gray-500 italic">[\s\S]*?<\/em>/,
+              `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`
+            )
+          } else {
+            // 没有思考块，添加新的思考块（只在开头和结尾添加一次换行符）
+            const normalContent = messages.value[aiMessageIndex].content
+            messages.value[aiMessageIndex].content = normalContent +
+              (normalContent.trim() ? '\n' : '') +
+              `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`
+          }
         } else {
           // 普通内容直接添加
           messages.value[aiMessageIndex].content += chunk
