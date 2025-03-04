@@ -8,11 +8,15 @@ import com.RiskHunter.po.ChatSession;
 import com.RiskHunter.service.ChatService;
 import com.RiskHunter.vo.ResultVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
@@ -30,33 +34,31 @@ public class ChatController {
     public ResultVO<Long> createSession(@RequestParam Long userId) {
         return ResultVO.buildSuccess(chatService.createSession(userId));
     }
-    /**
+    //, produces = MediaType.TEXT_EVENT_STREAM_VALUE
+    @GetMapping(path = "/stream")
+    public Flux<ServerSentEvent<String>> streamChat(
+            @RequestParam("sessionId") Long sessionId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("message") String message) {
+        log.info("sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
+        // 将请求参数封装成 DTO
+        //ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
+        //chatRequestDTO.setSessionId(sessionId);
+        //chatRequestDTO.setUserId(userId);
+        //chatRequestDTO.setMessage(message);
 
-     * 聊天接口 虽然api名字叫stream，但是实际上是一个同步的接口
-     * @param chatRequestDTO 聊天请求数据传输对象（JSON格式）
-     *        JSON结构要求
-     *        {
-     *          "sessionId": 会话ID（必须大于0）,
-     *          "message": "用户输入的聊天内容",
-     *          "userId": 用户ID（必须与session所属用户一致）
-     *        }
-     * @return ResultVO<String> 包含AI回复内容的响应对象
-     * @apiNote 前端请求示例：
-     * POST /stream
-     * Request Body:
-     * {
-     *   "sessionId": 67890,
-     *   "message": "如何学习Java编程？",
-     *   "userId": 12345
-     * }
+        return chatService.chatWithStream(sessionId, message, userId)
+                .map(chunk -> ServerSentEvent.<String>builder()
+                        .data(chunk)
+                        .build());
+    }
 
-     */
-    @PostMapping("/stream")
-    public ResultVO<String> streamChat(@RequestBody ChatRequestDTO chatRequestDTO) {
+    @PostMapping("/noStream")
+    public ResultVO<String> noStreamChat(@RequestBody ChatRequestDTO chatRequestDTO) {
         Long sessionId = sessionId = chatRequestDTO.getSessionId();
         String message = chatRequestDTO.getMessage();
         Long userId = chatRequestDTO.getUserId();
-        return ResultVO.buildSuccess(chatService.chat(sessionId, message, userId));
+        return ResultVO.buildSuccess(chatService.chatWithoutStream(sessionId, message, userId));
     }
 
     @GetMapping("/history/{sessionId}")
