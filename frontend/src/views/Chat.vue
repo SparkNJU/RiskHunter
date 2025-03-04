@@ -1,11 +1,41 @@
+<!-- 返回示例：
+如果需要在前端显示thought的内容 
+{
+    "output": {
+        "thoughts": [
+            {
+                "thought": "好的，我现在需要处理用户的问题：“你是谁？”首先，用户是在询问我的身份，我需要用简单明了的方式回答，同时保持友好。根据之前的历史记录，用户可能已经知道我是DeepSeek-R1，但可能需要更详细的介绍。\n\n我应该先明确回答我是由深度求索公司开发的智能助手DeepSeek-R1。然后，可能需要补充我的功能和用途，比如帮助回答问题、提供信息等。还要注意保持口语化，避免过于正式，让用户感觉自然。\n\n接下来，我需要检查是否有必要提到当前时间，但用户的问题并不涉及时间，所以可能不需要。不过，之前的回复中系统时间显示是2025年，这可能是一个测试环境的时间设置，但用户的问题不相关，所以不用提及。\n\n然后，我要确保回答简洁，同时覆盖用户可能关心的点，比如我的开发公司、功能、如何帮助用户等。最后，以友好的语气结束，邀请用户提问。需要避免使用任何Markdown格式，保持纯文本，自然分段。\n\n可能还需要考虑用户是否有后续问题，所以保持回答开放，鼓励用户继续交流。检查是否有拼写错误或语法错误，确保回答流畅准确。",
+                "action_type": "reasoning",
+                "response": "好的，我现在需要处理用户的问题：“你是谁？”首先，用户是在询问我的身份，我需要用简单明了的方式回答，同时保持友好。根据之前的历史记录，用户可能已经知道我是DeepSeek-R1，但可能需要更详细的介绍。\n\n我应该先明确回答我是由深度求索公司开发的智能助手DeepSeek-R1。然后，可能需要补充我的功能和用途，比如帮助回答问题、提供信息等。还要注意保持口语化，避免过于正式，让用户感觉自然。\n\n接下来，我需要检查是否有必要提到当前时间，但用户的问题并不涉及时间，所以可能不需要。不过，之前的回复中系统时间显示是2025年，这可能是一个测试环境的时间设置，但用户的问题不相关，所以不用提及。\n\n然后，我要确保回答简洁，同时覆盖用户可能关心的点，比如我的开发公司、功能、如何帮助用户等。最后，以友好的语气结束，邀请用户提问。需要避免使用任何Markdown格式，保持纯文本，自然分段。\n\n可能还需要考虑用户是否有后续问题，所以保持回答开放，鼓励用户继续交流。检查是否有拼写错误或语法错误，确保回答流畅准确。",
+                "action_name": "思考过程",
+                "action": "reasoning"
+            }
+        ],
+        "finish_reason": "stop",
+        "session_id": "41bb8c9b3d6649eb8bac64874fce950c",
+        "text": "我是由中国的深度求索（DeepSeek）公司开发的智能助手DeepSeek-R1。我擅长通过思考来帮您解答复杂的数学，代码和逻辑推理等理工类问题，并能用更贴近自然的口语化风格与您交流。有什么我可以帮您的吗？"
+    },
+    "usage": {
+        "models": [
+            {
+                "output_tokens": 301,
+                "model_id": "deepseek-r1",
+                "input_tokens": 32
+            }
+        ]
+    },
+    "request_id": "ff90f771-70db-9324-ba48-cb1236dacc93"
+} -->
+
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { createSession, sendMessage, getHistory, type ChatRecord } from '../api/chat'
+import { createSession, getHistory, type ChatRecord } from '../api/chat'
 import { getRiskSignals } from '../api/risk_signal'
 import { parseCurrencyName } from '../utils'
 import { Plus, ChatLineRound, Position } from '@element-plus/icons-vue'
+import axios from 'axios'
 
 const router = useRouter()
 // 用户id, 从sessionStorage获取
@@ -31,6 +61,19 @@ const currentSessionTitle = computed(() => {
   return session?.title || ''
 })
 
+
+// 流式输出相关变量
+const useStreamOutput = ref(false) // 是否使用流式输出
+const abortController = ref<AbortController | null>(null) // 用于取消请求的控制器
+const isStreaming = ref(false) // 是否正在流式输出中
+
+// 在组件销毁前取消未完成的流式请求
+onBeforeUnmount(() => {
+  if (abortController.value) {
+    abortController.value.abort()
+    abortController.value = null
+  }
+})
 loadSeesion()
 loadData()
 // 加载会话
@@ -153,8 +196,18 @@ const handleSendMessage = async () => {
 
   isLoading.value = true
 
+  // 根据配置选择使用流式输出或普通输出
+  if (useStreamOutput.value) {
+    await handleStreamMessage(messageToSend)
+  } else {
+    await handleNormalMessage(messageToSend)
+  }
+}
+
+// 普通消息发送模式（保留原有逻辑）
+const handleNormalMessage = async (messageToSend: string) => {
   // 发送信息
-  sendMessage({
+  axios.post('/api/chat/noStream', {
     sessionId: currentSessionId.value,
     message: messageToSend,
     userId: userId.value
@@ -166,6 +219,7 @@ const handleSendMessage = async () => {
         userId: userId.value,
         sessionId: currentSessionId.value
       })
+      scrollToBottom()
     } else {
       ElMessage({
         message: res.data.msg,
@@ -177,6 +231,113 @@ const handleSendMessage = async () => {
     isLoading.value = false
   })
 }
+
+
+// 流式消息处理// 流式消息处理
+const handleStreamMessage = async (messageToSend: string) => {
+  try {
+    // 创建一个空的AI回复消息
+    const aiMessageIndex = messages.value.length
+    messages.value.push({
+      content: '',
+      direction: false,
+      userId: userId.value,
+      sessionId: currentSessionId.value
+    })
+    scrollToBottom()
+
+    // 创建AbortController用于可能的取消操作
+    abortController.value = new AbortController()
+    isStreaming.value = true
+
+    // 使用EventSource处理SSE流
+    // 修改为后端实际提供的路径
+    const eventSource = new EventSource(`http://localhost:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
+
+    // 创建一个单独的思考过程区域
+    let currentThoughtBlock = ''
+
+    eventSource.onmessage = (event) => {
+      // 接收到消息时的处理
+      const chunk = event.data
+
+      if (chunk) {
+        // 检查是否是思考过程
+        if (chunk.startsWith('[思考]')) {
+          const thoughtContent = chunk.substring(4)
+
+          // 累积思考内容，添加到当前思考块
+          currentThoughtBlock += thoughtContent
+
+          // 更新思考块，使用特殊样式
+          const contentParts = messages.value[aiMessageIndex].content.split(/(<em class="text-gray-500 italic">[\s\S]*?<\/em>)/)
+          const normalContent = contentParts.filter(part => !part.startsWith('<em')).join('')
+
+          messages.value[aiMessageIndex].content = normalContent +
+            `\n<em class="text-gray-500 italic">${currentThoughtBlock}</em>\n`
+        } else {
+          // 普通内容直接添加
+          messages.value[aiMessageIndex].content += chunk
+        }
+      }
+    }
+
+    eventSource.onerror = () => {
+      // 发生错误或流结束
+      eventSource.close()
+      isStreaming.value = false
+      isLoading.value = false
+      abortController.value = null
+    }
+
+    // 添加取消监听
+    if (abortController.value) {
+      abortController.value.signal.addEventListener('abort', () => {
+        eventSource.close()
+      })
+    }
+
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      ElMessage({
+        message: '请求已取消',
+        type: 'info',
+        center: true,
+      })
+    } else {
+      ElMessage({
+        message: `请求失败: ${(error as Error).message}`,
+        type: 'error',
+        center: true,
+      })
+
+      // 如果流式请求失败，尝试使用普通方式重新发送
+      await handleNormalMessage(messageToSend)
+    }
+  } finally {
+    abortController.value = null
+    isStreaming.value = false
+    isLoading.value = false
+  }
+}
+
+// 取消当前流式请求
+const cancelStreamRequest = () => {
+  if (abortController.value && isStreaming.value) {
+    abortController.value.abort()
+    abortController.value = null
+    isStreaming.value = false
+    isLoading.value = false
+
+    ElMessage({
+      message: '已取消响应',
+      type: 'info',
+      center: true,
+    })
+  }
+}
+
+
 
 // 更新会话标题
 const updateSessionTitle = (message: string) => {
@@ -289,7 +450,8 @@ const scrollToBottom = () => {
               </div>
               <div class="flex-1">
                 <div class="font-medium mb-1">RiskHunter AI</div>
-                <div class="text-gray-800 whitespace-pre-wrap">{{ message.content }}</div>
+                <!-- 使用 v-html 渲染带有样式的内容 -->
+                <div class="text-gray-800 whitespace-pre-wrap" v-html="message.content"></div>
               </div>
             </div>
           </div>
@@ -314,7 +476,8 @@ const scrollToBottom = () => {
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item v-for="signal in riskSignals" :key="signal.id" :command="signal">
-                {{ parseCurrencyName(signal.baseCurrency) }}/{{ parseCurrencyName(signal.targetCurrency) }}-{{ formatDate(signal.time) }}
+                  {{ parseCurrencyName(signal.baseCurrency) }}/{{ parseCurrencyName(signal.targetCurrency) }}-{{
+                    formatDate(signal.time) }}
                 </el-dropdown-item>
                 <el-dropdown-item v-if="riskSignals.length === 0" disabled>
                   无可用风险信号
@@ -337,12 +500,39 @@ const scrollToBottom = () => {
             </el-button>
           </div>
         </div>
-        <div class="text-xs text-gray-500 mt-2 text-center">
-          输入问题后按 Enter 发送，或点击发送按钮
+        <!-- 添加了流式输出开关 -->
+        <div class="mt-2 flex justify-between items-center">
+          <div class="text-xs text-gray-500">
+            输入问题后按 Enter 发送，或点击发送按钮
+          </div>
+
+          <div class="flex items-center">
+            <!-- 流式输出开关 -->
+            <el-switch v-model="useStreamOutput" inactive-text="标准输出" active-text="流式输出" class="mr-4"
+              :disabled="isLoading" />
+
+            <!-- 取消按钮，仅在流式输出时显示 -->
+            <el-button v-if="isStreaming" size="small" type="danger" @click="cancelStreamRequest">
+              取消响应
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.text-gray-500) {
+  color: #6B7280;
+  font-style: italic;
+  display: block;
+  margin: 8px 0;
+  padding: 12px;
+  background-color: #F3F4F6;
+  border-radius: 6px;
+  border-left: 3px solid #9CA3AF;
+  font-size: 0.95em;
+  white-space: pre-wrap;
+}
+</style>
