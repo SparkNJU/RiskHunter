@@ -62,9 +62,6 @@ const sendVerificationCode = () => {
   // TODO
 }
 
-function navigateToLogin() {
-  router.push({ path: '/login' })
-}
 </script>
 
 <template>

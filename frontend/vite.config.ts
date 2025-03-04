@@ -19,7 +19,8 @@ export default defineConfig({
         })
     ],
     server: {
-        port: 3000,   //设定前端运行的端口
+        //TODO：在服务器上应该为80
+        port: 80,   //设定前端运行的端口
         open: true,
     },
     base: './'

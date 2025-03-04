@@ -70,7 +70,7 @@ const router = createRouter({
     }]
 })
 
-router.beforeEach((to, _, next) => {
+//router.beforeEach((to, _, next) => {
     // const token: string | null = sessionStorage.getItem('token');
     // const role: string | null = sessionStorage.getItem('role')
 
@@ -97,7 +97,7 @@ router.beforeEach((to, _, next) => {
     //         next('/login')
     //     }
     // }
-    next()
-})
+    //next()
+//})
 
 export { router }

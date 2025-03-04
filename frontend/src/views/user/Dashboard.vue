@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { userInfo, userInfoUpdate } from '../../api/user.ts'
-import { parseRole, parseTime } from "../../utils"
+import { parseRole } from "../../utils"
 import { router } from '../../router'
-import { User, UserFilled, Calendar, Phone, LocationInformation, Lock } from '@element-plus/icons-vue'
+import { User, UserFilled, Phone, LocationInformation, Lock } from '@element-plus/icons-vue'
 
 const role = ref(1);
 const username = ref('')
