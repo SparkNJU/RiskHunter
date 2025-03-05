@@ -8,7 +8,12 @@ import java.util.List;
 
 public interface ChatService {
     public Long createSession(Long userId);
+
     public Flux<String> chatWithStream(Long sessionId, String message, Long userId);
+
     public String chatWithoutStream(Long sessionId, String message, Long userId);
+
     public List<ChatRecord> getHistory(Long sessionId, Long userId);
+
+    public List<Long> getSessionsByUserId(Long userId);
 }
