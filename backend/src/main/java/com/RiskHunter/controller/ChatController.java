@@ -1,6 +1,6 @@
 package com.RiskHunter.controller;/*
- * @date 03/02 15:18
- */
+                                  * @date 03/02 15:18
+                                  */
 
 import com.RiskHunter.DTO.ChatRequestDTO;
 import com.RiskHunter.po.ChatRecord;
@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/chat")
@@ -25,16 +26,18 @@ public class ChatController {
 
     /**
      * 创建会话接口
+     * 
      * @param userId 用户唯一标识符（必须大于0）
      * @return ResultVO<Long> 包含新创建会话ID的响应对象
      * @apiNote 前端请求示例：
-     * POST /session?userId=12345
+     *          POST /session?userId=12345
      */
     @PostMapping("/session")
     public ResultVO<Long> createSession(@RequestParam Long userId) {
         return ResultVO.buildSuccess(chatService.createSession(userId));
     }
-    //, produces = MediaType.TEXT_EVENT_STREAM_VALUE
+
+    // , produces = MediaType.TEXT_EVENT_STREAM_VALUE
     @GetMapping(path = "/stream")
     public Flux<ServerSentEvent<String>> streamChat(
             @RequestParam("sessionId") Long sessionId,
@@ -42,10 +45,10 @@ public class ChatController {
             @RequestParam("message") String message) {
         log.info("sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
         // 将请求参数封装成 DTO
-        //ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
-        //chatRequestDTO.setSessionId(sessionId);
-        //chatRequestDTO.setUserId(userId);
-        //chatRequestDTO.setMessage(message);
+        // ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
+        // chatRequestDTO.setSessionId(sessionId);
+        // chatRequestDTO.setUserId(userId);
+        // chatRequestDTO.setMessage(message);
 
         return chatService.chatWithStream(sessionId, message, userId)
                 .map(chunk -> ServerSentEvent.<String>builder()
@@ -67,4 +70,19 @@ public class ChatController {
             @RequestParam Long userId) {
         return ResultVO.buildSuccess(chatService.getHistory(sessionId, userId));
     }
+
+    /**
+     * 获取用户的所有会话ID
+     * 
+     * @param userId 用户ID
+     * @return 该用户所有会话ID的列表
+     * @apiNote 前端请求示例：
+     *          GET /sessions?userId=12345
+     */
+    @GetMapping("/sessions")
+    public ResultVO<List<Long>> getUserSessions(@RequestParam Long userId) {
+        log.info("Getting all sessions for userId: {}", userId);
+        return ResultVO.buildSuccess(chatService.getSessionsByUserId(userId));
+    }
+
 }

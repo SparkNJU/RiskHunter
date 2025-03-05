@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -155,7 +156,7 @@ public class ChatServiceImpl implements ChatService {
                 .filter(chunk -> chunk != null && !chunk.isEmpty()) // 过滤掉空响应
                 .doOnNext(chunk -> {
                     // 打印每次返回的流式消息片段 经过测试，这里的chunk是每次返回的消息片段 所以加上注释
-                    //log.info("Received stream chunk: {}", chunk);
+                    // log.info("Received stream chunk: {}", chunk);
                     // 累积响应内容
                     fullResponse.append(chunk);
                 })
@@ -271,5 +272,20 @@ public class ChatServiceImpl implements ChatService {
         }
 
         return messageNode.get("content").asText();
+    }
+
+    @Override
+    public List<Long> getSessionsByUserId(Long userId) {
+        // 使用QueryWrapper查询指定userId的所有会话
+        List<ChatSession> sessions = sessionMapper.selectList(
+                new QueryWrapper<ChatSession>()
+                        .eq("user_id", userId)
+                        .orderByAsc("create_time") // 按创建时间升序排列
+        );
+
+        // 将ChatSession列表转换为sessionId列表
+        return sessions.stream()
+                .map(ChatSession::getId)
+                .collect(Collectors.toList());
     }
 }
