@@ -17,7 +17,7 @@ const hasPhoneInput = computed(() => phone.value !== '')
 const hasPasswordInput = computed(() => password.value !== '')
 const hasCaptchaInput = computed(() => captcha.value !== '')
 
-const phoneRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
+const phoneRegex =  /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[01256789]))\d{8}$/
 const isPhoneValid = computed(() => phoneRegex.test(phone.value))
 
 const loginDisabled = computed(() => {
@@ -76,6 +76,12 @@ function handleLogin() {
     }
   })
 }
+// 处理 Enter 键按下事件
+function handleEnterKey() {
+  if (!loginDisabled.value) {
+    handleLogin()
+  }
+}
 
 // 组件挂载时获取验证码
 onMounted(() => {
@@ -91,7 +97,7 @@ onMounted(() => {
           <h1 class="login-title">登录</h1>
         </div>
 
-        <el-form class="login-form">
+        <el-form class="login-form" @keydown.enter="handleEnterKey">
           <el-form-item>
             <label class="custom-label" :class="{ 'error': hasPhoneInput && !isPhoneValid }">
               <el-icon><User /></el-icon>
