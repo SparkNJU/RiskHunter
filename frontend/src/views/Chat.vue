@@ -63,7 +63,7 @@ const currentSessionTitle = computed(() => {
 
 
 // 流式输出相关变量
-const useStreamOutput = ref(false) // 是否使用流式输出
+const useStreamOutput = ref(true) // 是否使用流式输出
 const abortController = ref<AbortController | null>(null) // 用于取消请求的控制器
 const isStreaming = ref(false) // 是否正在流式输出中
 
@@ -150,18 +150,48 @@ const loadChatHistory = async (sessionId: number) => {
   isLoading.value = true
   getHistory(sessionId, userId.value).then(res => {
     if (res.data.code === '000') {
-      messages.value = res.data.result
-      scrollToBottom()
+      // 处理消息中的思考块
+      const processedMessages = res.data.result.map(message => {
+        // 只处理AI的回复，用户的消息保持不变
+        if (!message.direction) {
+          // 提取所有思考块
+          const thoughtRegex = /<thought>([\s\S]*?)<\/thought>/g;
+          let match;
+          let thoughtContent = '';
+          let normalContent = message.content;
+
+          // 收集所有思考内容
+          while ((match = thoughtRegex.exec(message.content)) !== null) {
+            thoughtContent += match[1];
+            // 从原内容中移除思考块
+            normalContent = normalContent.replace(match[0], '');
+          }
+
+          if (thoughtContent) {
+            // 如果有思考内容，添加到消息的最后
+            message.content = normalContent.trim() +
+              (normalContent.trim() ? '\n' : '') +
+              `<em class="text-gray-500 italic">${thoughtContent}</em>`;
+          } else {
+            // 没有思考内容，使用原始内容
+            message.content = normalContent;
+          }
+        }
+        return message;
+      });
+
+      messages.value = processedMessages;
+      scrollToBottom();
     } else {
       ElMessage({
         message: res.data.msg,
         type: 'error',
         center: true,
-      })
+      });
     }
   }).finally(() => {
-    isLoading.value = false
-  })
+    isLoading.value = false;
+  });
 }
 
 // 选择会话
@@ -263,8 +293,9 @@ const handleStreamMessage = async (messageToSend: string) => {
 
       if (chunk) {
         // 检查是否是思考过程
-        if (chunk.startsWith('[思考]')) {
-          const thoughtContent = chunk.substring(4)
+        if (chunk.startsWith('<thought>')) {
+          //<thought>xxx</thought>
+          const thoughtContent = chunk.substring(9, chunk.length - 10)
 
           // 累积思考内容，添加到当前思考块
           currentThoughtBlock += thoughtContent

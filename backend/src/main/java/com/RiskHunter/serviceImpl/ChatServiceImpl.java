@@ -168,13 +168,13 @@ public class ChatServiceImpl implements ChatService {
                 .doOnError(error -> {
                     log.error("流式调用失败: {}", error.getMessage(), error);
                     // 保存错误信息作为AI响应
-                    saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试", false);
+                    saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试" + error.getMessage(), false);
                 })
                 .onErrorResume(e -> {
                     // 出错时返回错误信息
                     return Flux.just("处理请求时发生错误，请稍后再试");
                 })
-                .timeout(Duration.ofSeconds(60)); // 添加超时处理
+                .timeout(Duration.ofSeconds(3600)); // 添加超时处理
     }
 
     private String parseStreamResponse(JsonNode response) {
@@ -201,7 +201,7 @@ public class ChatServiceImpl implements ChatService {
         if (delta.has("reasoning_content") && !delta.get("reasoning_content").isNull()) {
             String thoughtContent = delta.get("reasoning_content").asText();
             if (!thoughtContent.isEmpty()) {
-                return "[思考]" + thoughtContent;
+                return "<thought>" + thoughtContent + "</thought>";
             }
         }
 
@@ -222,15 +222,41 @@ public class ChatServiceImpl implements ChatService {
         record.setUserId(userId);
         record.setDirection(isUser);
         // 在保存之前清理思考标记
-        record.setContent(cleanThoughtMarkers(content));
+        content = keepFirstAndLastThought(content);
+        log.info("保存消息: {}", content);
+        record.setContent(content);
         record.setCreateTime(LocalDateTime.now());
         recordMapper.insert(record);
     }
 
-    private String cleanThoughtMarkers(String content) {
-        // 使用正则表达式移除所有[思考]标记
-        return content.replaceAll("\\[思考\\]", "");
+    public static String keepFirstAndLastThought(String input) {
+        int firstThoughtStart = input.indexOf("<thought>");
+        int lastThoughtEnd = input.lastIndexOf("</thought>");
+
+        if (firstThoughtStart == -1 || lastThoughtEnd == -1 || firstThoughtStart >= lastThoughtEnd) {
+            return input; // 如果没有找到完整的thought标签对，返回原字符串
+        }
+
+        // 提取第一个<thought>之后的内容
+        String beforeFirstThought = input.substring(0, firstThoughtStart);
+
+        // 提取最后一个</thought>之后的内容
+        String afterLastThought = "";
+        if (lastThoughtEnd + 10 < input.length()) {
+            afterLastThought = input.substring(lastThoughtEnd + 10);
+        }
+
+        // 将所有thought标签内的内容连接起来
+        String contentWithinThoughts = input.substring(firstThoughtStart + 9, lastThoughtEnd);
+
+        // 移除中间所有的<thought>和</thought>标签
+        contentWithinThoughts = contentWithinThoughts.replaceAll("</?thought>", "");
+
+        // 构建最终结果
+        return beforeFirstThought + "<thought>" + contentWithinThoughts + "</thought>" + afterLastThought;
     }
+
+
 
     @Override
     public List<ChatRecord> getHistory(Long sessionId, Long userId) {
