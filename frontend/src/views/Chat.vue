@@ -36,6 +36,7 @@ import { getRiskSignals } from '../api/risk_signal'
 import { parseCurrencyName } from '../utils'
 import { Plus, ChatLineRound, Position } from '@element-plus/icons-vue'
 import axios from 'axios'
+import MarkdownIt from 'markdown-it'
 
 const router = useRouter()
 // 用户id, 从sessionStorage获取
@@ -54,6 +55,8 @@ const inputMessage = ref('')
 const isLoading = ref(false)
 
 const messagesContainer = ref<HTMLElement | null>(null)
+//导入Markdown-it
+const md = new MarkdownIt();
 
 // 获取当前会话标题
 const currentSessionTitle = computed(() => {
@@ -66,6 +69,8 @@ const currentSessionTitle = computed(() => {
 const useStreamOutput = ref(true) // 是否使用流式输出
 const abortController = ref<AbortController | null>(null) // 用于取消请求的控制器
 const isStreaming = ref(false) // 是否正在流式输出中
+// 创建一个缓冲区变量
+let buffer = '';
 
 // 在组件销毁前取消未完成的流式请求
 onBeforeUnmount(() => {
@@ -146,8 +151,8 @@ const handleCreateSession = async () => {
 
 // 加载聊天历史记录
 const loadChatHistory = async (sessionId: number) => {
-  if (!userId.value) return
-  isLoading.value = true
+  if (!userId.value) return;
+  isLoading.value = true;
   getHistory(sessionId, userId.value).then(res => {
     if (res.data.code === '000') {
       // 处理消息中的思考块
@@ -168,13 +173,13 @@ const loadChatHistory = async (sessionId: number) => {
           }
 
           if (thoughtContent) {
-            // 如果有思考内容，添加到消息的最后
-            message.content = normalContent.trim() +
+            // 如果有思考内容，添加到消息的开头
+            message.content = `<em class="text-gray-500 italic">${thoughtContent}</em>` +
               (normalContent.trim() ? '\n' : '') +
-              `<em class="text-gray-500 italic">${thoughtContent}</em>`;
+              md.render(normalContent.trim());
           } else {
             // 没有思考内容，使用原始内容
-            message.content = normalContent;
+            message.content = md.render(normalContent);
           }
         }
         return message;
@@ -192,8 +197,7 @@ const loadChatHistory = async (sessionId: number) => {
   }).finally(() => {
     isLoading.value = false;
   });
-}
-
+};
 // 选择会话
 const handleSelectSession = (sessionId: number) => {
   if (currentSessionId.value === sessionId) return
@@ -286,19 +290,18 @@ const handleStreamMessage = async (messageToSend: string) => {
 
     // 创建一个单独的思考过程区域
     let currentThoughtBlock = ''
-
     eventSource.onmessage = (event) => {
       // 接收到消息时的处理
-      const chunk = event.data
+      const chunk = event.data.trim(); // 去除多余的换行符
 
       if (chunk) {
         // 检查是否是思考过程
         if (chunk.startsWith('<thought>')) {
           //<thought>xxx</thought>
-          const thoughtContent = chunk.substring(9, chunk.length - 10)
+          const thoughtContent = chunk.substring(9, chunk.length - 10);
 
           // 累积思考内容，添加到当前思考块
-          currentThoughtBlock += thoughtContent
+          currentThoughtBlock += thoughtContent;
 
           // 更新思考块，使用更优化的方法
           // 检查是否已经有思考块
@@ -307,21 +310,33 @@ const handleStreamMessage = async (messageToSend: string) => {
             messages.value[aiMessageIndex].content = messages.value[aiMessageIndex].content.replace(
               /<em class="text-gray-500 italic">[\s\S]*?<\/em>/,
               `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`
-            )
+            );
           } else {
             // 没有思考块，添加新的思考块（只在开头和结尾添加一次换行符）
-            const normalContent = messages.value[aiMessageIndex].content
+            const normalContent = messages.value[aiMessageIndex].content;
             messages.value[aiMessageIndex].content = normalContent +
               (normalContent.trim() ? '\n' : '') +
-              `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`
+              `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`;
           }
         } else {
-          // 普通内容直接添加
-          messages.value[aiMessageIndex].content += chunk
+          // 普通内容处理
+          buffer += chunk;
+
+          // 检查缓冲区长度是否达到20个字符
+          if (buffer.length >= 20) {
+            // 使用markdown-it解析缓冲区内容
+            const renderedContent = md.render(buffer);
+            // 替换现有的普通内容
+            messages.value[aiMessageIndex].content = messages.value[aiMessageIndex].content.replace(buffer, renderedContent);
+            // 清空缓冲区
+            buffer = '';
+          } else {
+            // 没有达到20个字符，直接添加到content
+            messages.value[aiMessageIndex].content += chunk;
+          }
         }
       }
-    }
-
+    };
     eventSource.onerror = () => {
       // 发生错误或流结束
       eventSource.close()
@@ -354,6 +369,7 @@ const handleStreamMessage = async (messageToSend: string) => {
       // 如果流式请求失败，尝试使用普通方式重新发送
       await handleNormalMessage(messageToSend)
     }
+    scrollToBottom()
   } finally {
     abortController.value = null
     isStreaming.value = false
@@ -467,7 +483,7 @@ const scrollToBottom = () => {
             <ChatLineRound />
           </el-icon>
           <p class="text-lg">开始一个新对话</p>
-          <p class="text-sm mt-2">您可以询问任何金融风险相关问题</p>
+          <p class="text-sm mt-2">您可以询问任何外汇风险相关问题</p>
         </div>
 
         <div v-else>
