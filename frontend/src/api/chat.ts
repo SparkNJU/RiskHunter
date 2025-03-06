@@ -4,7 +4,7 @@ import { CHAT_MODULE } from './_prefix'
 /**
  * 聊天消息请求DTO
  */
-type ChatRequestDTO = {
+export type ChatRequestDTO = {
     sessionId: number     // 会话ID
     message: string       // 用户输入的聊天内容
     userId: number        // 用户ID
@@ -35,12 +35,12 @@ export const createSession = (userId: number) => {
 }
 
 /**
- * 发送聊天消息
+ * 发送聊天消息（非流式响应）
  * @param chatRequestDTO 聊天请求对象
  */
-export const sendMessage = (chatRequestDTO: ChatRequestDTO) => {
-    return axios.post(`${CHAT_MODULE}/stream`, chatRequestDTO, {
-        timeout: 120000
+export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
+    return axios.post(`${CHAT_MODULE}/noStream`, chatRequestDTO, {
+        timeout: 60000
     })
 }
 
@@ -51,6 +51,18 @@ export const sendMessage = (chatRequestDTO: ChatRequestDTO) => {
  */
 export const getHistory = (sessionId: number, userId: number) => {
     return axios.get(`${CHAT_MODULE}/history/${sessionId}`, {
+        params: {
+            userId
+        }
+    })
+}
+
+/**
+ * 获取用户的所有会话ID
+ * @param userId 用户ID
+ */
+export const getUserSessions = (userId: number) => {
+    return axios.get(`${CHAT_MODULE}/sessions`, {
         params: {
             userId
         }

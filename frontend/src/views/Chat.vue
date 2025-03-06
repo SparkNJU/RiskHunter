@@ -31,7 +31,7 @@
 import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { createSession, getHistory, ChatRecord } from '../api/chat'
+import { createSession, getHistory, getUserSessions, ChatRecord } from '../api/chat'
 import { getRiskSignals } from '../api/risk_signal'
 import { parseCurrencyName } from '../utils'
 import { Plus, ChatLineRound, Position } from '@element-plus/icons-vue'
@@ -46,7 +46,7 @@ const currentSessionId = ref<number>(Number(sessionStorage.getItem('currentSessi
 // 当前会话的所有聊天记录
 const messages = ref<ChatRecord[]>([])
 // 所有会话
-const sessions = ref<{ id: number; title: string }[]>([])
+const sessions = ref<number[]>([])
 // 所有风险信号
 const riskSignals = ref<any[]>([])
 // 当前输入框内容
@@ -57,13 +57,6 @@ const isLoading = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
 //导入Markdown-it
 const md = new MarkdownIt();
-
-// 获取当前会话标题
-const currentSessionTitle = computed(() => {
-  const session = sessions.value.find(s => s.id === currentSessionId.value)
-  return session?.title || ''
-})
-
 
 // 流式输出相关变量
 const useStreamOutput = ref(true) // 是否使用流式输出
@@ -79,24 +72,19 @@ onBeforeUnmount(() => {
     abortController.value = null
   }
 })
-loadSeesion()
 loadData()
-// 加载会话
-async function loadSeesion() {
-  const savedSessions = localStorage.getItem('chatSessions')
-  if (savedSessions) {
-    sessions.value = JSON.parse(savedSessions)
-    const lastSessionId = localStorage.getItem('currentSessionId')
-    if (lastSessionId) {
-      currentSessionId.value = Number(lastSessionId)
-      await loadChatHistory(currentSessionId.value)
-    }
-  } else if (sessions.value.length === 0) {
-    handleCreateSession()
-  }
-}
-
 function loadData() {
+  getUserSessions(userId.value).then((res) => {
+    if (res.data.code === '000') {
+      sessions.value = res.data.result
+    } else {
+      ElMessage({
+        customClass: 'customMessage',
+        type: 'error',
+        message: res.data.msg
+      })
+    }
+  })
   getRiskSignals().then((res) => {
     if (res.data.code === '000') {
       riskSignals.value = res.data.result.records
@@ -124,17 +112,10 @@ const handleCreateSession = async () => {
     if (res.data.code === '000') {
       const newSessionId = res.data.result
 
-      const newSession = {
-        id: newSessionId,
-        // 以日期为标题
-        title: `新对话 ${new Date().toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' })}`
-      }
-
-      sessions.value = [newSession, ...sessions.value]
-      localStorage.setItem('chatSessions', JSON.stringify(sessions.value))
+      sessions.value.push(newSessionId)
 
       currentSessionId.value = newSessionId
-      localStorage.setItem('currentSessionId', String(newSessionId))
+      sessionStorage.setItem('currentSessionId', String(newSessionId))
 
       messages.value = []
     } else {
@@ -223,10 +204,10 @@ const handleSendMessage = async () => {
   inputMessage.value = ''
   scrollToBottom()
 
-  // 修改会话标题
-  if (messages.value.length === 1) {
-    updateSessionTitle(messageToSend)
-  }
+  // // 修改会话标题
+  // if (messages.value.length === 1) {
+  //   updateSessionTitle(messageToSend)
+  // }
 
   isLoading.value = true
 
@@ -406,18 +387,18 @@ const cancelStreamRequest = () => {
 
 
 // 更新会话标题
-const updateSessionTitle = (message: string) => {
-  const trimmed = message.trim()
-  const title = trimmed.length > 20
-    ? trimmed.substring(0, 20) + '...'
-    : trimmed
+// const updateSessionTitle = (message: string) => {
+//   const trimmed = message.trim()
+//   const title = trimmed.length > 20
+//     ? trimmed.substring(0, 20) + '...'
+//     : trimmed
 
-  const sessionIndex = sessions.value.findIndex(s => s.id === currentSessionId.value)
-  if (sessionIndex !== -1) {
-    sessions.value[sessionIndex].title = title
-    localStorage.setItem('chatSessions', JSON.stringify(sessions.value))
-  }
-}
+//   const sessionIndex = sessions.value.findIndex(s => s.id === currentSessionId.value)
+//   if (sessionIndex !== -1) {
+//     sessions.value[sessionIndex].title = title
+//     localStorage.setItem('chatSessions', JSON.stringify(sessions.value))
+//   }
+// }
 
 // 插入风险信号文本
 const handleInsertRiskSignal = (signal: any) => {
@@ -464,13 +445,13 @@ const scrollToBottom = () => {
 
       <!-- 会话列表 -->
       <div class="flex-1 overflow-y-auto">
-        <div v-for="session in sessions" :key="session.id"
+        <div v-for="session in sessions" :key="session"
           class="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-          :class="{ 'bg-blue-50': session.id === currentSessionId }" @click="handleSelectSession(session.id)">
+          :class="{ 'bg-blue-50': session === currentSessionId }" @click="handleSelectSession(session)">
           <el-icon class="mr-2 text-gray-500">
             <ChatLineRound />
           </el-icon>
-          <div class="truncate">{{ session.title || '新对话' }}</div>
+          <div class="truncate">对话-{{ session }}</div>
         </div>
       </div>
     </div>
@@ -480,7 +461,7 @@ const scrollToBottom = () => {
       <!-- 标题 -->
       <div class="border-b border-gray-200 p-4 flex justify-between items-center">
         <h1 class="text-xl font-medium">
-          {{ currentSessionTitle || '智能体' }}
+          智能体
         </h1>
       </div>
 
