@@ -1,6 +1,7 @@
 package com.RiskHunter.service;
 
 import com.RiskHunter.po.ChatRecord;
+import com.RiskHunter.po.ChatSession;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
@@ -15,5 +16,7 @@ public interface ChatService {
 
     public List<ChatRecord> getHistory(Long sessionId, Long userId);
 
-    public List<Long> getSessionsByUserId(Long userId);
+    public List<ChatSession> getSessionsByUserId(Long userId);
+
+    public Boolean updateSessionTitle(Long sessionId, Long userId, String title);
 }

@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
@@ -168,13 +166,13 @@ public class ChatServiceImpl implements ChatService {
                 .doOnError(error -> {
                     log.error("流式调用失败: {}", error.getMessage(), error);
                     // 保存错误信息作为AI响应
-                    saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试" + error.getMessage(), false);
+                    saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试", false);
                 })
                 .onErrorResume(e -> {
                     // 出错时返回错误信息
                     return Flux.just("处理请求时发生错误，请稍后再试");
                 })
-                .timeout(Duration.ofSeconds(3600)); // 添加超时处理
+                .timeout(Duration.ofSeconds(60)); // 添加超时处理
     }
 
     private String parseStreamResponse(JsonNode response) {
@@ -256,8 +254,6 @@ public class ChatServiceImpl implements ChatService {
         return beforeFirstThought + "<thought>" + contentWithinThoughts + "</thought>" + afterLastThought;
     }
 
-
-
     @Override
     public List<ChatRecord> getHistory(Long sessionId, Long userId) {
         return recordMapper.selectList(new QueryWrapper<ChatRecord>()
@@ -301,17 +297,61 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Long> getSessionsByUserId(Long userId) {
-        // 使用QueryWrapper查询指定userId的所有会话
+    public Boolean updateSessionTitle(Long sessionId, Long userId, String title) {
+        // 使用QueryWrapper查询指定sessionId和userId的会话
+        ChatSession session = sessionMapper.selectOne(
+                new QueryWrapper<ChatSession>()
+                        .eq("id", sessionId)
+                        .eq("user_id", userId));
+
+        if (session != null) {
+            // 设置新标题并更新
+            session.setTitle(title);
+            int updated = sessionMapper.updateById(session);
+            return updated > 0;
+        }
+        return false;
+    }
+
+
+    private void updateSessionTitleIfEmpty(Long sessionId, Long userId, String message) {
+        // 使用QueryWrapper查询指定sessionId和userId的会话
+        ChatSession session = sessionMapper.selectOne(
+                new QueryWrapper<ChatSession>()
+                        .eq("id", sessionId)
+                        .eq("user_id", userId));
+
+        if (session != null && (session.getTitle() == null || session.getTitle().isEmpty())) {
+            // 从消息中提取前几个字作为标题
+            String title = extractTitleFromMessage(message);
+            session.setTitle(title);
+            session.setUpdateTime(LocalDateTime.now());
+            sessionMapper.updateById(session);
+        }
+    }
+
+    private String extractTitleFromMessage(String message) {
+        // 从消息中提取前10个字符作为标题，避免过长
+        int titleLength = Math.min(10, message.length());
+        String title = message.substring(0, titleLength);
+
+        // 如果截断了单词，可以添加省略号
+        if (message.length() > titleLength) {
+            title += "...";
+        }
+
+        return title;
+    }
+
+    @Override
+    public List<ChatSession> getSessionsByUserId(Long userId) {
+        // 使用QueryWrapper查询指定userId的所有会话，按更新时间降序排列
         List<ChatSession> sessions = sessionMapper.selectList(
                 new QueryWrapper<ChatSession>()
                         .eq("user_id", userId)
-                        .orderByAsc("create_time") // 按创建时间升序排列
+                        .orderByDesc("update_time") // 修改为按更新时间降序排列
         );
-
-        // 将ChatSession列表转换为sessionId列表
         return sessions.stream()
-                .map(ChatSession::getId)
                 .collect(Collectors.toList());
     }
 }
