@@ -42,7 +42,8 @@ public class ChatController {
     public Flux<ServerSentEvent<String>> streamChat(
             @RequestParam("sessionId") Long sessionId,
             @RequestParam("userId") Long userId,
-            @RequestParam("message") String message) {
+            @RequestParam("message") String message,
+            @RequestParam(value = "modelName", required = false) String modelName) {
         log.info("sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
         // 将请求参数封装成 DTO
         // ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
@@ -50,7 +51,15 @@ public class ChatController {
         // chatRequestDTO.setUserId(userId);
         // chatRequestDTO.setMessage(message);
 
-        return chatService.chatWithStream(sessionId, message, userId)
+        /*
+            * 可选的modelName：
+            * deepseek-r1（默认）
+            * qwq-plus-latest
+            * deepseek-v3
+            * deepseek-r1-distill-qwen-32b
+         */
+        modelName = modelName == null ? "" : modelName;
+        return chatService.chatWithStream(sessionId, message, userId,modelName)
                 .map(chunk -> ServerSentEvent.<String>builder()
                         .data(chunk)
                         .build());
@@ -123,6 +132,4 @@ public class ChatController {
             @RequestParam String title) {
         return ResultVO.buildSuccess(chatService.updateSessionTitle(sessionId, userId, title));
     }
-    
-
 }

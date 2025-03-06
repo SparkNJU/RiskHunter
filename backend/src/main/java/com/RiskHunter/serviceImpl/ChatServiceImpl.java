@@ -47,8 +47,10 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public Long createSession(Long userId) {
         ChatSession session = new ChatSession();
+        session.setTitle("");
         session.setUserId(userId);
         session.setCreateTime(LocalDateTime.now());
+        session.setUpdateTime(LocalDateTime.now());
         sessionMapper.insert(session);
         log.info("user {} 创建新会话: {}", userId, session.getId());
         return session.getId();
@@ -99,7 +101,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
 
-    public Flux<String> chatWithStream(Long sessionId, String message, Long userId) {
+    public Flux<String> chatWithStream(Long sessionId, String message, Long userId,String modelName) {
         // cz 0304 18:44 version
         // 检查三个参数都合法
         if (sessionId == null || userId == null || message == null) {
@@ -107,7 +109,10 @@ public class ChatServiceImpl implements ChatService {
         }
         log.info("Chat With Stream");
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "deepseek-r1");
+        if (modelName == null || modelName.isEmpty()) {
+            modelName = "deepseek-r1";
+        }
+        requestBody.put("model", modelName);
         List<Map<String, String>> messages = buildMessageHistory(sessionId, userId, message);
         log.info("API请求消息体: {}", messages);
         requestBody.put("messages", messages);

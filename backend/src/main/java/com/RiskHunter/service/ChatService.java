@@ -10,7 +10,7 @@ import java.util.List;
 public interface ChatService {
     public Long createSession(Long userId);
 
-    public Flux<String> chatWithStream(Long sessionId, String message, Long userId);
+    public Flux<String> chatWithStream(Long sessionId, String message, Long userId, String modelName);
 
     public String chatWithoutStream(Long sessionId, String message, Long userId);
 
