@@ -31,7 +31,7 @@
 import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { createSession, getHistory, type ChatRecord } from '../api/chat'
+import { createSession, getHistory, ChatRecord } from '../api/chat'
 import { getRiskSignals } from '../api/risk_signal'
 import { parseCurrencyName } from '../utils'
 import { Plus, ChatLineRound, Position } from '@element-plus/icons-vue'
@@ -156,7 +156,7 @@ const loadChatHistory = async (sessionId: number) => {
   getHistory(sessionId, userId.value).then(res => {
     if (res.data.code === '000') {
       // 处理消息中的思考块
-      const processedMessages = res.data.result.map(message => {
+      const processedMessages = res.data.result.map((message: ChatRecord) => {
         // 只处理AI的回复，用户的消息保持不变
         if (!message.direction) {
           // 提取所有思考块
@@ -292,9 +292,10 @@ const handleStreamMessage = async (messageToSend: string) => {
     let currentThoughtBlock = ''
     eventSource.onmessage = (event) => {
       // 接收到消息时的处理
-      const chunk = event.data.trim(); // 去除多余的换行符
+      let chunk = event.data; // 去除多余的换行符
 
       if (chunk) {
+
         // 检查是否是思考过程
         if (chunk.startsWith('<thought>')) {
           //<thought>xxx</thought>
@@ -317,22 +318,24 @@ const handleStreamMessage = async (messageToSend: string) => {
             messages.value[aiMessageIndex].content = normalContent +
               (normalContent.trim() ? '\n' : '') +
               `<em class="text-gray-500 italic">${currentThoughtBlock}</em>`;
+            scrollToBottom();
           }
         } else {
-          // 普通内容处理
-          buffer += chunk;
+          buffer += chunk
 
-          // 检查缓冲区长度是否达到20个字符
-          if (buffer.length >= 20) {
-            // 使用markdown-it解析缓冲区内容
-            const renderedContent = md.render(buffer);
-            // 替换现有的普通内容
-            messages.value[aiMessageIndex].content = messages.value[aiMessageIndex].content.replace(buffer, renderedContent);
-            // 清空缓冲区
-            buffer = '';
+          // 尝试检测是否完整的Markdown段落
+          const lines = buffer.split('\n')
+          if (lines[lines.length - 1].startsWith('```') || lines.length > 2) {
+            // 当检测到代码块结束或积累到多行时进行渲染
+            messages.value[aiMessageIndex].content =
+              md.render(buffer) +
+              (currentThoughtBlock ? `<em>${currentThoughtBlock}</em>` : '')
+            buffer = ''
+            scrollToBottom()
           } else {
-            // 没有达到20个字符，直接添加到content
-            messages.value[aiMessageIndex].content += chunk;
+            // 临时显示原始内容（可选）
+            messages.value[aiMessageIndex].content += chunk
+            scrollToBottom()
           }
         }
       }
@@ -343,6 +346,12 @@ const handleStreamMessage = async (messageToSend: string) => {
       isStreaming.value = false
       isLoading.value = false
       abortController.value = null
+      // 处理剩余缓冲区内容
+      if (buffer.length > 0) {
+        messages.value[aiMessageIndex].content += md.render(buffer)
+        buffer = ''
+        scrollToBottom()
+      }
     }
 
     // 添加取消监听
@@ -437,9 +446,7 @@ const scrollToBottom = () => {
   })
 }
 
-</script>
-
-<template>
+</script><template>
   <div class="flex h-screen bg-white">
     <!-- 侧边栏 -->
     <div class="w-64 border-r border-gray-200 flex flex-col">
@@ -477,7 +484,7 @@ const scrollToBottom = () => {
       </div>
 
       <!-- 信息区 -->
-      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 bg-white">
+      <div ref="messagesContainer" class="messages-container overflow-y-auto p-4 bg-white">
         <div v-if="messages.length === 0" class="h-full flex flex-col items-center justify-center text-gray-500">
           <el-icon :size="48" class="mb-4">
             <ChatLineRound />
@@ -487,7 +494,7 @@ const scrollToBottom = () => {
         </div>
 
         <div v-else>
-          <div v-for="(message, index) in messages" :key="index" class="mb-6">
+          <div v-for="(message, index) in messages" :key="index" class="mb-4">
             <!-- 用户信息 -->
             <div v-if="message.direction" class="flex">
               <div class="flex-shrink-0 mr-3">
@@ -520,7 +527,8 @@ const scrollToBottom = () => {
         </div>
       </div>
 
-      <div class="border-t border-gray-200 p-4">
+      <!-- 输入框和流式输出开关容器 -->
+      <div class="fixed-bottom-container fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
         <div class="flex space-x-2">
           <!-- 风险信号 -->
           <el-dropdown trigger="click" @command="handleInsertRiskSignal" placement="top">
@@ -543,7 +551,7 @@ const scrollToBottom = () => {
           </el-dropdown>
 
           <!-- 输入框 -->
-          <div class="relative flex-1">
+          <div class="relative flex-1 ">
             <el-input v-model="inputMessage" type="textarea" :rows="3" resize="none" placeholder="输入您的问题..."
               class="pr-12" :disabled="isLoading || !currentSessionId"
               @keydown.enter.exact.prevent="handleSendMessage" />
@@ -564,7 +572,7 @@ const scrollToBottom = () => {
 
           <div class="flex items-center">
             <!-- 流式输出开关 -->
-            <el-switch v-model="useStreamOutput" inactive-text="标准输出" active-text="流式输出" class="mr-4"
+            <el-switch v-model="useStreamOutput" inactive-text="标准输出" active-text="流式输出" class="mr-4 "
               :disabled="isLoading" />
 
             <!-- 取消按钮，仅在流式输出时显示 -->
@@ -583,12 +591,24 @@ const scrollToBottom = () => {
   color: #6B7280;
   font-style: italic;
   display: block;
-  margin: 8px 0;
-  padding: 12px;
+  margin: 4px 0;
+  /* 减少 margin */
+  padding: 8px;
+  /* 减少 padding */
   background-color: #F3F4F6;
   border-radius: 6px;
   border-left: 3px solid #9CA3AF;
   font-size: 0.95em;
   white-space: pre-wrap;
+}
+
+.fixed-bottom-container {
+  height: 150px;
+  /* 增大输入框容器的高度 */
+}
+
+.messages-container {
+  height: calc(100vh - 275px);
+  /* 减小消息显示区域的高度 */
 }
 </style>

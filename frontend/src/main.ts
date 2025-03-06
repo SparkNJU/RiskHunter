@@ -6,9 +6,10 @@ import { createApp } from 'vue'
 import {router} from './router'
 import App from './App.vue'
 import axios from 'axios'
-import './styles/output.css'
-import ElementPlus from 'element-plus'
+import './styles/style.css'
 import 'element-plus/dist/index.css'
+import ElementPlus from 'element-plus'
+
 
 
 // 设置后端地址（本地或服务器），会将请求转发到后端端口
