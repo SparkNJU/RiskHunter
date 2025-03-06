@@ -99,22 +99,18 @@ const handleLogout = () => {
       <!-- 用户区 -->
       <div class="user-group">
         <template v-if="!isLoggedIn">
-          <el-menu-item index="/login">
-            <el-button type="primary" text>
-              <el-icon>
-                <User />
-              </el-icon>
-              登录
-            </el-button>
+          <el-menu-item index="/login" class="login-btn">
+            <el-icon>
+              <User />
+            </el-icon>
+            <span>登录</span>
           </el-menu-item>
 
           <el-menu-item index="/register">
-            <el-button type="primary" class="register-btn">
-              <el-icon>
-                <Plus />
-              </el-icon>
-              注册
-            </el-button>
+            <el-icon>
+              <Plus />
+            </el-icon>
+            <span>注册</span>
           </el-menu-item>
         </template>
 
@@ -125,13 +121,11 @@ const handleLogout = () => {
             </el-icon>
             <span>个人信息</span>
           </el-menu-item>
-          <el-menu-item @click="handleLogout">
-            <el-button type="danger" text>
-              <el-icon>
-                <SwitchButton />
-              </el-icon>
-              退出
-            </el-button>
+          <el-menu-item @click="handleLogout" class="logout-btn">
+            <el-icon>
+              <SwitchButton />
+            </el-icon>
+            <span>退出</span>
           </el-menu-item>
         </template>
       </div>
@@ -196,6 +190,16 @@ const handleLogout = () => {
   gap: 10px;
 }
 
+/* 自定义登录按钮样式 */
+.login-btn {
+  color: rgb(75, 173, 226);
+}
+
+/* 自定义退出按钮样式 */
+.logout-btn {
+  color: rgb(255, 77, 0);
+}
+
 /* Element Plus 组件深度样式 */
 :deep(.el-menu-item) {
   display: flex;
@@ -208,12 +212,12 @@ const handleLogout = () => {
 
 :deep(.el-menu-item:hover) {
   color: #3a3a3a;
-  --el-menu-text-color: #00ff00;
+  --el-menu-text-color: #7d25e8;
 }
 
 :deep(.el-menu-item.is-active) {
-  color: #ffd700;
-  border-bottom: 2px solid #ffd700;
+  color: #b789eb;
+  border-bottom: 2px solid #b789eb;
 }
 
 :deep(.el-button) {
@@ -221,12 +225,6 @@ const handleLogout = () => {
   align-items: center;
   gap: 5px;
   transition: all 0.3s ease;
-}
-
-/* 按钮样式 */
-.register-btn {
-  border-radius: 20px;
-  padding: 8px 24px;
 }
 
 /* 菜单样式 */
@@ -261,8 +259,10 @@ const handleLogout = () => {
     padding: 0 12px;
   }
 
-  .register-btn {
-    padding: 8px 16px;
+  /* 隐藏按钮文本，只显示图标 */
+  .user-group span,
+  .nav-group span {
+    display: none;
   }
 }
 

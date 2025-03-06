@@ -287,6 +287,7 @@ const handleStreamMessage = async (messageToSend: string) => {
     // 使用EventSource处理SSE流
     // 修改为后端实际提供的路径
     const eventSource = new EventSource(`http://localhost:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
+    //const eventSource = new EventSource(`http://47.96.147.149:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
 
     // 创建一个单独的思考过程区域
     let currentThoughtBlock = ''
@@ -446,10 +447,11 @@ const scrollToBottom = () => {
   })
 }
 
-</script><template>
+</script>
+<template>
   <div class="flex h-screen bg-white">
     <!-- 侧边栏 -->
-    <div class="w-64 border-r border-gray-200 flex flex-col">
+    <div class="sidebar border-r border-gray-200 flex flex-col">
       <!-- 创建新的对话 -->
       <div class="p-4">
         <el-button type="primary" class="w-full flex items-center justify-center" @click="handleCreateSession"
@@ -475,7 +477,6 @@ const scrollToBottom = () => {
 
     <!-- 主界面 -->
     <div class="flex-1 flex flex-col">
-
       <!-- 标题 -->
       <div class="border-b border-gray-200 p-4 flex justify-between items-center">
         <h1 class="text-xl font-medium">
@@ -587,6 +588,7 @@ const scrollToBottom = () => {
 </template>
 
 <style scoped>
+
 :deep(.text-gray-500) {
   color: #6B7280;
   font-style: italic;
@@ -601,10 +603,20 @@ const scrollToBottom = () => {
   font-size: 0.95em;
   white-space: pre-wrap;
 }
+.sidebar {
+  width: 16rem; /* 默认宽度 */
+}
 
-.fixed-bottom-container {
-  height: 150px;
-  /* 增大输入框容器的高度 */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 12rem; /* 中等屏幕宽度 */
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: 8rem; /* 小屏幕宽度 */
+  }
 }
 
 .messages-container {

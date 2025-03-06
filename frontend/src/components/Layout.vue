@@ -22,4 +22,11 @@ import Header from './Header.vue'
     background-color: var(--el-bg-color-overlay);
   }
 }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .layout {
+    padding: 0 10px;
+  }
+}
 </style>
