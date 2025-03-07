@@ -28,15 +28,32 @@
 } -->
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
+import { ref, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { createSession, getHistory, getUserSessions, ChatRecord } from '../api/chat'
+import { createSession, getHistory, getUserSessions, updateSessionTitle } from '../api/chat'
 import { getRiskSignals } from '../api/risk_signal'
-import { parseCurrencyName } from '../utils'
+import { parseCurrencyName, formatDate } from '../utils'
 import { Plus, ChatLineRound, Position } from '@element-plus/icons-vue'
 import axios from 'axios'
 import MarkdownIt from 'markdown-it'
+
+type SessionRecord = {
+  id: number
+  userId: number
+  title: string
+  createTime: string
+  updateTime: string
+}
+
+type ChatRecord = {
+    id?: number
+    createTime?: string
+    userId: number
+    direction: boolean
+    sessionId: number
+    content: string
+}
 
 const router = useRouter()
 // 用户id, 从sessionStorage获取
@@ -46,7 +63,7 @@ const currentSessionId = ref<number>(Number(sessionStorage.getItem('currentSessi
 // 当前会话的所有聊天记录
 const messages = ref<ChatRecord[]>([])
 // 所有会话
-const sessions = ref<number[]>([])
+const sessions = ref<SessionRecord[]>([])
 // 所有风险信号
 const riskSignals = ref<any[]>([])
 // 当前输入框内容
@@ -76,7 +93,10 @@ loadData()
 function loadData() {
   getUserSessions(userId.value).then((res) => {
     if (res.data.code === '000') {
-      sessions.value = res.data.result
+      // 加载所有会话, 按更新时间倒序排序
+      sessions.value = res.data.result.sort((a: SessionRecord, b: SessionRecord) =>
+        b.updateTime.localeCompare(a.updateTime)
+      )
     } else {
       ElMessage({
         customClass: 'customMessage',
@@ -107,16 +127,11 @@ const handleCreateSession = async () => {
   }
 
   isLoading.value = true
-
   createSession(userId.value).then(res => {
     if (res.data.code === '000') {
       const newSessionId = res.data.result
-
-      sessions.value.push(newSessionId)
-
+      sessions.value.unshift({ id: newSessionId, userId: userId.value, title: '新会话', createTime: new Date().toISOString(), updateTime: new Date().toISOString() })
       currentSessionId.value = newSessionId
-      sessionStorage.setItem('currentSessionId', String(newSessionId))
-
       messages.value = []
     } else {
       ElMessage({
@@ -204,10 +219,8 @@ const handleSendMessage = async () => {
   inputMessage.value = ''
   scrollToBottom()
 
-  // // 修改会话标题
-  // if (messages.value.length === 1) {
-  //   updateSessionTitle(messageToSend)
-  // }
+  // 更新会话
+  updateSession(messageToSend)
 
   isLoading.value = true
 
@@ -384,21 +397,33 @@ const cancelStreamRequest = () => {
   }
 }
 
+// 更新会话
+const updateSession = (message: string) => {
+  const sessionIndex = sessions.value.findIndex(s => s.id === currentSessionId.value)
+  if (sessionIndex === -1) return
 
-
-// 更新会话标题
-// const updateSessionTitle = (message: string) => {
-//   const trimmed = message.trim()
-//   const title = trimmed.length > 20
-//     ? trimmed.substring(0, 20) + '...'
-//     : trimmed
-
-//   const sessionIndex = sessions.value.findIndex(s => s.id === currentSessionId.value)
-//   if (sessionIndex !== -1) {
-//     sessions.value[sessionIndex].title = title
-//     localStorage.setItem('chatSessions', JSON.stringify(sessions.value))
-//   }
-// }
+  sessions.value[sessionIndex].updateTime = new Date().toISOString()
+  sessions.value = sessions.value.sort((a: SessionRecord, b: SessionRecord) =>
+    b.updateTime.localeCompare(a.updateTime)
+    )
+  if (messages.value.length === 1) {
+    // 第一次发送信息时需更新会话标题
+    const trimmed = message.trim()
+    const title = trimmed.length > 5
+      ? trimmed.substring(0, 5) + '...'
+      : trimmed
+    sessions.value[sessionIndex].title = title
+  }
+  updateSessionTitle(userId.value, currentSessionId.value, sessions.value[sessionIndex].title).then(res => {
+    if (res.data.code !== '000') {
+      ElMessage({
+        message: res.data.msg,
+        type: 'error',
+        center: true,
+      })
+    }
+  })
+}
 
 // 插入风险信号文本
 const handleInsertRiskSignal = (signal: any) => {
@@ -407,17 +432,6 @@ const handleInsertRiskSignal = (signal: any) => {
   const signalText = `风险信号: 基准货币: ${parseCurrencyName(signal.baseCurrency)}, 报价货币: ${parseCurrencyName(signal.targetCurrency)}, 时间: ${formatDate(signal.time)}, ` +
     `EMP: ${signal.emp}, 汇率: ${signal.exchangeRate}, 利率: ${signal.interestRate}, 外汇储备: ${signal.fxReserves}.`
   inputMessage.value += inputMessage.value ? `\n${signalText}` : signalText
-}
-
-// 格式化时间
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 const scrollToBottom = () => {
@@ -445,13 +459,13 @@ const scrollToBottom = () => {
 
       <!-- 会话列表 -->
       <div class="flex-1 overflow-y-auto">
-        <div v-for="session in sessions" :key="session"
+        <div v-for="session in sessions" :key="session.id"
           class="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-          :class="{ 'bg-blue-50': session === currentSessionId }" @click="handleSelectSession(session)">
+          :class="{ 'bg-blue-50': session.id === currentSessionId }" @click="handleSelectSession(session.id)">
           <el-icon class="mr-2 text-gray-500">
             <ChatLineRound />
           </el-icon>
-          <div class="truncate">对话-{{ session }}</div>
+          <div class="truncate">{{ session.title?.trim() ? session.title : '新会话' }}</div>
         </div>
       </div>
     </div>
@@ -569,7 +583,6 @@ const scrollToBottom = () => {
 </template>
 
 <style scoped>
-
 :deep(.text-gray-500) {
   color: #6B7280;
   font-style: italic;
@@ -584,19 +597,23 @@ const scrollToBottom = () => {
   font-size: 0.95em;
   white-space: pre-wrap;
 }
+
 .sidebar {
-  width: 16rem; /* 默认宽度 */
+  width: 16rem;
+  /* 默认宽度 */
 }
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 12rem; /* 中等屏幕宽度 */
+    width: 12rem;
+    /* 中等屏幕宽度 */
   }
 }
 
 @media (max-width: 640px) {
   .sidebar {
-    width: 8rem; /* 小屏幕宽度 */
+    width: 8rem;
+    /* 小屏幕宽度 */
   }
 }
 

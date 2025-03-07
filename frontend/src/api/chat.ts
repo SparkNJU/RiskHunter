@@ -11,18 +11,6 @@ export type ChatRequestDTO = {
 }
 
 /**
- * 聊天记录实体
- */
-export type ChatRecord = {
-    id?: number           // 记录ID
-    createTime?: string   // 创建时间
-    userId: number        // 用户ID
-    direction: boolean    // 方向，true表示用户发给大模型，false表示相反
-    sessionId: number     // 会话ID
-    content: string       // 聊天内容
-}
-
-/**
  * 创建新的聊天会话
  * @param userId 用户ID
  */
@@ -35,12 +23,27 @@ export const createSession = (userId: number) => {
 }
 
 /**
- * 发送聊天消息（非流式响应）
- * @param chatRequestDTO 聊天请求对象
+ * 更新聊天会话标题
+ * @param userId 用户ID
  */
-export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
-    return axios.post(`${CHAT_MODULE}/noStream`, chatRequestDTO, {
-        timeout: 60000
+export const updateSessionTitle = (userId: number, sessionId: number, title: string) => {
+    return axios.put(`${CHAT_MODULE}/session/${sessionId}/title`, null, {
+        params: {
+            userId,
+            title
+        }
+    })
+}
+
+/**
+ * 获取用户的所有会话ID
+ * @param userId 用户ID
+ */
+export const getUserSessions = (userId: number) => {
+    return axios.get(`${CHAT_MODULE}/sessions`, {
+        params: {
+            userId
+        }
     })
 }
 
@@ -58,13 +61,11 @@ export const getHistory = (sessionId: number, userId: number) => {
 }
 
 /**
- * 获取用户的所有会话ID
- * @param userId 用户ID
+ * 发送聊天消息（非流式响应）
+ * @param chatRequestDTO 聊天请求对象
  */
-export const getUserSessions = (userId: number) => {
-    return axios.get(`${CHAT_MODULE}/sessions`, {
-        params: {
-            userId
-        }
+export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
+    return axios.post(`${CHAT_MODULE}/noStream`, chatRequestDTO, {
+        timeout: 60000
     })
 }

@@ -312,6 +312,7 @@ public class ChatServiceImpl implements ChatService {
         if (session != null) {
             // 设置新标题并更新
             session.setTitle(title);
+            session.setUpdateTime(LocalDateTime.now());
             int updated = sessionMapper.updateById(session);
             return updated > 0;
         }
