@@ -6,8 +6,8 @@ const service = axios.create(
     {
         //baseURL: SERVER_ADDR, 
         //TODO : 设置后端地址（本地或服务器），会将请求转发到后端端口
-        baseURL: "http://localhost:8080",
-        //baseURL: "http://47.96.147.149:8080",
+        //baseURL: "http://localhost:8080",
+        baseURL: "http://47.96.147.149:8080",
         timeout: 30000
     }
 )

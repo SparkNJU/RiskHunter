@@ -212,7 +212,7 @@ const handleLogout = () => {
 
 :deep(.el-menu-item:hover) {
   color: #3a3a3a;
-  --el-menu-text-color: #7d25e8;
+  --el-menu-text-color: #b789eb;
 }
 
 :deep(.el-menu-item.is-active) {
@@ -252,7 +252,11 @@ const handleLogout = () => {
   }
 
   .nav-group {
-    gap: 5px;
+    gap: 0px;
+  }
+
+  .user-group {
+    gap: 0px;
   }
 
   :deep(.el-menu-item) {
@@ -263,6 +267,9 @@ const handleLogout = () => {
   .user-group span,
   .nav-group span {
     display: none;
+  }
+  :deep(.el-icon) {
+    transform: scale(0.8);
   }
 }
 
