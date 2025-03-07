@@ -280,8 +280,8 @@ const handleStreamMessage = async (messageToSend: string) => {
 
     // 使用EventSource处理SSE流
     // 修改为后端实际提供的路径
-    //const eventSource = new EventSource(`http://localhost:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
-    const eventSource = new EventSource(`http://47.96.147.149:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
+    const eventSource = new EventSource(`http://localhost:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
+    //const eventSource = new EventSource(`http://47.96.147.149:8080/api/chat/stream?sessionId=${currentSessionId.value}&userId=${userId.value}&message=${encodeURIComponent(messageToSend)}`)
 
     // 创建一个单独的思考过程区域
     let currentThoughtBlock = ''
