@@ -13,8 +13,8 @@ import ElementPlus from 'element-plus'
 
 
 // 设置后端地址（本地或服务器），会将请求转发到后端端口
-//axios.defaults.baseURL = ("http://localhost:8080")
-axios.defaults.baseURL = ("http://47.96.147.149:8080")
+axios.defaults.baseURL = ("http://localhost:8080")
+//axios.defaults.baseURL = ("http://47.96.147.149:8080")
 axios.defaults.timeout = 30000;
 
 //创建一个新的Vue应用实例，使用ElementPlus插件和路由，然后挂载到页面上id为'app'的元素上。
