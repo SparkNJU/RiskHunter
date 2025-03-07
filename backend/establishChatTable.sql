@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS chat_record;
+DROP TABLE IF EXISTS chat_session;
+
 CREATE TABLE chat_record (
                              id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
                              session_id BIGINT NOT NULL COMMENT '会话ID',
@@ -10,7 +13,10 @@ CREATE TABLE chat_record (
 CREATE TABLE chat_session (
                               id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
                               user_id BIGINT NOT NULL COMMENT '用户ID',
-                              create_time DATETIME NOT NULL COMMENT '创建时间'
+                              title TEXT NOT NULL COMMENT '标题',
+                              create_time DATETIME NOT NULL COMMENT '创建时间',
+                              update_time DATETIME NOT NULL COMMENT '更新时间'
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天会话表';
 
 CREATE INDEX idx_session_id ON chat_record (session_id);

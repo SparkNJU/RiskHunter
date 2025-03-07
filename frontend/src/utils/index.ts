@@ -13,6 +13,17 @@ export function parseTime(time: string) {
     return times[0] + " " + times[1]
 }
 
+// 格式化时间
+export const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 const CurrencyList = [
     { number: 1, code: 'CNY', name: '人民币' },
     { number: 2, code: 'USD', name: '美元' },

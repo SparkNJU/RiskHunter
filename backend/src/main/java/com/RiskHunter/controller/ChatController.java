@@ -42,7 +42,8 @@ public class ChatController {
     public Flux<ServerSentEvent<String>> streamChat(
             @RequestParam("sessionId") Long sessionId,
             @RequestParam("userId") Long userId,
-            @RequestParam("message") String message) {
+            @RequestParam("message") String message,
+            @RequestParam(value = "modelName", required = false) String modelName) {
         log.info("sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
         // 将请求参数封装成 DTO
         // ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
@@ -50,7 +51,15 @@ public class ChatController {
         // chatRequestDTO.setUserId(userId);
         // chatRequestDTO.setMessage(message);
 
-        return chatService.chatWithStream(sessionId, message, userId)
+        /*
+            * 可选的modelName：
+            * deepseek-r1（默认）
+            * qwq-plus-latest
+            * deepseek-v3
+            * deepseek-r1-distill-qwen-32b
+         */
+        modelName = modelName == null ? "" : modelName;
+        return chatService.chatWithStream(sessionId, message, userId,modelName)
                 .map(chunk -> ServerSentEvent.<String>builder()
                         .data(chunk)
                         .build());
@@ -78,11 +87,49 @@ public class ChatController {
      * @return 该用户所有会话ID的列表
      * @apiNote 前端请求示例：
      *          GET /sessions?userId=12345
+     *  前端收到数据示例：
+     *  {
+     *   "code": 200,
+     *   "message": "success", // 或者其他成功消息
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "userId": 12345,
+     *       "title": "关于保险的会话",
+     *       "createTime": "2024-02-03T15:00:00",
+     *       "updateTime": "2024-02-03T15:30:00"
+     *     },
+     *     {
+     *       "id": 2,
+     *       "userId": 12345,
+     *       "title": "投资理财咨询",
+     *       "createTime": "2024-02-02T10:00:00",
+     *       "updateTime": "2024-02-02T12:00:00"
+     *     }
+     *   ]
+     * }
      */
     @GetMapping("/sessions")
-    public ResultVO<List<Long>> getUserSessions(@RequestParam Long userId) {
+    public ResultVO<List<ChatSession>> getUserSessions(@RequestParam Long userId) {
         log.info("Getting all sessions for userId: {}", userId);
         return ResultVO.buildSuccess(chatService.getSessionsByUserId(userId));
     }
 
+    /**
+     * 更新会话标题
+     * 
+     * @param sessionId 会话ID
+     * @param userId    用户ID
+     * @param title     新标题
+     * @return 更新结果
+     * @apiNote 前端请求示例：
+     *          PUT /session/123/title?userId=12345&title=新标题
+     */
+    @PutMapping("/session/{sessionId}/title")
+    public ResultVO<Boolean> updateSessionTitle(
+            @PathVariable Long sessionId,
+            @RequestParam Long userId,
+            @RequestParam String title) {
+        return ResultVO.buildSuccess(chatService.updateSessionTitle(sessionId, userId, title));
+    }
 }
