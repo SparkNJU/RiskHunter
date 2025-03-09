@@ -1,4 +1,3 @@
-home-container
 <script setup lang="ts">
 import { InfoFilled, Warning, Memo, DataLine, Phone, Message, Location, Service } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -84,11 +83,18 @@ const funcs = [
 /* 介绍栏 */
 .home-container {
   background: linear-gradient(135deg, #e0f7fa 0%, #e1bee7 100%);
+  padding: 0; /* 移除默认内边距 */
+}
+
+/* 使el-main能够铺满宽度 */
+:deep(.el-main) {
+  padding: 0;
 }
 
 .intro {
   margin-bottom: 2rem;
   text-align: center;
+  padding: 2rem 1rem;
 }
 
 .intro-header {
@@ -127,44 +133,25 @@ const funcs = [
 /* 功能栏 */
 .function-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 0;
-  margin: 2rem auto;
-  max-width: 1200px;
-  width: calc(100% - 2rem);
-}
-
-@media (min-width: 1201px) {
-  .function-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 1200px) and (min-width: 769px) {
-  .function-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: calc(100% - 3rem);
-  }
-}
-
-@media (max-width: 768px) {
-  .function-grid {
-    grid-template-columns: minmax(0, 1fr);
-    width: calc(100% - 2rem);
-  }
+  grid-template-columns: 1fr; /* 修改为单列布局 */
+  gap: 0; /* 在卡片之间保留间距 */
+  padding: 0; /* 移除内边距让卡片宽度铺满屏幕 */
+  margin: 0; /* 移除外边距 */
+  width: 100%;
 }
 
 .function-card {
   padding: 1.5rem;
   border: 1px solid var(--el-border-color-light);
   transition: all 0.3s var(--el-transition-function-fast-bezier);
-  /* background: var(--el-bg-color); */
   background: linear-gradient(to right, #dbeafe, #f3e5f5);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 0; /* 移除圆角让卡片完全铺满宽度 */
+  width: 100%;
+  height:500px;
+  margin: 0; /* 移除外边距 */
 }
 
 .function-card:hover {
@@ -191,31 +178,12 @@ const funcs = [
   margin-top: auto;
 }
 
-@media (max-width: 1200px) {
-  .function-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .function-grid {
-    grid-template-columns: 1fr;
-    padding: 0 15px;
-  }
-
-  .function-card {
-    padding: 1.5rem;
-    min-height: auto;
-  }
-}
-
 /* 联系栏 */
 .contact-container {
-  padding: 2rem 1.5rem;
-  margin: 3rem auto 0;
-  max-width: 1200px;
-  border-radius: 8px;
+  padding: 2rem 1rem;
+  margin: 0; /* 移除外边距 */
+  width: 100%; /* 使容器占满宽度 */
+  max-width: 100%; /* 移除宽度限制 */
 }
 
 .contact-header {
@@ -223,6 +191,7 @@ const funcs = [
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
 .contact-title {
@@ -240,13 +209,11 @@ const funcs = [
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  margin-bottom: 1rem;
+  justify-content: center;
 }
 
 .contact-icon {
   font-size: 1.2rem;
-}
-
-.contact-label {
-  color: var(--el-text-color-secondary);
 }
 </style>

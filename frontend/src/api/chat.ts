@@ -10,6 +10,8 @@ export type ChatRequestDTO = {
     userId: number        // 用户ID
 }
 
+export const CHAT_STREAM = 'http://localhost:8080/api/chat/stream'
+
 /**
  * 创建新的聊天会话
  * @param userId 用户ID
@@ -25,6 +27,8 @@ export const createSession = (userId: number) => {
 /**
  * 更新聊天会话标题
  * @param userId 用户ID
+ * @param sessionId 会话ID
+ * @param title 会话标题
  */
 export const updateSessionTitle = (userId: number, sessionId: number, title: string) => {
     return axios.put(`${CHAT_MODULE}/session/${sessionId}/title`, null, {
