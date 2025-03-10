@@ -8,6 +8,7 @@ import RiskSignal from "../views/signal/RiskSignal.vue"
 import ForexData from "../views/forex/ForexData.vue"
 import News from "../views/news/News.vue"
 import Chat from "../views/chat/Chat.vue"
+import { ElMessage } from "element-plus"
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -80,34 +81,26 @@ const router = createRouter({
 })
 
 // 路由守卫
-//router.beforeEach((to, _, next) => {
-    // const token: string | null = sessionStorage.getItem('token');
-    // const role: string | null = sessionStorage.getItem('role')
+router.beforeEach((to, _, next) => {
+    const token: string | null = sessionStorage.getItem('token');
 
-    // if (to.meta.title) {
-    //     document.title = to.meta.title
-    // }
-
-    // if (token) {
-    //     if (to.meta.permission) {
-    //         if (to.meta.permission.includes(role!)) {
-    //             next()
-    //         } else {
-    //             next('/404')
-    //         }
-    //     } else {
-    //         next()
-    //     }
-    // } else {
-    //     if (to.path === '/login') {
-    //         next();
-    //     } else if (to.path === '/register') {
-    //         next()
-    //     } else {
-    //         next('/login')
-    //     }
-    // }
-    //next()
-//})
+    if (token) {
+        if(to.path === '/login' || to.path === '/register') {
+            ElMessage.error('您已登录')
+            next('/profile')
+        } else {
+            next()
+        }
+    } else {
+        if (to.path === '/login' || to.path === '/register') {
+            next();
+        } else if (to.path === '/' || to.path === '/home') {
+            next()
+        } else {
+            ElMessage.error('请先登录')
+            next('/login')
+        }
+    }
+})
 
 export default router

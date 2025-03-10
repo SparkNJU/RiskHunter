@@ -10,8 +10,6 @@ export type ChatRequestDTO = {
     userId: number        // 用户ID
 }
 
-export const CHAT_STREAM = 'http://localhost:8080/api/chat/stream'
-
 /**
  * 创建新的聊天会话
  * @param userId 用户ID
@@ -73,3 +71,9 @@ export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
         timeout: 60000
     })
 }
+
+/**
+ * 发送聊天消息（流式响应）
+ * @param chatRequestDTO 聊天请求对象
+ */
+export const CHAT_STREAM = `${axios.defaults.baseURL}${CHAT_MODULE}/stream`

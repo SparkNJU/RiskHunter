@@ -256,7 +256,7 @@ const handleStreamMessagePost = async (messageToSend: string) => {
   try {
     let thought = '';
     let content = '';
-    await fetchEventSource(`http://localhost:8080/api/chat/stream`, {
+    await fetchEventSource(CHAT_STREAM, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -470,7 +470,7 @@ const scrollToBottom = () => {
         </el-button>
         <el-button plain round @click="sidebarOpen = !sidebarOpen" :icon="ChatLineSquare" class="sidebar-toggle" />
       </div>
-      <el-scrollbar>
+      <el-scrollbar class="chat-sessions">
         <el-menu :default-active="String(currentSessionId)" @select="handleSelectSession" class="session-list">
           <el-menu-item v-for="session in sessions" :key="session.id" :index="String(session.id)"
             :class="{ 'is-active': session.id === currentSessionId }">
@@ -507,12 +507,11 @@ const scrollToBottom = () => {
         <div class="chat-main-header">
           <el-button v-if="!sidebarOpen || viewport.isMobile.value" plain round @click="sidebarOpen = !sidebarOpen"
             :icon="ChatLineSquare" class="sidebar-toggle" />
-          <h2> {{ currentSessionTitle === '' ? '新会话' : currentSessionTitle }} </h2>
+          <h2 v-show="currentSessionId != 0"> {{ currentSessionTitle === '' ? '新会话' : currentSessionTitle }} </h2>
         </div>
 
         <!-- 消息区 -->
-        <el-scrollbar v-if="currentSessionId != 0" class="chat-messages"
-          ref="messagesContainer">
+        <el-scrollbar v-if="currentSessionId != 0" class="chat-messages" ref="messagesContainer">
           <div v-for="(msg, index) in messages" :key="index">
             <el-row :justify="msg.direction ? 'end' : 'start'">
               <el-col>
@@ -590,7 +589,7 @@ const scrollToBottom = () => {
 
 <style scoped>
 :deep(.el-aside) {
-  overflow: hidden;
+  max-height: calc(100vh - 3.5rem);
   transition: width 0.2s ease-in-out;
 }
 
@@ -625,6 +624,11 @@ const scrollToBottom = () => {
   justify-content: center;
   align-items: center;
   padding: 1rem 1rem;
+}
+
+.chat-sessions {
+  flex: 1;
+  overflow-y: auto;
 }
 
 

@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { ElForm, ElFormItem, ElMessage } from "element-plus"
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { userInfo, userLogin } from "../../api/user.ts"
 import { captchaGenerator } from '../../utils/captcha'
 import { User, Lock, PictureRounded } from '@element-plus/icons-vue'
 
 const router = useRouter()
+
+// 登录表项
 const phone = ref('')
 const password = ref('')
 const captcha = ref('')
 const captchaImage = ref('')
 const captchaCode = ref('')
 
+// 前端表单校验
 const hasPhoneInput = computed(() => phone.value !== '')
 const hasPasswordInput = computed(() => password.value !== '')
 const hasCaptchaInput = computed(() => captcha.value !== '')
-
 const phoneRegex = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-79])|(?:5[0-35-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[01256789]))\d{8}$/
 const isPhoneValid = computed(() => phoneRegex.test(phone.value))
 
@@ -31,16 +33,10 @@ const getCaptcha = async () => {
   captchaImage.value = image
   captchaCode.value = code
 }
-
-// 处理点击Enter键
-function handleEnterKey() {
-  if (!loginDisabled.value) {
-    handleLogin()
-  }
-}
+getCaptcha()
 
 // 登录处理
-function handleLogin() {
+const handleLogin = async () => {
   if (!captchaGenerator.validate(captcha.value)) {
     ElMessage({
       message: "验证码错误",
@@ -83,79 +79,64 @@ function handleLogin() {
     }
   })
 }
-
-// 组件挂载时获取验证码
-onMounted(() => {
-  getCaptcha()
-})
 </script>
 
 <template>
   <el-main class="auth-container">
-      <el-card class="auth-card" shadow="hover">
-        <div class="auth-header">
-          <h1 class="auth-title">登录</h1>
-        </div>
+    <el-card class="auth-card" shadow="hover">
+      <div class="auth-header">
+        <h1 class="auth-title">登录</h1>
+      </div>
 
-        <el-form @keydown.enter="handleEnterKey">
-          <el-form-item>
-            <label class="custom-label" :class="{ 'error': hasPhoneInput && !isPhoneValid }">
-              <el-icon><User /></el-icon>
-              <span>{{ !hasPhoneInput || isPhoneValid ? '手机号' : '手机号格式不正确' }}</span>
-            </label>
-            <el-input 
-              v-model="phone" 
-              :class="{ 'error-input': hasPhoneInput && !isPhoneValid }"
-              placeholder="请输入手机号"
-            />
-          </el-form-item>
+      <el-form @keydown.enter="!loginDisabled && handleLogin()">
+        <el-form-item>
+          <label class="custom-label" :class="{ 'error': hasPhoneInput && !isPhoneValid }">
+            <el-icon>
+              <User />
+            </el-icon>
+            <span>{{ !hasPhoneInput || isPhoneValid ? '手机号' : '手机号格式不正确' }}</span>
+          </label>
+          <el-input v-model="phone" :class="{ 'error-input': hasPhoneInput && !isPhoneValid }" placeholder="请输入手机号" />
+        </el-form-item>
 
-          <el-form-item>
-            <label class="custom-label">
-              <el-icon><Lock /></el-icon>
-              <span>密码</span>
-            </label>
-            <el-input 
-              type="password" 
-              v-model="password" 
-              show-password
-              placeholder="请输入密码"
-            />
-          </el-form-item>
+        <el-form-item>
+          <label class="custom-label">
+            <el-icon>
+              <Lock />
+            </el-icon>
+            <span>密码</span>
+          </label>
+          <el-input type="password" v-model="password" show-password placeholder="请输入密码" />
+        </el-form-item>
 
-          <el-form-item>
-            <label class="custom-label">
-              <el-icon><PictureRounded /></el-icon>
-              <span>验证码</span>
-            </label>
-            <div class="auth-verify-group">
-              <el-input 
-                v-model="captcha" 
-                placeholder="请输入验证码"
-              />
-              <div class="captcha-image" @click="getCaptcha">
-                <img :src="captchaImage" alt="验证码" title="点击刷新" />
-              </div>
+        <el-form-item>
+          <label class="custom-label">
+            <el-icon>
+              <PictureRounded />
+            </el-icon>
+            <span>验证码</span>
+          </label>
+          <div class="auth-verify-group">
+            <el-input v-model="captcha" placeholder="请输入验证码" />
+            <div class="captcha-image" @click="getCaptcha">
+              <img :src="captchaImage" alt="验证码" title="点击刷新" />
             </div>
-          </el-form-item>
-
-          <div class="auth-button-group">
-            <el-button 
-              type="primary" 
-              @click.prevent="handleLogin" 
-              :disabled="loginDisabled"
-            >
-              登录
-            </el-button>
-
-            <router-link to="/register" custom v-slot="{ navigate }">
-              <el-button @click="navigate">
-                注册
-              </el-button>
-            </router-link>
           </div>
-        </el-form>
-      </el-card>
+        </el-form-item>
+
+        <div class="auth-button-group">
+          <el-button type="primary" @click.prevent="handleLogin" :disabled="loginDisabled">
+            登录
+          </el-button>
+
+          <router-link to="/register" custom v-slot="{ navigate }">
+            <el-button @click="navigate">
+              注册
+            </el-button>
+          </router-link>
+        </div>
+      </el-form>
+    </el-card>
   </el-main>
 </template>
 

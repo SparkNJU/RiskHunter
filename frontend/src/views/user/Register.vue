@@ -6,6 +6,8 @@ import { ElMessage } from 'element-plus'
 import { User, Lock, Message, Phone, UserFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
+
+// 注册表项
 const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -13,6 +15,7 @@ const username = ref('')
 const role = ref()
 const verificationCode = ref('')
 
+// 前端表单校验
 const hasPhoneInput = computed(() => phone.value !== '')
 const hasPasswordInput = computed(() => password.value !== '')
 const hasConfirmPasswordInput = computed(() => confirmPassword.value !== '')
@@ -33,7 +36,8 @@ const registerDisabled = computed(() => {
 })
 
 // 注册处理
-function handleRegister() {
+const handleRegister = async () => {
+  console.log('rrrr')
   userRegister({
     phone: phone.value,
     password: password.value,
@@ -41,7 +45,7 @@ function handleRegister() {
     role: role.value,
     // verificationCode: verificationCode.value
   }).then(res => {
-    if (res.data.code === '000') {  //类型守卫，它检查 res.data 对象中是否存在名为 code 的属性
+    if (res.data.code === '000') {
       ElMessage({
         message: "注册成功！请登录账号",
         type: 'success',
@@ -61,6 +65,7 @@ function handleRegister() {
 // 发送短信验证码
 const sendVerificationCode = () => {
   // TODO
+  ElMessage.error('暂未实现')
 }
 
 </script>
@@ -72,7 +77,7 @@ const sendVerificationCode = () => {
         <h1 class="auth-title">注册</h1>
       </div>
 
-      <el-form>
+      <el-form @keydown.enter="!registerDisabled && handleRegister()">
         <el-form-item>
           <label class="custom-label">
             <el-icon>
@@ -161,11 +166,11 @@ const sendVerificationCode = () => {
 </template>
 
 <style scoped>
-
 /* 统一 height */
 .auth-verify-btn {
   height: 2.5rem;
 }
+
 :deep(.el-input__wrapper),
 :deep(.el-select__wrapper),
 :deep(.el-select .el-input__wrapper) {
