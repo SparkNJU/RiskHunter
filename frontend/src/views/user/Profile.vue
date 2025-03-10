@@ -252,4 +252,36 @@ function updatePassword() {
   height: 2.5rem;
   width: 100%;
 }
+
+@media (max-width: 768px) {
+  .profile-container {
+    flex-direction: column; /* 上下排列 */
+    align-items: center; /* 水平居中 */
+  }
+
+  .profile-aside {
+    width: 100%; /* 占据整个屏幕宽度 */
+  }
+
+  .profile-main {
+    flex: none; /* 移除 flex 属性 */
+    width: 100%; /* 占据整个屏幕宽度 */
+  }
+
+  .profile-title {
+    font-size: 1rem; /* 调整字体大小 */
+  }
+
+  :deep(.el-descriptions-item__label) {
+    font-size: 0.8rem; /* 调整字体大小 */
+  }
+
+  :deep(.el-descriptions-item__content) {
+    font-size: 0.8rem; /* 调整字体大小 */
+  }
+
+  .el-form-item {
+    margin-bottom: 1rem; /* 调整间距 */
+  }
+}
 </style>
