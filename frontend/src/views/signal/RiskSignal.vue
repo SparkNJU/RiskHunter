@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { inject, ref } from 'vue'
 import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../../api/risk_signal'
 import { parseTime, parseCurrencyName, CurrencyList } from '../../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
@@ -12,16 +12,11 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const signals = ref<RiskSignal[]>([])
 
-const isMobile = ref(false)
-const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768
-}
-onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
+// 窗口监听
+const viewport = inject('viewport', {
+  isMobile: ref(false),
+  viewportWidth: ref(0),
+  breakpoints: { md: 768 }
 })
 
 // 查询条件
@@ -144,7 +139,7 @@ loadData()
       </template>
 
       <el-form :model="queryForm" label-position="top">
-        <el-row :gutter="20" :class="{ 'mobile-row': isMobile }">
+        <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
           <el-col :xs="24" :sm="24" :md="12">
             <el-form-item label="基准货币">
               <el-select v-model="queryForm.baseCurrency" placeholder="请选择基准货币" clearable>
@@ -162,7 +157,7 @@ loadData()
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20" :class="{ 'mobile-row': isMobile }">
+        <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
           <el-col :xs="24" :sm="24" :md="12">
             <el-form-item label="起始时间">
               <el-date-picker v-model="queryForm.startTime" type="datetime" placeholder="选择起始时间" />
@@ -191,7 +186,7 @@ loadData()
       </template>
 
       <el-form :model="tradingForm" label-position="top">
-        <el-row :gutter="20" :class="{ 'mobile-row': isMobile }">
+        <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
           <el-col :xs="24" :sm="24" :md="12">
             <el-form-item label="最大回撤比例">
               <el-input v-model="tradingForm.maximumDrawdownRatio" type="number" placeholder="请输入最大回撤比例" />
@@ -223,7 +218,7 @@ loadData()
       </template>
 
       <el-table v-loading="loading" :data="signals.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
-        style="width: 100%" :size="isMobile ? 'small' : 'default'">
+        style="width: 100%" :size="viewport.isMobile.value ? 'small' : 'default'">
         <el-table-column prop="baseCurrency" label="基准货币" width="100">
           <template #default="{ row }">
             {{ parseCurrencyName(row.baseCurrency) }}
