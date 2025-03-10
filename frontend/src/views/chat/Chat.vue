@@ -229,86 +229,86 @@ const handleNoStreamMessage = async (messageToSend: string) => {
   })
 }
 
-// 流式消息处理 Post请求
-const handleStreamMessagePost = async (messageToSend: string) => {
-  if (abortController.value) {
-    abortController.value.abort()
-    abortController.value = null
-  }
+// // 流式消息处理 Post请求
+// const handleStreamMessagePost = async (messageToSend: string) => {
+//   if (abortController.value) {
+//     abortController.value.abort()
+//     abortController.value = null
+//   }
 
-  isStreaming.value = true;
-  isLoading.value = true;
+//   isStreaming.value = true;
+//   isLoading.value = true;
 
-  // 创建初始的AI消息条目
-  const aiMessageIndex = messages.value.length;
-  messages.value.push({
-    content: '',
-    direction: false,
-    userId: userId.value,
-    sessionId: currentSessionId.value
-  });
-  scrollToBottom()
+//   // 创建初始的AI消息条目
+//   const aiMessageIndex = messages.value.length;
+//   messages.value.push({
+//     content: '',
+//     direction: false,
+//     userId: userId.value,
+//     sessionId: currentSessionId.value
+//   });
+//   scrollToBottom()
 
 
-  const ctrl = new AbortController();
-  abortController.value = ctrl;
+//   const ctrl = new AbortController();
+//   abortController.value = ctrl;
 
-  try {
-    let thought = '';
-    let content = '';
-    await fetchEventSource(CHAT_STREAM, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        sessionId: currentSessionId.value,
-        message: messageToSend,
-        userId: userId.value
-      }),
-      signal: ctrl.signal,
-      openWhenHidden: true,
-      onmessage(ev) {
-        if (ev.data.startsWith('<thought>')) {
-          // 处理新的thought块
-          const thoughtContent = ev.data.replace('<thought>', '').replace('</thought>', '')
-          thought += thoughtContent
-          messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>'
-        } else {
-          content += ev.data
-          if (thought !== '') {
-            messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>' + content
-          } else {
-            messages.value[aiMessageIndex].content = content
-          }
-        }
-        scrollToBottom()
-      },
-      onclose() {
-        isLoading.value = false;
-        isStreaming.value = false;
-        abortController.value = null;
-        // 正常渲染
-        loadChatHistory(currentSessionId.value)
-      },
-      onerror(err) {
-        ElMessage.error('请求失败')
-        messages.value.pop()
-        ctrl.abort()
-        isLoading.value = false;
-        isStreaming.value = false;
-        abortController.value = null;
-        throw err
-      },
-    });
-  } catch (err) {
-    if (abortController.value) abortController.value.abort()
-  } finally {
-    isLoading.value = false;
-    isStreaming.value = false;
-    abortController.value = null;
-  }
-};
+//   try {
+//     let thought = '';
+//     let content = '';
+//     await fetchEventSource(CHAT_STREAM, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         sessionId: currentSessionId.value,
+//         message: messageToSend,
+//         userId: userId.value
+//       }),
+//       signal: ctrl.signal,
+//       openWhenHidden: true,
+//       onmessage(ev) {
+//         if (ev.data.startsWith('<thought>')) {
+//           // 处理新的thought块
+//           const thoughtContent = ev.data.replace('<thought>', '').replace('</thought>', '')
+//           thought += thoughtContent
+//           messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>'
+//         } else {
+//           content += ev.data
+//           if (thought !== '') {
+//             messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>' + content
+//           } else {
+//             messages.value[aiMessageIndex].content = content
+//           }
+//         }
+//         scrollToBottom()
+//       },
+//       onclose() {
+//         isLoading.value = false;
+//         isStreaming.value = false;
+//         abortController.value = null;
+//         // 正常渲染
+//         loadChatHistory(currentSessionId.value)
+//       },
+//       onerror(err) {
+//         ElMessage.error('请求失败')
+//         messages.value.pop()
+//         ctrl.abort()
+//         isLoading.value = false;
+//         isStreaming.value = false;
+//         abortController.value = null;
+//         throw err
+//       },
+//     });
+//   } catch (err) {
+//     if (abortController.value) abortController.value.abort()
+//   } finally {
+//     isLoading.value = false;
+//     isStreaming.value = false;
+//     abortController.value = null;
+//   }
+// };
 
 // 流式消息处理 Get请求 适配后端
 const handleStreamMessage = async (messageToSend: string) => {
