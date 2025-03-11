@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue';
+import { inject, ref } from 'vue';
 import { CurrencyList } from '../../utils'
+import { ElMessage } from 'element-plus';
 import { Search, Refresh } from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+import ForexChart from './ForexChart.vue'
 
 // 窗口监听
 const viewport = inject('viewport', {
@@ -13,123 +14,108 @@ const viewport = inject('viewport', {
 
 const loading = ref(false)
 
+// 只能写死
+const dataOptions = [
+  'CPI：当月同比（中）',
+  'FDI（中）',
+  'M2（中）',
+  'M2乘数（中）',
+  'M2（美）',
+  'TED美国国债 - 欧洲美元利差（日度）',
+  '人民币：实际有效汇率指数（中）',
+  '即期汇率：美元兑人民币（日度）',
+  '国内信贷（中）',
+  '国外净资产（中）',
+  '外债余额：短期债务（季度）（中）',
+  '外汇储备（中）',
+  '外汇储备（美）',
+  '工业增加值：当月同比（中）',
+  '期货结算价：WTI原油（日度）',
+  '美元指数（日度）',
+  '美国国债长期平均实际利率（日度）',
+  '财政赤字（中）',
+  '金融机构有价证券及投资（中）'
+]
+
 const queryForm = ref({
-  dataName: '汇率',
+  dataName: '人民币：实际有效汇率指数（中）',
   baseCurrency: '',
   targetCurrency: '',
   startTime: '',
   endTime: '',
 })
 
+interface ChartData {
+  xData: string[]
+  yData: number[]
+  meta: {
+    name: string
+    unit: string
+    source: string
+    indicatorId: string
+  }
+}
+const chartData = ref<ChartData | null>(null)
+
+// 重置表单
 const handleReset = () => {
   queryForm.value = {
-    dataName: '汇率',
+    dataName: '人民币：实际有效汇率指数（中）',
     baseCurrency: '',
     targetCurrency: '',
     startTime: '',
     endTime: '',
   }
+  handleSearch()
 }
 
+// 搜索
 const handleSearch = async () => {
-  // TODO
   try {
     loading.value = true
+    const response = await fetch(`/financialData/${queryForm.value.dataName}.json`)
+    const jsonData = await response.json()
 
-    chartData.value = mockData.filter(item => {
-      const itemDate = new Date(item.date)
-      const start = queryForm.value.startTime ? new Date(queryForm.value.startTime) : null
-      const end = queryForm.value.endTime ? new Date(queryForm.value.endTime) : null
+    // 解析数据
+    const meta = jsonData.元数据[0]
+    const indicatorKey = Object.keys(jsonData.指标[0]).find(k => k !== '日期')!
 
-      return (!start || itemDate >= start) && (!end || itemDate <= end)
+    const parseDate = (dateStr: string) => {
+      const parts = dateStr.split('-')
+      return parts.length === 2
+        ? new Date(`${dateStr}-01`) // 补充日期为当月第一天
+        : new Date(dateStr)
+    }
+
+    // 过滤数据
+    const filteredData = jsonData.指标.filter((d: any) => {
+      const currentDate = parseDate(d.日期)
+      const startTime = queryForm.value.startTime ? new Date(queryForm.value.startTime) : null
+      const endTime = queryForm.value.endTime ? new Date(queryForm.value.endTime) : null
+
+      return (!startTime || currentDate >= startTime) &&
+        (!endTime || currentDate <= endTime)
     })
 
-    renderChart()
+    chartData.value = {
+      xData: filteredData.map((d: any) => d['日期']),
+      yData: filteredData.map((d: any) => d[indicatorKey]),
+      meta: {
+        name: meta.指标名称,
+        unit: meta.单位,
+        source: meta.来源,
+        indicatorId: meta.指标ID
+      }
+    }
+  } catch (error) {
+    ElMessage.error('数据加载失败')
+    console.error(error)
   } finally {
     loading.value = false
   }
 }
 
-// 前端死数据
-const mockData = [
-  { date: '2024-10-01', value: 6.85 },
-  { date: '2024-11-01', value: 6.87 },
-  { date: '2024-12-01', value: 6.89 },
-  { date: '2025-01-01', value: 6.91 },
-  { date: '2025-02-01', value: 6.93 },
-  { date: '2025-03-01', value: 6.95 }
-]
-// 图表
-const chartRef = ref(null)
-// 图表数据
-const chartData = ref(mockData)
-// 数据处理
-const processData = (data: any[]) => {
-  const splitDate = new Date('2025-01-01').getTime()
-  return data.reduce((acc, cur) => {
-    const date = new Date(cur.date).getTime()
-    date >= splitDate ?
-      acc.predict.push([cur.date, cur.value]) :
-      acc.actual.push([cur.date, cur.value])
-    return acc
-  }, { actual: [], predict: [] })
-}
-let nowChar: echarts.ECharts | null = null
-// 渲染图表
-const renderChart = () => {
-  if (nowChar === null) {
-    nowChar = echarts.init(chartRef.value)
-  }
-
-  const { actual, predict } = processData(chartData.value)
-  nowChar.setOption({
-    // 用户悬停在图表数据点上时显示详细信息
-    tooltip: {
-      // 触发方式为坐标轴触发: 显示该横坐标下所有系列的数据
-      trigger: 'axis',
-      // 格式化信息
-      formatter: (params: any) => {
-        const date = params[0].axisValueLabel
-        const value = params[0].data[1]
-        return `${date}<br/>汇率: ${value}`
-      }
-    },
-    // 横坐标
-    xAxis: {
-      type: 'time',
-      splitLine: { show: false }
-    },
-    // 纵坐标
-    yAxis: { type: 'value' },
-    // 分组
-    series: [
-      {
-        name: '实际汇率',
-        type: 'line',
-        data: actual,
-        itemStyle: { color: '#67C23A' },
-        lineStyle: { width: 2 },
-        smooth: true
-      },
-      {
-        name: '预测汇率',
-        type: 'line',
-        data: predict,
-        itemStyle: { color: '#E6A23C' },
-        lineStyle: {
-          type: 'dashed',
-          width: 2
-        },
-        symbol: 'triangle',
-        symbolSize: 10
-      }
-    ]
-  })
-}
-
-onMounted(() => {
-  renderChart()
-})
+handleSearch()
 </script>
 
 <template>
@@ -161,12 +147,10 @@ onMounted(() => {
       <el-form :model="queryForm" label-position="top">
         <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
           <el-col :xs="24" :sm="24" :md="12">
-            <el-form-item>
-              <label class="forex-label" :class="{ 'error': queryForm.dataName.trim() === '' }"> {{
-                queryForm.dataName.trim() === '' ? '数据名称不能为空' : '数据名称' }}
-              </label>
-              <el-input v-model="queryForm.dataName" :class="{ 'error-input': queryForm.dataName.trim() === '' }"
-                placeholder="请输入数据名称" clearable />
+            <el-form-item label="数据名称">
+              <el-select v-model="queryForm.dataName" placeholder="请选择数据名称" filterable>
+                <el-option v-for="item in dataOptions" :key="item" :label="item" :value="item" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -203,7 +187,9 @@ onMounted(() => {
       </el-form>
     </el-card>
 
-    <div ref="chartRef" v-loading="loading" style="height:500px;width:100%" />
+    <el-card v-if="chartData" class="forex-card">
+      <ForexChart :chart-data="chartData" />
+    </el-card>
   </el-main>
 </template>
 
