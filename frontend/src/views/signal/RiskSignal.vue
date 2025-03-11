@@ -4,6 +4,7 @@ import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../
 import { parseTime, parseCurrencyName, CurrencyList } from '../../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import Dashboard from '../../components/Dashboard.vue' // 导入 Dashboard 组件
 
 // 表格数据和分页
 const loading = ref(false)
@@ -113,6 +114,9 @@ loadData()
 
 <template>
   <el-main>
+    <!-- 导入并展示 Dashboard 组件 -->
+    <Dashboard />
+
     <!-- 筛选栏 -->
     <el-card class="signal-card" :body-style="{ padding: '20px' }">
       <template #header>
@@ -219,43 +223,45 @@ loadData()
 
       <el-table v-loading="loading" :data="signals.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
         style="width: 100%" :size="viewport.isMobile.value ? 'small' : 'default'">
-        <el-table-column prop="baseCurrency" label="基准货币" width="100">
+        <!-- 移除固定宽度约束，让表格自适应 -->
+        <el-table-column prop="baseCurrency" label="基准货币">
           <template #default="{ row }">
             {{ parseCurrencyName(row.baseCurrency) }}
           </template>
         </el-table-column>
-        <el-table-column prop="targetCurrency" label="报价货币" width="100">
+        <el-table-column prop="targetCurrency" label="报价货币">
           <template #default="{ row }">
             {{ parseCurrencyName(row.targetCurrency) }}
           </template>
         </el-table-column>
-        <el-table-column label="时间" width="180">
+        <el-table-column label="时间">
           <template #default="{ row }">
             {{ parseTime(row.time) }}
           </template>
         </el-table-column>
-        <el-table-column prop="emp" label="EMP" width="100">
+        <el-table-column prop="emp" label="EMP">
           <template #default="{ row }">
             <el-tag :type="row.emp > 1 ? 'danger' : 'success'">
               {{ row.emp.toFixed(4) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="exchangeRate" label="汇率" width="100">
+        <el-table-column prop="exchangeRate" label="汇率">
           <template #default="{ row }">
             {{ row.exchangeRate.toFixed(4) }}
           </template>
         </el-table-column>
-        <el-table-column prop="interestRate" label="利率" width="100">
+        <el-table-column prop="interestRate" label="利率">
           <template #default="{ row }">
             {{ row.interestRate.toFixed(4) }}
           </template>
         </el-table-column>
-        <el-table-column prop="fxReserves" label="外汇储备" width="120">
+        <el-table-column prop="fxReserves" label="外汇储备">
           <template #default="{ row }">
             {{ row.fxReserves.toFixed(2) }}
           </template>
         </el-table-column>
+
 
         <!-- 展开行 -->
         <el-table-column type="expand">
@@ -347,16 +353,37 @@ loadData()
   justify-content: flex-end;
 }
 
-:deep(.el-pagination__total) {
-  display: none;
-}
-
-:deep(.el-pagination__sizes) {
-  display: none;
-}
-
 .signal-expand {
   padding: 1.2rem;
+}
+
+/* 表格样式优化，占满卡片宽度 */
+:deep(.el-table) {
+  width: 100%;
+  font-size: 1rem;
+}
+
+:deep(.el-table th) {
+  font-size: 1.05rem;
+  font-weight: 600;
+  background-color: var(--el-fill-color-light);
+}
+
+/* 移除固定宽度约束，让表格自适应 */
+:deep(.el-table-column--default > .cell) {
+  width: auto !important;
+  white-space: nowrap;
+}
+
+/* 优化表格行高 */
+:deep(.el-table__row) {
+  height: 3rem;
+}
+
+/* 标签样式优化 */
+:deep(.el-tag) {
+  font-size: 0.95rem;
+  padding: 0 10px;
 }
 
 :deep(.el-input__wrapper),
