@@ -3,7 +3,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/riskhunter?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     username: root
-    password: NJUSE2023
+    password: cz050128
   jpa:
     properties:
       hibernate:
@@ -23,4 +23,11 @@ mybatis-plus:
 
 model:
   api-key: sk-b8a9162d68384b82aefde24d2218966f
-  base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  # 普通对话服务配置
+  deepseek:
+    base-url:  https://dashscope.aliyuncs.com/compatible-mode/v1
+  # RAG服务配置
+  dashscope:
+    base-url: https://dashscope.aliyuncs.com
+    app-id: fe21741cec104e6a83226e989de14eb6
+    rag-pipeline-id: wwzvnuysgw

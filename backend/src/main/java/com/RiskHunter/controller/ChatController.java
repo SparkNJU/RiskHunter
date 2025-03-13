@@ -73,6 +73,31 @@ public class ChatController {
         return ResultVO.buildSuccess(chatService.chatWithoutStream(sessionId, message, userId));
     }
 
+
+    //0313
+    // RAG流式对话接口
+    @GetMapping(path = "/ragChat")
+    public Flux<ServerSentEvent<String>> ragChatStream(
+            @RequestParam("sessionId") Long sessionId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("message") String message) {
+        log.info("RAG Chat sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
+        return chatService.ragChatWithStream(sessionId, message, userId)
+                .map(chunk -> ServerSentEvent.<String>builder()
+                        .data(chunk)
+                        .build());
+    }
+
+    // RAG知识库搜索接口
+    @PostMapping("/ragSearch")
+    public ResultVO<String> ragSearch(@RequestBody ChatRequestDTO chatRequestDTO) {
+        return ResultVO.buildSuccess(chatService.ragSearch(
+                chatRequestDTO.getSessionId(),
+                chatRequestDTO.getMessage(),
+                chatRequestDTO.getUserId()));
+    }
+
+
     @GetMapping("/history/{sessionId}")
     public ResultVO<List<ChatRecord>> getHistory(
             @PathVariable Long sessionId,

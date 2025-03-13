@@ -6,6 +6,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatService {
     public Long createSession(Long userId);
@@ -19,4 +20,8 @@ public interface ChatService {
     public List<ChatSession> getSessionsByUserId(Long userId);
 
     public Boolean updateSessionTitle(Long sessionId, Long userId, String title);
+
+    public Flux<String> ragChatWithStream(Long sessionId, String message, Long userId);
+
+    public String ragSearch(Long sessionId, String message, Long userId);
 }

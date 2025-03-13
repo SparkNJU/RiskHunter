@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
@@ -28,18 +29,34 @@ import java.util.stream.Collectors;
 public class ChatServiceImpl implements ChatService {
     private final ChatSessionMapper sessionMapper;
     private final ChatRecordMapper recordMapper;
-    private WebClient webClient;
 
     @Value("${model.api-key}")
     private String apiKey;
 
-    @Value("${model.base-url}")
-    private String baseUrl;
+    @Value("${model.deepseek.base-url}")
+    private String deepseekBaseUrl;
+
+    @Value("${model.dashscope.base-url}")
+    private String dashscopeBaseUrl;
+
+    @Value("${model.dashscope.app-id}")
+    private String appId;
+
+    // 创建两个WebClient实例
+    private WebClient deepseekClient;
+    private WebClient dashscopeClient;
 
     @PostConstruct
     public void init() {
-        this.webClient = WebClient.builder()
-                .baseUrl(baseUrl)
+        // 普通对话客户端
+        this.deepseekClient = WebClient.builder()
+                .baseUrl(deepseekBaseUrl)
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .build();
+
+        // RAG对话客户端
+        this.dashscopeClient = WebClient.builder()
+                .baseUrl(dashscopeBaseUrl)
                 .defaultHeader("Authorization", "Bearer " + apiKey)
                 .build();
     }
@@ -77,7 +94,7 @@ public class ChatServiceImpl implements ChatService {
             parameters.put("has_thoughts", true);
             requestBody.put("parameters", parameters);
 
-            JsonNode response = webClient.post()
+            JsonNode response = deepseekClient.post()
                     .uri("/chat/completions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestBody)
@@ -100,7 +117,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-
     public Flux<String> chatWithStream(Long sessionId, String message, Long userId,String modelName) {
         // cz 0304 18:44 version
         // 检查三个参数都合法
@@ -134,7 +150,7 @@ public class ChatServiceImpl implements ChatService {
         // 用于收集完整响应的StringBuilder
         StringBuilder fullResponse = new StringBuilder();
 
-        return webClient.post()
+        return deepseekClient.post()
                 .uri("/chat/completions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("X-DashScope-SSE", "enable")
@@ -168,8 +184,9 @@ public class ChatServiceImpl implements ChatService {
                     saveChatRecord(sessionId, userId, fullResponse.toString(), false);
                     log.info("流式响应完成，已保存完整回复");
                 })
-                .doOnError(error -> {
-                    log.error("流式调用失败: {}", error.getMessage(), error);
+                .doOnError(e ->
+                {
+                    log.warn("流式对话异常: {}", e.getMessage());
                     // 保存错误信息作为AI响应
                     saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试", false);
                 })
@@ -239,22 +256,17 @@ public class ChatServiceImpl implements ChatService {
         if (firstThoughtStart == -1 || lastThoughtEnd == -1 || firstThoughtStart >= lastThoughtEnd) {
             return input; // 如果没有找到完整的thought标签对，返回原字符串
         }
-
         // 提取第一个<thought>之后的内容
         String beforeFirstThought = input.substring(0, firstThoughtStart);
-
         // 提取最后一个</thought>之后的内容
         String afterLastThought = "";
         if (lastThoughtEnd + 10 < input.length()) {
             afterLastThought = input.substring(lastThoughtEnd + 10);
         }
-
         // 将所有thought标签内的内容连接起来
         String contentWithinThoughts = input.substring(firstThoughtStart + 9, lastThoughtEnd);
-
         // 移除中间所有的<thought>和</thought>标签
         contentWithinThoughts = contentWithinThoughts.replaceAll("</?thought>", "");
-
         // 构建最终结果
         return beforeFirstThought + "<thought>" + contentWithinThoughts + "</thought>" + afterLastThought;
     }
@@ -269,6 +281,7 @@ public class ChatServiceImpl implements ChatService {
 
     private List<Map<String, String>> buildMessageHistory(Long sessionId, Long userId, String currentMessage) {
         List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(createMessageEntry("user", "现在你是RiskHunter AI，Risk Hunter 是一个前沿的统计与AI工具，能够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。"));
         for (ChatRecord record : getHistory(sessionId, userId)) {
             messages.add(createMessageEntry(record.getDirection() ? "user" : "assistant", record.getContent()));
         }
@@ -359,5 +372,168 @@ public class ChatServiceImpl implements ChatService {
         );
         return sessions.stream()
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Flux<String> ragChatWithStream(Long sessionId, String message, Long userId) {
+        if (sessionId == null || userId == null || message == null) {
+            return Flux.error(new IllegalArgumentException("参数不完整"));
+        }
+
+        // 构建符合阿里云API规范的请求体
+        Map<String, Object> requestBody = new HashMap<>();
+
+        // 输入参数结构
+        Map<String, Object> input = new HashMap<>();
+        input.put("prompt", message);
+        requestBody.put("input", input);
+
+        // 参数配置
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("incremental_output", true); // 增量输出
+        parameters.put("has_thoughts", true);       // 显示思考过程
+
+        // RAG配置（根据实际知识库ID修改）
+        //Map<String, Object> ragOptions = new HashMap<>();
+        //ragOptions.put("pipeline_ids", Collections.singletonList("your_pipeline_id"));
+        //parameters.put("rag_options", ragOptions);
+
+        requestBody.put("parameters", parameters);
+
+        // 调试参数（可选）
+        requestBody.put("debug", Collections.emptyMap());
+
+        // 保存用户消息
+        saveChatRecord(sessionId, userId, message, true);
+
+        StringBuilder fullResponse = new StringBuilder();
+
+        return dashscopeClient.post()
+                .uri("/api/v1/apps/{appId}/completion", "fe21741cec104e6a83226e989de14eb6")
+                .header("X-DashScope-SSE", "enable")
+                .header("Content-Type", "application/json")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .filter(rawData -> {
+                    // 过滤结束标记和空数据
+                    return !rawData.trim().equals("[DONE]") && !rawData.trim().isEmpty();
+                })
+                .map(rawData -> {
+                    try {
+                        // 处理SSE格式前缀并解析
+                        String jsonStr = rawData.replaceFirst("^data: ", "");
+                        JsonNode node = new ObjectMapper().readTree(jsonStr);
+
+                        // 解析响应内容
+                        if (node.has("output") && node.get("output").has("text")) {
+                            return node.get("output").get("text").asText();
+                        }
+                        // 处理知识库引用
+                        if (node.has("doc_references")) {
+                            return formatDocReferences(node.get("doc_references"));
+                        }
+                        return "";
+                    } catch (Exception e) {
+                        log.warn("SSE数据解析失败: {}", rawData);
+                        return "";
+                    }
+                })
+                .filter(chunk -> !chunk.isEmpty()) // 过滤空片段
+                .doOnNext(chunk -> {
+                    if (chunk.contains("<ref>")) {
+                        log.info("检测到知识引用: {}", chunk);
+                    }
+                    fullResponse.append(chunk);
+                })
+                .doOnComplete(() -> {
+                    // 保存完整对话记录
+                    saveChatRecord(sessionId, userId, fullResponse.toString(), true);
+                    log.info("RAG流式对话完成");
+                })
+                .onErrorResume(e -> {
+                    log.error("RAG服务异常: {} {}", e.getMessage(),e.toString());
+                    return Flux.just("【系统提示】知识库服务暂时不可用，请稍后重试");
+                })
+                .timeout(Duration.ofSeconds(300)); // 超时控制
+    }
+
+    // 格式化知识库引用
+    private String formatDocReferences(JsonNode references) {
+        StringBuilder sb = new StringBuilder("\n【知识来源】");
+        references.forEach(ref -> {
+            sb.append("\n- ").append(ref.path("doc_name").asText())
+                    .append(": ").append(ref.path("text").asText().substring(0, 100)).append("...");
+        });
+        return sb.toString();
+    }
+
+
+    @Override
+    public String ragSearch(Long sessionId, String message, Long userId) {
+        // 构建符合API规范的请求体
+        Map<String, Object> requestBody = new HashMap<>();
+
+        // 输入参数结构
+        Map<String, Object> input = new HashMap<>();
+        input.put("prompt", message);
+        requestBody.put("input", input);
+
+        // 参数配置
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("has_thoughts", true);  // 需要获取检索过程
+
+        // RAG配置（根据实际知识库ID修改）
+        Map<String, Object> ragOptions = new HashMap<>();
+        ragOptions.put("pipeline_ids", Collections.singletonList("wwzvnuysgw")); // 替换实际知识库ID
+        ragOptions.put("top_k", 1); // 返回最相关的一条
+        parameters.put("rag_options", ragOptions);
+
+        requestBody.put("parameters", parameters);
+
+        // 调试参数（可选）
+        requestBody.put("debug", Collections.emptyMap());
+
+        try {
+            JsonNode response = dashscopeClient.post()
+                    .uri("/api/v1/apps/{appId}/completion", "fe21741cec104e6a83226e989de14eb6") // 修正URI路径
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block(Duration.ofSeconds(15));
+
+            return parseKnowledgeResponse(response);
+        } catch (Exception e) {
+            log.error("知识库搜索失败: {}", e.getMessage());
+            return "知识检索服务暂时不可用，错误原因：" + e.getMessage();
+        }
+    }
+
+    private String parseKnowledgeResponse(JsonNode response) {
+        if (response == null) return "未获取到有效响应";
+
+        // 检查错误响应
+        if (response.has("code") && response.get("code").asInt() != 200) {
+            String errorMsg = response.path("message").asText();
+            log.error("API返回错误: {}", errorMsg);
+            return "服务异常：" + errorMsg;
+        }
+
+        // 解析知识库引用
+        JsonNode docs = response.path("output").path("doc_references");
+        if (docs.isArray() && docs.size() > 0) {
+            // 获取第一个文档的完整文本
+            JsonNode firstDoc = docs.get(0);
+            StringBuilder result = new StringBuilder();
+
+            result.append("【文档名称】").append(firstDoc.path("doc_name").asText()).append("\n");
+            result.append("【匹配内容】").append(firstDoc.path("text").asText());
+
+            return result.toString();
+        }
+        return "未找到相关知识点";
     }
 }
