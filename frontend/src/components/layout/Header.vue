@@ -70,7 +70,6 @@ const handleLogout = () => {
   <el-header>
     <el-affix>
       <el-menu class="custom-header" mode="horizontal" :ellipsis="false" router>
-
         <!-- 功能区 -->
         <div v-if="viewport.isMobile.value" class="nav-group">
           <el-menu-item index="">
@@ -108,21 +107,16 @@ const handleLogout = () => {
         <div class="nav-group">
           <template v-if="!isLoggedIn">
             <el-menu-item index="/login">
-              <el-button type="default">
-                <el-icon>
-                  <User />
-                </el-icon>
-                登录
-              </el-button>
+              <el-icon>
+                <User />
+              </el-icon>
+              <span>登录</span>
             </el-menu-item>
-
             <el-menu-item index="/register">
-              <el-button type="primary">
-                <el-icon>
-                  <Plus />
-                </el-icon>
-                注册
-              </el-button>
+              <el-icon>
+                <Plus />
+              </el-icon>
+              <span>注册</span>
             </el-menu-item>
           </template>
 

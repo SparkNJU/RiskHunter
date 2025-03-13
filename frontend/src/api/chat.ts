@@ -76,4 +76,5 @@ export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
  * 发送聊天消息（流式响应）
  * @param chatRequestDTO 聊天请求对象
  */
-export const CHAT_STREAM = `${axios.defaults.baseURL}${CHAT_MODULE}/stream`
+export const CHAT_STREAM_DEFAULT = `${axios.defaults.baseURL}${CHAT_MODULE}/stream`;
+export const CHAT_STREAM_RAG = `${axios.defaults.baseURL}${CHAT_MODULE}/ragChat`;

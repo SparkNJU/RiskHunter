@@ -2,7 +2,7 @@
 import { ref, nextTick, onBeforeUnmount, inject, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElScrollbar } from 'element-plus'
-import { createSession, getHistory, getUserSessions, sendMessageNoStream, updateSessionTitle, CHAT_STREAM } from '../../api/chat'
+import { createSession, getHistory, getUserSessions, sendMessageNoStream, updateSessionTitle, CHAT_STREAM_RAG, CHAT_STREAM_DEFAULT } from '../../api/chat'
 import { getRiskSignals } from '../../api/risk_signal'
 import { parseCurrencyName, parseTime } from '../../utils'
 import { Plus, ChatLineRound, ChatLineSquare, ArrowUp } from '@element-plus/icons-vue'
@@ -48,6 +48,8 @@ const md = new MarkdownIt();
 const streamOutput = ref(true)
 const isStreaming = ref(false)
 const abortController = ref<AbortController | null>(null)
+// 知识库开关
+const knowledgeBaseEnabled = ref(false)
 // 模型选择
 const selectedModel = ref('deepseek-r1')
 const availableModels = [
@@ -160,7 +162,10 @@ const loadChatHistory = async (sessionId: number) => {
   isLoading.value = true
   getHistory(sessionId, userId.value).then(res => {
     if (res.data.code === '000') {
-      messages.value = res.data.result
+      messages.value = res.data.result.map((msg: ChatRecord) => ({
+      ...msg,
+      content: replaceRefTags(msg.content)
+      }))
       scrollToBottom()
     } else {
       ElMessage({
@@ -229,87 +234,6 @@ const handleNoStreamMessage = async (messageToSend: string) => {
   })
 }
 
-// // 流式消息处理 Post请求
-// const handleStreamMessagePost = async (messageToSend: string) => {
-//   if (abortController.value) {
-//     abortController.value.abort()
-//     abortController.value = null
-//   }
-
-//   isStreaming.value = true;
-//   isLoading.value = true;
-
-//   // 创建初始的AI消息条目
-//   const aiMessageIndex = messages.value.length;
-//   messages.value.push({
-//     content: '',
-//     direction: false,
-//     userId: userId.value,
-//     sessionId: currentSessionId.value
-//   });
-//   scrollToBottom()
-
-
-//   const ctrl = new AbortController();
-//   abortController.value = ctrl;
-
-//   try {
-//     let thought = '';
-//     let content = '';
-//     await fetchEventSource(CHAT_STREAM, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         sessionId: currentSessionId.value,
-//         message: messageToSend,
-//         userId: userId.value
-//       }),
-//       signal: ctrl.signal,
-//       openWhenHidden: true,
-//       onmessage(ev) {
-//         if (ev.data.startsWith('<thought>')) {
-//           // 处理新的thought块
-//           const thoughtContent = ev.data.replace('<thought>', '').replace('</thought>', '')
-//           thought += thoughtContent
-//           messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>'
-//         } else {
-//           content += ev.data
-//           if (thought !== '') {
-//             messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>' + content
-//           } else {
-//             messages.value[aiMessageIndex].content = content
-//           }
-//         }
-//         scrollToBottom()
-//       },
-//       onclose() {
-//         isLoading.value = false;
-//         isStreaming.value = false;
-//         abortController.value = null;
-//         // 正常渲染
-//         loadChatHistory(currentSessionId.value)
-//       },
-//       onerror(err) {
-//         ElMessage.error('请求失败')
-//         messages.value.pop()
-//         ctrl.abort()
-//         isLoading.value = false;
-//         isStreaming.value = false;
-//         abortController.value = null;
-//         throw err
-//       },
-//     });
-//   } catch (err) {
-//     if (abortController.value) abortController.value.abort()
-//   } finally {
-//     isLoading.value = false;
-//     isStreaming.value = false;
-//     abortController.value = null;
-//   }
-// };
-
 // 流式消息处理 Get请求 适配后端
 const handleStreamMessage = async (messageToSend: string) => {
   if (abortController.value) {
@@ -329,11 +253,12 @@ const handleStreamMessage = async (messageToSend: string) => {
     sessionId: currentSessionId.value
   });
   scrollToBottom()
-  console.log(selectedModel.value)
-
 
   const ctrl = new AbortController();
   abortController.value = ctrl;
+
+  // 根据 knowledgeBaseEnabled 状态设置 CHAT_STREAM 的值
+  const CHAT_STREAM = knowledgeBaseEnabled.value ? CHAT_STREAM_RAG : CHAT_STREAM_DEFAULT;
 
   try {
     let thought = '';
@@ -347,16 +272,15 @@ const handleStreamMessage = async (messageToSend: string) => {
       openWhenHidden: true,
       onmessage(ev) {
         if (ev.data.startsWith('<thought>')) {
-          // 处理新的thought块
           const thoughtContent = ev.data.replace('<thought>', '').replace('</thought>', '')
           thought += thoughtContent
-          messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>'
+          messages.value[aiMessageIndex].content = replaceRefTags('<thought>' + thought + '</thought>')
         } else {
           content += ev.data
           if (thought !== '') {
-            messages.value[aiMessageIndex].content = '<thought>' + thought + '</thought>' + content
+            messages.value[aiMessageIndex].content = replaceRefTags('<thought>' + thought + '</thought>' + content)
           } else {
-            messages.value[aiMessageIndex].content = content
+            messages.value[aiMessageIndex].content = replaceRefTags(content)
           }
         }
         scrollToBottom()
@@ -365,7 +289,6 @@ const handleStreamMessage = async (messageToSend: string) => {
         isLoading.value = false;
         isStreaming.value = false;
         abortController.value = null;
-        // 正常渲染
         loadChatHistory(currentSessionId.value)
       },
       onerror(err) {
@@ -444,6 +367,12 @@ const parseThoughtContent = (content: string) => {
 const parseResponseContent = (content: string) => {
   return content.replace(/<thought>[\s\S]*?<\/thought>/, '').trim()
 }
+
+// 替换 <ref> 标签为 Markdown 脚注格式
+const replaceRefTags = (text: string) => {
+  return text.replace(/<ref>\[(.*?)\]<\/ref>/g, '[$1]');
+}
+
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -524,9 +453,10 @@ const scrollToBottom = () => {
                         <div v-html="parseThoughtContent(msg.content)"></div>
                       </div>
                       <!-- 正式回复 -->
-                      <div class="md-content" v-html="md.render(parseResponseContent(msg.content))"></div>
+                      <div class="md-content" v-html="md.render(replaceRefTags(parseResponseContent(msg.content)))">
+                      </div>
                     </div>
-                    <div v-else class="md-content" v-html="md.render(msg.content)"></div>
+                    <div v-else class="md-content" v-html="md.render(replaceRefTags(msg.content))"></div>
                   </template>
                   <div v-else v-html="msg.content"></div>
                 </el-card>
@@ -576,6 +506,7 @@ const scrollToBottom = () => {
                 </el-option>
               </el-select>
               <el-switch v-model="streamOutput" inactive-text="标准输出" active-text="流式输出" :disabled="isLoading" />
+              <el-checkbox v-model="knowledgeBaseEnabled" :disabled="isLoading">知识库</el-checkbox>
               <el-button v-if="isStreaming" type="danger" @click="handleStopStream">中止</el-button>
               <el-button v-else type="primary" @click="handleSendMessage" :loading="isLoading"
                 :disabled="inputDisabled">发送</el-button>

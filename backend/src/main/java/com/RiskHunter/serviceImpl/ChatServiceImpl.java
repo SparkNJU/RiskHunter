@@ -450,7 +450,7 @@ public class ChatServiceImpl implements ChatService {
                 })
                 .doOnComplete(() -> {
                     // 保存完整对话记录
-                    saveChatRecord(sessionId, userId, fullResponse.toString(), true);
+                    saveChatRecord(sessionId, userId, fullResponse.toString(), false);
                     log.info("RAG流式对话完成");
                 })
                 .onErrorResume(e -> {
