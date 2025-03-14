@@ -27,13 +27,13 @@
         <div class="advice-header">
           <h2>投资建议</h2>
           <el-radio-group v-model="selectedAdviceType">
-            <el-radio :label="'aggressive'">
+            <el-radio :value="'aggressive'">
               <el-tag type="danger" effect="dark" size="small">激进型</el-tag>
             </el-radio>
-            <el-radio :label="'balanced'">
+            <el-radio :value="'balanced'">
               <el-tag type="warning" effect="dark" size="small">平衡型</el-tag>
             </el-radio>
-            <el-radio :label="'conservative'">
+            <el-radio :value="'conservative'">
               <el-tag type="success" effect="dark" size="small">保守型</el-tag>
             </el-radio>
           </el-radio-group>

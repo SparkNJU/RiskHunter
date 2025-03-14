@@ -6,6 +6,7 @@ import Register from "../views/user/Register.vue"
 import Profile from "../views/user/Profile.vue"
 import RiskSignal from "../views/signal/RiskSignal.vue"
 import ForexData from "../views/forex/ForexData.vue"
+import NewsPreview from "../views/news/NewsPreview.vue"
 import News from "../views/news/News.vue"
 import Chat from "../views/chat/Chat.vue"
 import { ElMessage } from "element-plus"
@@ -58,9 +59,20 @@ const router = createRouter({
             },
             {
                 path: '/news',
-                name: 'News',
-                component: News,
-                meta: { title: '新闻资讯', requiresAuth: true }
+                children: [
+                    {
+                        path: '',
+                        name: 'NewsPreview',
+                        component: NewsPreview,
+                        meta: { title: '新闻预览', requiresAuth: true }
+                    },
+                    {
+                        path: ':newsId',
+                        name: 'News',
+                        component: News,
+                        meta: { title: '新闻详情', requiresAuth: true }
+                    }
+                ]
             },
             {
                 path: '/chat',

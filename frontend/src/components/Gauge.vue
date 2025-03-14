@@ -53,7 +53,7 @@
           },
           pointer: {
             itemStyle: {
-              color: 'auto'
+              color: 'inherit'
             }
           },
           axisTick: {
@@ -86,7 +86,7 @@
             offsetCenter: [0, '30%'],
             valueAnimation: true,
             formatter: '{value}%',
-            color: 'auto'
+            color: 'inherit'
           },
           data: [
             {

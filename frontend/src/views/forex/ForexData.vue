@@ -14,7 +14,7 @@ const viewport = inject('viewport', {
 
 const loading = ref(false)
 
-// 只能写死
+// 数据名称选项, 只能在前端写死
 const dataOptions = [
   'CPI：当月同比（中）',
   'FDI（中）',
@@ -30,6 +30,7 @@ const dataOptions = [
   '外汇储备（中）',
   '外汇储备（美）',
   '工业增加值：当月同比（中）',
+  '工业增加值：当期（季度）（中）',
   '期货结算价：WTI原油（日度）',
   '美元指数（日度）',
   '美国国债长期平均实际利率（日度）',
@@ -120,6 +121,7 @@ handleSearch()
 
 <template>
   <el-main>
+    <!-- 筛选栏 -->
     <el-card class="forex-card" :body-style="{ padding: '20px' }">
       <template #header>
         <div class="forex-header">
@@ -154,39 +156,46 @@ handleSearch()
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
-          <el-col :xs="24" :sm="24" :md="12">
-            <el-form-item label="基准货币">
-              <el-select v-model="queryForm.baseCurrency" placeholder="请选择基准货币" clearable>
-                <el-option v-for="currency in CurrencyList" :key="currency.code"
-                  :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="12">
-            <el-form-item label="报价货币">
-              <el-select v-model="queryForm.targetCurrency" placeholder="请选择报价货币" clearable>
-                <el-option v-for="currency in CurrencyList" :key="currency.code"
-                  :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
-          <el-col :xs="24" :sm="24" :md="12">
-            <el-form-item label="起始时间">
-              <el-date-picker v-model="queryForm.startTime" type="datetime" placeholder="选择起始时间" />
-            </el-form-item>
-          </el-col>
-          <el-col :xs="24" :sm="24" :md="12">
-            <el-form-item label="结束时间">
-              <el-date-picker v-model="queryForm.endTime" type="datetime" placeholder="选择结束时间" />
-            </el-form-item>
-          </el-col>
-        </el-row>
+
+        <!-- 高级选项 -->
+        <el-collapse class="advanced-options">
+          <el-collapse-item name="advanced" title="高级选项">
+            <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
+              <el-col :xs="24" :sm="24" :md="12">
+                <el-form-item label="基准货币">
+                  <el-select v-model="queryForm.baseCurrency" placeholder="请选择基准货币" clearable>
+                    <el-option v-for="currency in CurrencyList" :key="currency.code"
+                      :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :sm="24" :md="12">
+                <el-form-item label="报价货币">
+                  <el-select v-model="queryForm.targetCurrency" placeholder="请选择报价货币" clearable>
+                    <el-option v-for="currency in CurrencyList" :key="currency.code"
+                      :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
+              <el-col :xs="24" :sm="24" :md="12">
+                <el-form-item label="起始时间">
+                  <el-date-picker v-model="queryForm.startTime" type="datetime" placeholder="选择起始时间" />
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :sm="24" :md="12">
+                <el-form-item label="结束时间">
+                  <el-date-picker v-model="queryForm.endTime" type="datetime" placeholder="选择结束时间" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-collapse-item>
+        </el-collapse>
       </el-form>
     </el-card>
 
+    <!-- 图表 -->
     <el-card v-if="chartData" class="forex-card">
       <ForexChart :chart-data="chartData" />
     </el-card>
@@ -201,16 +210,12 @@ handleSearch()
 
 @media screen and (max-width: 768px) {
   .forex-card {
-    width: 90vw;
+    width: 100vw;
   }
 
   .mobile-row {
     margin-left: 0 !important;
     margin-right: 0 !important;
-  }
-
-  :deep(.el-form-item__label) {
-    font-size: 0.75rem;
   }
 }
 
@@ -245,13 +250,11 @@ handleSearch()
   margin-top: 1.5rem;
 }
 
-.forex-label {
-  margin-bottom: 0.5rem;
-  color: var(--el-text-color-primary);
-}
-
-.forex-label.error {
-  color: var(--el-color-danger);
+.advanced-options {
+  :deep(.el-collapse-item__header) {
+    font-size: var(--el-form-label-font-size);
+    font-weight: 500;
+  }
 }
 
 :deep(.el-input__wrapper),

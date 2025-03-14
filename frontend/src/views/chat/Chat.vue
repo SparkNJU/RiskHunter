@@ -310,7 +310,6 @@ const handleStreamMessage = async (messageToSend: string) => {
   }
 };
 
-
 // 终止流式消息
 const handleStopStream = () => {
   if (abortController.value) {
@@ -496,16 +495,20 @@ const scrollToBottom = () => {
 
           <div class="input-footer">
             <div class="input-tips">
-              输入问题后按 Enter 发送，或点击发送按钮
+              {{ viewport.isMobile.value ? '' : '输入问题后按 Enter 发送，或点击发送按钮' }}
             </div>
             <div class="button-group">
-              <el-select v-if="streamOutput" v-model="selectedModel" style="width: 180px" :disabled="inputDisabled"
+              <el-select v-if="streamOutput" v-model="selectedModel" 
+                :style="{ 'width': viewport.isMobile.value ? '100px' : '180px' }"
+                :disabled="inputDisabled"
                 :suffix-icon="ArrowUp">
                 <el-option v-for="model in availableModels" :key="model.value" :label="model.label"
                   :value="model.value">
                 </el-option>
               </el-select>
-              <el-switch v-model="streamOutput" inactive-text="标准输出" active-text="流式输出" :disabled="isLoading" />
+              <el-switch v-model="streamOutput" :inactive-text="viewport.isMobile.value ? '标准' : '标准输出'"
+                :active-text="viewport.isMobile.value ? '流式' : '流式输出'"
+                :disabled="isLoading" />
               <el-checkbox v-model="knowledgeBaseEnabled" :disabled="isLoading">知识库</el-checkbox>
               <el-button v-if="isStreaming" type="danger" @click="handleStopStream">中止</el-button>
               <el-button v-else type="primary" @click="handleSendMessage" :loading="isLoading"
