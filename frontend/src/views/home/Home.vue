@@ -36,18 +36,16 @@ const funcs = [
 
       <!-- 功能栏 -->
       <div class="function-grid">
-        <el-card v-for="(item, index) in funcs" :key="index" class="function-card" :class="{'risk-signal-card': item.title === '风险信号'}">
-          <div class="function-icon" v-if="item.title !== '风险信号'">
+        <el-card v-for="(item, index) in funcs" :key="index" class="function-card">
+          <div class="function-icon">
             <el-icon>
               <component :is="item.icon" />
             </el-icon>
           </div>
-          <div class="function-content" :class="{'risk-signal-content': item.title === '风险信号'}">
-            <h3 class="card-title">{{ item.title }}</h3>
-            <el-button type="primary" @click="navigateTo(item.path)" class="card-button">
-              查看详情
-            </el-button>
-          </div>
+          <h3 class="card-title">{{ item.title }}</h3>
+          <el-button type="primary" @click="navigateTo(item.path)" class="card-button">
+            查看详情
+          </el-button>
         </el-card>
       </div>
 
@@ -155,23 +153,13 @@ const funcs = [
   padding: 1.5rem;
   border: 1px solid var(--el-border-color-light);
   transition: all 0.3s var(--el-transition-function-fast-bezier);
-  background: linear-gradient(to right, #dbeafe, #edcff1);
+  background: linear-gradient(to right, #dbeafe, #f3e5f5);
   display: flex;
   flex-direction: column;
+  /* align-items: center; */
   justify-content: center;
   height: 500px;
   box-sizing: border-box;
-}
-
-.risk-signal-card {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(211, 203, 247, 0.8)), url('../../assets/网站设计素材/首页素材电脑屏幕.png') no-repeat left center / contain;
-  display: flex;
-  align-items: center;
-}
-
-.risk-signal-content {
-  margin-left: auto;
-  padding-left: 50%;
 }
 
 /* 设置el-card组件的样式 */
