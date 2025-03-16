@@ -27,11 +27,14 @@ const funcs = [
   { icon: Memo, title: '新闻展示', path: '/news' }
 ]
 
+const currentPath = ref(route.path)
+
 // 监听路由变化
 watch(
   () => route.path,
-  () => {
+  (newPath) => {
     checkLoginStatus()
+    currentPath.value = newPath
   }
 )
 
@@ -69,7 +72,7 @@ const handleLogout = () => {
 <template>
   <el-header>
     <el-affix>
-      <el-menu class="custom-header" mode="horizontal" :ellipsis="false" router>
+      <el-menu class="custom-header" mode="horizontal" :ellipsis="false" router :default-active="currentPath">
         <!-- 功能区 -->
         <div v-if="viewport.isMobile.value" class="nav-group">
           <el-menu-item index="">
