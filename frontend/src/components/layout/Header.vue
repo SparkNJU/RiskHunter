@@ -24,7 +24,7 @@ const funcs = [
   { icon: Warning, title: '风险信号', path: '/risk-signal' },
   { icon: Service, title: '智能助手', path: '/chat' },
   { icon: DataLine, title: '外汇数据', path: '/forex-data' },
-  { icon: Memo, title: '新闻展示', path: '/news' }
+  { icon: Memo, title: '新闻资讯', path: '/news' }
 ]
 
 // 监听路由变化
