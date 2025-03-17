@@ -281,7 +281,8 @@ public class ChatServiceImpl implements ChatService {
 
     private List<Map<String, String>> buildMessageHistory(Long sessionId, Long userId, String currentMessage) {
         List<Map<String, String>> messages = new ArrayList<>();
-        messages.add(createMessageEntry("user", "现在你是RiskHunter AI，Risk Hunter 是一个前沿的统计与AI工具，能够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。"));
+        messages.add(createMessageEntry("user", "现在你是RiskHunter AI，Risk Hunter 是一个前沿的统计与AI工具，能" +
+                "够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。"));
         for (ChatRecord record : getHistory(sessionId, userId)) {
             messages.add(createMessageEntry(record.getDirection() ? "user" : "assistant", record.getContent()));
         }
@@ -503,7 +504,7 @@ public class ChatServiceImpl implements ChatService {
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(JsonNode.class)
-                    .block(Duration.ofSeconds(15));
+                    .block(Duration.ofSeconds(300));
 
             return parseKnowledgeResponse(response);
         } catch (Exception e) {
