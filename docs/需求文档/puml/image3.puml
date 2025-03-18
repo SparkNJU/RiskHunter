@@ -1,0 +1,19 @@
+@startuml
+title Activity Diagram - Risk Signal Generation
+
+start
+:Fetch Economic Data;
+:Fetch News Data;
+:Analyze Data Using ML Model;
+:Analyze News Using LLM;
+:Generate Risk Signal;
+if (Risk Level High?) then (Yes)
+  :Send Alert to User;
+else (No)
+  :Display Normal Trend;
+endif
+:Provide Risk Explanation;
+:Display Data Visualization;
+stop
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+title Use Case Diagram - Exchange Rate Risk Signal System
+
+actor "Financial Analyst" as Analyst
+actor "Admin" as Admin
+actor "Data Provider" as Provider
+
+rectangle "Risk Signal System" {
+  usecase "Receive Risk Signals" as U1
+  usecase "View Risk Explanation" as U2
+  usecase "Customize Alerts" as U3
+  usecase "Analyze Data Visualization" as U4
+  usecase "Manage Data Sources" as U5
+  usecase "Update Machine Learning Model" as U6
+}
+
+Analyst -- U1
+Analyst -- U2
+Analyst -- U3
+Analyst -- U4
+Admin -- U5
+Admin -- U6
+Provider -- U5
+
+@enduml
