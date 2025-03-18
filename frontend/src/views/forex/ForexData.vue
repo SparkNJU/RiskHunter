@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
-import { CurrencyList } from '../../utils'
+import { inject, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Search, Refresh } from '@element-plus/icons-vue'
 import ForexChart from './ForexChart.vue'
+import { getAllForexTypes, getAllForexList, getForexByName } from '../../api/forex';
 
 // 窗口监听
 const viewport = inject('viewport', {
@@ -15,33 +15,12 @@ const viewport = inject('viewport', {
 const loading = ref(false)
 
 // 数据名称选项, 只能在前端写死
-const dataOptions = [
-  'CPI：当月同比（中）',
-  'FDI（中）',
-  'M2（中）',
-  'M2乘数（中）',
-  'M2（美）',
-  'TED美国国债 - 欧洲美元利差（日度）',
-  '人民币：实际有效汇率指数（中）',
-  '即期汇率：美元兑人民币（日度）',
-  '国内信贷（中）',
-  '国外净资产（中）',
-  '外债余额：短期债务（季度）（中）',
-  '外汇储备（中）',
-  '外汇储备（美）',
-  '工业增加值：当月同比（中）',
-  '工业增加值：当期（季度）（中）',
-  '期货结算价：WTI原油（日度）',
-  '美元指数（日度）',
-  '美国国债长期平均实际利率（日度）',
-  '财政赤字（中）',
-  '金融机构有价证券及投资（中）'
-]
+const typeOptions = getAllForexTypes().map(t => ({ value: t.type, label: t.name }))
+const dataOptions = getAllForexList()
 
 const queryForm = ref({
-  dataName: '人民币：实际有效汇率指数（中）',
-  baseCurrency: '',
-  targetCurrency: '',
+  dataType: 'CHN',
+  dataName: '人民币：实际有效汇率指数',
   startTime: '',
   endTime: '',
 })
@@ -61,9 +40,8 @@ const chartData = ref<ChartData | null>(null)
 // 重置表单
 const handleReset = () => {
   queryForm.value = {
-    dataName: '人民币：实际有效汇率指数（中）',
-    baseCurrency: '',
-    targetCurrency: '',
+    dataType: 'CHN',
+    dataName: dataOptions['CHN'][0],
     startTime: '',
     endTime: '',
   }
@@ -74,12 +52,14 @@ const handleReset = () => {
 const handleSearch = async () => {
   try {
     loading.value = true
-    const response = await fetch(`/financialData/${queryForm.value.dataName}.json`)
-    const jsonData = await response.json()
+    const data = await getForexByName(
+      queryForm.value.dataType,
+      queryForm.value.dataName
+    )
 
     // 解析数据
-    const meta = jsonData.元数据[0]
-    const indicatorKey = Object.keys(jsonData.指标[0]).find(k => k !== '日期')!
+    const meta = data.元数据[0]
+    const indicatorKey = Object.keys(data.指标[0]).find(k => k !== '日期')!
 
     const parseDate = (dateStr: string) => {
       const parts = dateStr.split('-')
@@ -89,7 +69,7 @@ const handleSearch = async () => {
     }
 
     // 过滤数据
-    const filteredData = jsonData.指标.filter((d: any) => {
+    const filteredData = data.指标.filter((d: any) => {
       const currentDate = parseDate(d.日期)
       const startTime = queryForm.value.startTime ? new Date(queryForm.value.startTime) : null
       const endTime = queryForm.value.endTime ? new Date(queryForm.value.endTime) : null
@@ -117,6 +97,12 @@ const handleSearch = async () => {
 }
 
 handleSearch()
+
+watch(() => queryForm.value.dataType, (newType) => {
+  // 获取当前类型下的第一个数据名称作为默认值
+  const firstOption = dataOptions[newType][0]
+  queryForm.value.dataName = firstOption
+})
 </script>
 
 <template>
@@ -149,9 +135,16 @@ handleSearch()
       <el-form :model="queryForm" label-position="top">
         <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
           <el-col :xs="24" :sm="24" :md="12">
+            <el-form-item label="数据类型">
+              <el-select v-model="queryForm.dataType" placeholder="请选择数据类型" filterable>
+                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="24" :md="12">
             <el-form-item label="数据名称">
               <el-select v-model="queryForm.dataName" placeholder="请选择数据名称" filterable>
-                <el-option v-for="item in dataOptions" :key="item" :label="item" :value="item" />
+                <el-option v-for="item in dataOptions[queryForm.dataType]" :key="item" :label="item" :value="item" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -160,24 +153,6 @@ handleSearch()
         <!-- 高级选项 -->
         <el-collapse class="advanced-options">
           <el-collapse-item name="advanced" title="高级选项">
-            <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
-              <el-col :xs="24" :sm="24" :md="12">
-                <el-form-item label="基准货币">
-                  <el-select v-model="queryForm.baseCurrency" placeholder="请选择基准货币" clearable>
-                    <el-option v-for="currency in CurrencyList" :key="currency.code"
-                      :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :xs="24" :sm="24" :md="12">
-                <el-form-item label="报价货币">
-                  <el-select v-model="queryForm.targetCurrency" placeholder="请选择报价货币" clearable>
-                    <el-option v-for="currency in CurrencyList" :key="currency.code"
-                      :label="`${currency.code} - ${currency.name}`" :value="currency.number" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-            </el-row>
             <el-row :gutter="20" :class="{ 'mobile-row': viewport.isMobile.value }">
               <el-col :xs="24" :sm="24" :md="12">
                 <el-form-item label="起始时间">
