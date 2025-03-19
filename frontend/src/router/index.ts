@@ -7,6 +7,7 @@ import Profile from "../views/user/Profile.vue"
 import RiskSignal from "../views/signal/RiskSignal.vue"
 import ForexData from "../views/forex/ForexData.vue"
 import NewsPreview from "../views/news/NewsPreview.vue"
+import NewsList from "../views/news/NewsList.vue"
 import News from "../views/news/News.vue"
 import Chat from "../views/chat/Chat.vue"
 import { ElMessage } from "element-plus"
@@ -66,8 +67,14 @@ const router = createRouter({
                         component: NewsPreview,
                         meta: { title: '新闻预览', requiresAuth: true }
                     },
+                                        {
+                        path: ':type',
+                        name: 'NewsList',
+                        component: NewsList,
+                        meta: { title: '新闻列表', requiresAuth: true }
+                    },
                     {
-                        path: ':newsId',
+                        path: ':type/:newsId',
                         name: 'News',
                         component: News,
                         meta: { title: '新闻详情', requiresAuth: true }
@@ -93,26 +100,26 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, _, next) => {
-    const token: string | null = sessionStorage.getItem('token');
+// router.beforeEach((to, _, next) => {
+//     const token: string | null = sessionStorage.getItem('token');
 
-    if (token) {
-        if(to.path === '/login' || to.path === '/register') {
-            ElMessage.error('您已登录')
-            next('/profile')
-        } else {
-            next()
-        }
-    } else {
-        if (to.path === '/login' || to.path === '/register') {
-            next();
-        } else if (to.path === '/' || to.path === '/home') {
-            next()
-        } else {
-            ElMessage.error('请先登录')
-            next('/login')
-        }
-    }
-})
+//     if (token) {
+//         if(to.path === '/login' || to.path === '/register') {
+//             ElMessage.error('您已登录')
+//             next('/profile')
+//         } else {
+//             next()
+//         }
+//     } else {
+//         if (to.path === '/login' || to.path === '/register') {
+//             next();
+//         } else if (to.path === '/' || to.path === '/home') {
+//             next()
+//         } else {
+//             ElMessage.error('请先登录')
+//             next('/login')
+//         }
+//     }
+// })
 
 export default router
