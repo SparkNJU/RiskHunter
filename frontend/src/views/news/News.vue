@@ -1,31 +1,23 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getNewsById } from '../../api/news'
-
-interface NewsContent {
-  id: number
-  content: string
-  source_file: string
-}
 
 const route = useRoute()
 const content = ref('')
 const loading = ref(false)
 
+const newsType = computed(() => route.params.type as string)
+
 const loadData = async () => {
   try {
-    loading.value = true
     const id = Number(route.params.newsId)
-    getNewsById(id).then(res => {
-      content.value = res.content
-    })
+    // 调用API时传入新闻类型
+    const res = await getNewsById(newsType.value, id)
+    content.value = res.content
   } catch (error) {
     ElMessage.error('新闻加载失败')
-    console.error('新闻加载失败:', error)
-  } finally {
-    loading.value = false
   }
 }
 
