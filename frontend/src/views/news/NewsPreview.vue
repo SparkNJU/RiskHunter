@@ -2,7 +2,7 @@
 import { ElMessage } from 'element-plus'
 import { Notification, ArrowRight, DataAnalysis } from '@element-plus/icons-vue'
 import { ref, onMounted } from 'vue'
-import { getNewsListByType, getNewsById } from '../../api/news'
+import { getNewsListByType, getNewsById, newsImages } from '../../api/news'
 import router from '../../router'
 
 interface NewsItem {
@@ -36,7 +36,7 @@ const loadData = async (type: string) => {
     const topNews = res.slice(0, 20).map((item: any) => processNewsItem(type, item))
 
     carouselNews.value[type] = await Promise.all(
-      topNews.slice(0, 3).map(async (item: { id: number }) => {
+      topNews.slice(0, 4).map(async (item: { id: number }) => {
         const res = await getNewsById(type, item.id)
         return {
           ...item,
@@ -46,7 +46,7 @@ const loadData = async (type: string) => {
         }
       })
     )
-    newsLists.value[type] = topNews.slice(3)
+    newsLists.value[type] = topNews.slice(4)
   } catch (error) {
     ElMessage.error(`${type === 'government' ? '政事要闻' : '市场动态'}加载失败`)
     router.push('/')
@@ -75,12 +75,16 @@ onMounted(async () => {
             </el-icon>
             政事要闻
           </h3>
-          <el-divider />
+          <router-link to="/news/government" class="more-link">更多</router-link>
         </div>
 
-        <el-carousel height="320px" trigger="hover" class="custom-carousel">
+        <el-carousel height="480px" trigger="hover" class="custom-carousel">
           <el-carousel-item v-for="news in carouselNews.government" :key="news.id">
             <el-card class="carousel-card">
+              <div class="carousel-image">
+                <el-image :src="newsImages[news.id % 4]" fit="cover" class="news-image"
+                  :preview-src-list="newsImages" />
+              </div>
               <div class="card-content">
                 <h2 class="carousel-title">{{ news.title }}</h2>
                 <div class="time">{{ news.time }}</div>
@@ -117,12 +121,16 @@ onMounted(async () => {
             </el-icon>
             市场动态
           </h3>
-          <el-divider />
+          <router-link to="/news/market" class="more-link">更多</router-link>
         </div>
 
-        <el-carousel height="320px" trigger="hover" class="custom-carousel">
+        <el-carousel height="480px" trigger="hover" class="custom-carousel">
           <el-carousel-item v-for="news in carouselNews.market" :key="news.id">
             <el-card class="carousel-card">
+              <div class="carousel-image">
+                <el-image :src="newsImages[news.id % 4]" fit="cover" class="news-image"
+                  :preview-src-list="newsImages" />
+              </div>
               <div class="card-content">
                 <h2 class="carousel-title">{{ news.title }}</h2>
                 <div class="time">{{ news.time }}</div>
@@ -156,7 +164,6 @@ onMounted(async () => {
 <style scoped>
 .news-container {
   padding: 20px;
-  max-width: 1600px;
 }
 
 .section-column {
@@ -165,7 +172,7 @@ onMounted(async () => {
 
 .section-header {
   margin-bottom: 25px;
-  
+
   .section-title {
     display: flex;
     align-items: center;
@@ -173,15 +180,23 @@ onMounted(async () => {
     color: var(--el-color-primary);
     font-size: 1.4rem;
     margin: 0 0 12px;
-    
+
     .el-icon {
       font-size: 1.6rem;
     }
   }
-  
-  .el-divider {
-    margin: 0;
-    border-color: var(--el-border-color-extra-light);
+
+  .more-link {
+    margin-left: auto;
+    font-size: 0.9rem;
+    color: var(--el-color-primary-light-3);
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--el-color-primary);
+      text-decoration: underline;
+    }
   }
 }
 
@@ -189,22 +204,35 @@ onMounted(async () => {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--el-box-shadow-light);
-  
+
   :deep(.el-carousel__indicators) {
     padding-bottom: 10px;
   }
 }
 
 .carousel-card {
-  height: 320px;
+  height: 480px;
   display: flex;
   border: none !important;
-  
+
   :deep(.el-card__body) {
     flex: 1;
     padding: 25px;
     display: flex;
     flex-direction: column;
+  }
+
+  .carousel-image {
+    height: 200px;
+    margin: -25px -25px 20px -25px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+
+    .news-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
   .carousel-title {
@@ -220,7 +248,8 @@ onMounted(async () => {
     line-height: 1.6;
     overflow: hidden;
     display: -webkit-box;
-    margin-bottom: 15px; /* 保持与按钮的间距 */
+    margin-bottom: 15px;
+    /* 保持与按钮的间距 */
   }
 
   .card-content {
@@ -240,10 +269,10 @@ onMounted(async () => {
 
 .news-sub-list {
   margin: 30px 0;
-  
+
   .el-col {
     margin-bottom: 16px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -253,7 +282,7 @@ onMounted(async () => {
 .news-card {
   height: 120px;
   transition: transform 0.3s var(--el-transition-function-fast-bezier);
-  
+
   :deep(.el-card__body) {
     padding: 18px;
     height: 100%;
@@ -291,15 +320,15 @@ onMounted(async () => {
   .section-column {
     padding: 0;
     margin-bottom: 30px;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
   }
-  
+
   .carousel-card {
     height: 360px;
-    
+
     .carousel-title {
       font-size: 1.4rem;
     }
