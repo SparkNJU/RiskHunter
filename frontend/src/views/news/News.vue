@@ -1,14 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getNewsById } from '../../api/news'
-
-interface NewsContent {
-  id: number
-  content: string
-  source_file: string
-}
 
 const route = useRoute()
 const content = ref('')

@@ -1,12 +1,14 @@
 # Risk Hunter V1.0 User Manual
 
+[TOC]
+
 ## 1. Introduction
 
 ### 1.1 Purpose
 This manual aims to help users comprehensively understand and effectively use the Risk Hunter foreign exchange risk management system. It is suitable for corporate finance personnel, financial institution practitioners, and risk management professionals.
 
 ### 1.2 Project Background
-Risk Hunter is a cutting-edge foreign exchange risk management platform that integrates traditional financial data with advanced AI technology to provide comprehensive foreign exchange risk monitoring, early warning, and management services. It was developed by the XXXX team at Nanjing University.
+Risk Hunter is a cutting-edge foreign exchange risk management platform that integrates traditional financial data with advanced AI technology to provide comprehensive foreign exchange risk monitoring, early warning, and management services. It was developed by the NJU-SagaCiti team at Nanjing University.
 
 ### 1.3 Definitions
 - **EMP**: Exchange Market Pressure indicator.
@@ -36,9 +38,9 @@ a. Data Accuracy
    - Risk prediction accuracy is above 85%.
 
 b. Time Characteristics
-   - Page load response time <3 seconds.
-   - Data query processing time <5 seconds.
-   - Intelligent assistant response time generally within 5-30 seconds depending on network conditions.
+   - Page load response time < 3 seconds.
+   - Data query processing time < 5 seconds.
+   - Intelligent assistant response time generally within 5 - 30 seconds depending on network conditions.
 
 c. Flexibility
    - Responsive design, adapts to desktop and mobile devices.
