@@ -1,0 +1,56 @@
+/* 存放注册和登录的样式 */
+.auth-container {
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--el-box-shadow-light);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  color: var(--el-text-color-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.auth-button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 1.5rem;
+}
+
+.auth-verify-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+/* 表单相关, 在个人页也有使用 */
+.custom-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--el-text-color-primary);
+  font-size: 1rem;
+}
+
+.custom-label.error {
+  color: var(--el-color-danger);
+}
+
+.error-input {
+  --el-input-border-color: var(--el-color-danger);
+  --el-input-focus-border-color: var(--el-color-danger);
+}

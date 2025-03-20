@@ -1,56 +1,91 @@
 import { createRouter, createWebHashHistory } from "vue-router"
+import Layout from "../components/layout/Layout.vue"
+import Home from "../views/home/Home.vue"
+import Login from "../views/user/Login.vue"
+import Register from "../views/user/Register.vue"
+import Profile from "../views/user/Profile.vue"
+import RiskSignal from "../views/signal/RiskSignal.vue"
+import ForexData from "../views/forex/ForexData.vue"
+import NewsPreview from "../views/news/NewsPreview.vue"
+import NewsList from "../views/news/NewsList.vue"
+import News from "../views/news/News.vue"
+import Chat from "../views/chat/Chat.vue"
+import { ElMessage } from "element-plus"
 
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: '/',
-        component: () => import('../components/Layout.vue'),
+        component: Layout,
         children: [
             {
                 path: '',
-                redirect: '/about'
+                redirect: '/home'
             },
             {
-                path: '/about',
-                name: 'About',
-                component: () => import('../views/About.vue'),
+                path: '/home',
+                name: 'Home',
+                component: Home,
                 meta: { title: '关于我们', requiresAuth: false }
             },
             {
                 path: '/login',
                 name: 'Login',
-                component: () => import('../views/user/Login.vue'),
+                component: Login,
                 meta: { title: '用户登录', requiresAuth: false }
             },
             {
                 path: '/register',
                 name: 'Register',
-                component: () => import('../views/user/Register.vue'),
+                component: Register,
                 meta: { title: '用户注册', requiresAuth: false }
             },
             {
-                path: '/dashboard',
-                name: 'Dashboard',
-                component: () => import('../views/user/Dashboard.vue'),
+                path: '/profile',
+                name: 'Profile',
+                component: Profile,
                 meta: { title: '个人信息', requiresAuth: true }
             },
             {
                 path: '/risk-signal',
                 name: 'RiskSignals',
-                component: () => import('../views/RiskSignal.vue'),
+                component: RiskSignal,
                 meta: { title: '风险信号', requiresAuth: true }
             },
             {
-                path: '/fx-data',
-                name: 'FXData',
-                component: () => import('../views/FXData.vue'),
+                path: '/forex-data',
+                name: 'ForexData',
+                component: ForexData,
                 meta: { title: '外汇数据', requiresAuth: true }
             },
             {
                 path: '/news',
-                name: 'News',
-                component: () => import('../views/News.vue'),
-                meta: { title: '新闻资讯', requiresAuth: true }
+                children: [
+                    {
+                        path: '',
+                        name: 'NewsPreview',
+                        component: NewsPreview,
+                        meta: { title: '新闻预览', requiresAuth: true }
+                    },
+                                        {
+                        path: ':type',
+                        name: 'NewsList',
+                        component: NewsList,
+                        meta: { title: '新闻列表', requiresAuth: true }
+                    },
+                    {
+                        path: ':type/:newsId',
+                        name: 'News',
+                        component: News,
+                        meta: { title: '新闻详情', requiresAuth: true }
+                    }
+                ]
+            },
+            {
+                path: '/chat',
+                name: 'Chat',
+                component: Chat,
+                meta: { title: '智能体', requiresAuth: true }
             }
         ]
     }, {
@@ -64,34 +99,27 @@ const router = createRouter({
     }]
 })
 
-router.beforeEach((to, _, next) => {
-    // const token: string | null = sessionStorage.getItem('token');
-    // const role: string | null = sessionStorage.getItem('role')
+// 路由守卫
+// router.beforeEach((to, _, next) => {
+//     const token: string | null = sessionStorage.getItem('token');
 
-    // if (to.meta.title) {
-    //     document.title = to.meta.title
-    // }
+//     if (token) {
+//         if(to.path === '/login' || to.path === '/register') {
+//             ElMessage.error('您已登录')
+//             next('/profile')
+//         } else {
+//             next()
+//         }
+//     } else {
+//         if (to.path === '/login' || to.path === '/register') {
+//             next();
+//         } else if (to.path === '/' || to.path === '/home') {
+//             next()
+//         } else {
+//             ElMessage.error('请先登录')
+//             next('/login')
+//         }
+//     }
+// })
 
-    // if (token) {
-    //     if (to.meta.permission) {
-    //         if (to.meta.permission.includes(role!)) {
-    //             next()
-    //         } else {
-    //             next('/404')
-    //         }
-    //     } else {
-    //         next()
-    //     }
-    // } else {
-    //     if (to.path === '/login') {
-    //         next();
-    //     } else if (to.path === '/register') {
-    //         next()
-    //     } else {
-    //         next('/login')
-    //     }
-    // }
-    next()
-})
-
-export { router }
+export default router

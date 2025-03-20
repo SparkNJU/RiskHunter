@@ -1,0 +1,20 @@
+@startuml
+title 组件图 - 汇率风险信号系统
+
+component "用户界面" as UI
+component "风险信号生成器（ML模型）" as ML
+component "新闻分析（LLM）" as LLM
+component "数据存储" as DB
+component "可视化模块" as Viz
+component "通知系统" as Notif
+
+UI --> ML : 请求风险信号
+ML --> DB : 获取经济数据
+ML --> LLM : 请求新闻分析
+LLM --> DB : 获取新闻数据
+ML --> UI : 提供风险信号
+ML --> Notif : 触发警报
+UI --> Viz : 请求数据可视化
+DB --> Viz : 提供可视化数据
+
+@enduml

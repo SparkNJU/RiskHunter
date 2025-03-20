@@ -1,0 +1,16 @@
+@startuml
+
+actor "用户" as User
+entity "数据源" as DataSource
+entity "风险信号系统" as RiskSystem
+entity "推理引擎" as ReasoningEngine
+
+User --> RiskSystem : 请求风险信号
+RiskSystem --> DataSource : 采集数据
+DataSource --> RiskSystem : 提供数据
+RiskSystem --> ReasoningEngine : 分析数据
+ReasoningEngine --> RiskSystem : 生成风险信号
+RiskSystem --> User : 提供风险信号
+RiskSystem --> User : 提供信号原因
+
+@enduml

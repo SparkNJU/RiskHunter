@@ -6,6 +6,9 @@ import com.RiskHunter.DTO.RiskSignalQueryDTO;
 import com.RiskHunter.po.RiskSignal;
 import com.RiskHunter.service.RiskSignalService;
 import com.RiskHunter.vo.ResultVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,6 +18,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import java.time.LocalDateTime;
 
 @RestController
+@Api(value = "风险信号管理", tags = { "风险信号相关接口" })
 @RequestMapping("/api/risk-signals")
 @RequiredArgsConstructor
 public class RiskSignalController {
@@ -27,8 +31,10 @@ public class RiskSignalController {
      * @param signal RiskSignal 对象，通过 RequestBody 传递
      * @return ResultVO 包含创建的 RiskSignal 对象的 ResultVO
      */
+    @ApiOperation(value = "创建风险信号", notes = "创建一个新的风险信号")
     @PostMapping
-    public ResultVO<RiskSignal> create(@RequestBody RiskSignal signal) {
+    public ResultVO<RiskSignal> create(
+            @ApiParam(value = "风险信号对象", required = true) @RequestBody RiskSignal signal) {
         riskSignalService.save(signal);
         return ResultVO.buildSuccess(signal);
     }
@@ -41,18 +47,16 @@ public class RiskSignalController {
      * @param page       可选，页码，默认为 1
      * @param size       可选，每页大小，默认为 10
      * @return ResultVO 包含分页 RiskSignal 列表的 ResultVO
-
      */
+    @ApiOperation(value = "分页查询风险信号", notes = "根据时间范围分页查询风险信号列表")
     @GetMapping
     public ResultVO<Page<RiskSignal>> list(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
-            LocalDateTime startTime,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
-            LocalDateTime endTime,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @ApiParam(value = "开始时间", required = false) @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @ApiParam(value = "结束时间", required = false) @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
+            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer page,
+            @ApiParam(value = "每页大小", defaultValue = "10") @RequestParam(defaultValue = "10") Integer size) {
         // 设置默认开始时间为1900年1月1日
         if(startTime == null) {
             startTime = LocalDateTime.of(1900, 1, 1, 0, 0, 0);
@@ -72,8 +76,11 @@ public class RiskSignalController {
      * @param signal RiskSignal 对象，包含要更新的信息，通过 RequestBody 传递
      * @return ResultVO 包含更新后的 RiskSignal 对象的 ResultVO
      */
+    @ApiOperation(value = "更新风险信号", notes = "根据 ID 更新风险信号")
     @PutMapping("/{id}")
-    public ResultVO<RiskSignal> update(@PathVariable Long id, @RequestBody RiskSignal signal) {
+    public ResultVO<RiskSignal> update(
+            @ApiParam(value = "风险信号 ID", required = true) @PathVariable Long id,
+            @ApiParam(value = "风险信号对象", required = true) @RequestBody RiskSignal signal) {
         signal.setId(id);
         riskSignalService.updateById(signal);
         return ResultVO.buildSuccess(signal);
@@ -85,11 +92,14 @@ public class RiskSignalController {
      * @param id RiskSignal 的 ID，通过 PathVariable 传递
      * @return ResultVO 包含操作结果的 ResultVO
      */
+    @ApiOperation(value = "删除风险信号", notes = "根据 ID 删除风险信号")
     @DeleteMapping("/{id}")
-    public ResultVO<Void> delete(@PathVariable Long id) {
+    public ResultVO<Void> delete(
+            @ApiParam(value = "风险信号 ID", required = true) @PathVariable Long id) {
         riskSignalService.removeById(id);
         return ResultVO.buildSuccess(null);
     }
+
     /**
      * 高级查询 RiskSignal 列表
      *
@@ -122,9 +132,10 @@ public class RiskSignalController {
      *      *   "size": 10
      *      * }
      */
+    @ApiOperation(value = "高级查询风险信号", notes = "根据多种条件进行高级查询")
     @PostMapping("/search")
-    public ResultVO<Page<RiskSignal>> advancedSearch(@RequestBody RiskSignalQueryDTO queryDTO) {
+    public ResultVO<Page<RiskSignal>> advancedSearch(
+            @ApiParam(value = "查询条件对象", required = true) @RequestBody RiskSignalQueryDTO queryDTO) {
         return ResultVO.buildSuccess(riskSignalService.advancedSearch(queryDTO));
     }
-
 }

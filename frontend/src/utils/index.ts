@@ -13,5 +13,20 @@ export function parseTime(time: string) {
     return times[0] + " " + times[1]
 }
 
+export const CurrencyList = [
+    { number: 1, code: 'CNY', name: '人民币' },
+    { number: 2, code: 'USD', name: '美元' },
+    { number: 3, code: 'EUR', name: '欧元' },
+    { number: 4, code: 'JPY', name: '日元' },
+    { number: 5, code: 'GBP', name: '英镑' },
+    { number: 6, code: 'AUD', name: '澳元' },
+    { number: 7, code: 'HKD', name: '港币' },
+    { number: 8, code: 'CHF', name: '瑞士法郎' }
+];
+
+export function parseCurrencyName(index: number): string {
+    const currency = CurrencyList.find(c => c.number === index)
+    return currency ? `${currency.code}` : 'null'
+}
 
 

@@ -66,7 +66,7 @@ Error reading file: {str(e)}\
 
 if __name__ == '__main__':
     project_path = os.getcwd()
-    output_file = 'projectCode.txt'
+    output_file = 'projectCode0317.txt'
     
     if os.path.exists(project_path):
         scan_project_files(project_path, output_file)
