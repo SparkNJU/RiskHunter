@@ -4,9 +4,9 @@ class SelfAttention(nn.Module):
     def __init__(self, hidden_size):
         super().__init__()
         self.attention = nn.Sequential(
-            nn.Linear(hidden_size, 16),
+            nn.Linear(hidden_size, 32),
             nn.Tanh(),
-            nn.Linear(16, 1)
+            nn.Linear(32, 1)
         )
     def forward(self, lstm_output):
         attn_scores = self.attention(lstm_output)
@@ -18,12 +18,12 @@ class Lstm(nn.Module):
         self.lstm=nn.LSTM(input_size,hidden_size,num_layer,batch_first=True)
         self.attention=SelfAttention(hidden_size)
         self.out=nn.Sequential(
-            nn.Linear(hidden_size,32),
+            nn.Linear(hidden_size,128),
             nn.ReLU(),
-            nn.Linear(32,output_size))
+            nn.Linear(128,output_size))
     def forward(self,x):
         lstm_out,_=self.lstm(x)
         attn_out=self.attention(lstm_out)
-        context=context = torch.sum(attn_out.unsqueeze(2) * lstm_out, dim=1)
+        context = torch.sum(attn_out.unsqueeze(2) * lstm_out, dim=1)
         output=self.out(context)
         return output
