@@ -33,7 +33,7 @@ const processNewsItem = (type: string, item: any): NewsItem => ({
 const loadData = async (type: string) => {
   try {
     const res = await getNewsListByType(type)
-    const topNews = res.slice(0, 20).map((item: any) => processNewsItem(type, item))
+    const topNews = res.reverse().slice(0, 20).map((item: any) => processNewsItem(type, item))
 
     carouselNews.value[type] = await Promise.all(
       topNews.slice(0, 4).map(async (item: { id: number }) => {

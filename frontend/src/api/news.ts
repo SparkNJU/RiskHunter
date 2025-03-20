@@ -15,8 +15,8 @@ export const getNewsListByType = async (type: string) => {
 
 export const getNewsById = async (type: string, id: number) => {
     // 由于数据暂未适配故类型限制为market
-    // const response = await fetch(`/news/${type}/news-content/${id}.json`)
-    const response = await fetch(`/news/market/news-content/${id}.json`)
+    const response = await fetch(`/news/${type}/news-content/${id}.json`)
+    // const response = await fetch(`/news/market/news-content/${id}.json`)
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
     const data = await response.json()
     return data

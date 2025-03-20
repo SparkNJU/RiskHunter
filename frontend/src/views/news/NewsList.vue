@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getNewsListByType } from '../../api/news'
 
@@ -29,7 +29,7 @@ const loadData = async () => {
     try {
         loading.value = true
         const res = await getNewsListByType(newsType.value)
-        newsList.value = res.slice(0, 500).map((item: any) => processNewsItem(newsType.value, item))
+        newsList.value = res.map((item: any) => processNewsItem(newsType.value, item)).reverse()
     } finally {
         loading.value = false
     }
@@ -45,16 +45,30 @@ const rowClick = (row: NewsItem) => {
 }
 
 onMounted(loadData)
+
+// 新增路由参数监听
+watch(newsType, () => {
+    currentPage.value = 1
+    loadData()
+})
+
 </script>
 
 <template>
     <el-main class="list-container">
-        <div class="back-button">
-            <el-button @click="router.back()" type="primary" plain>
-                返回
-            </el-button>
-        </div>
         <el-card v-loading="loading">
+            <div class="button-group">
+                <el-button @click="router.push('/news')" type="primary" plain>
+                    返回
+                </el-button>
+                <el-button v-if="newsType === 'government'" @click="router.push('/news/market')" type="success" plain>
+                    市场动态
+                </el-button>
+                <el-button v-else @click="router.push('/news/government')" type="success" plain>
+                    政事要闻
+                </el-button>
+            </div>
+            
             <div class="table-header">
                 <h2>{{ newsType === 'government' ? '政事要闻' : '市场动态' }}</h2>
                 <span class="total-count">共 {{ newsList.length }} 条记录</span>
@@ -83,8 +97,11 @@ onMounted(loadData)
 </template>
 
 <style scoped>
-.back-button {
+.button-group {
     margin-bottom: 15px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 :deep(.el-card) {

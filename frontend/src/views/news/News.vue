@@ -21,7 +21,7 @@ const loadData = async () => {
     const res = await getNewsById(newsType.value, id)
     title.value = res.title
     date.value = res.date
-    content.value = res.content
+    content.value = res.content.replace(/<h1>.*?<\/h1>/gi, '').replace(/<p>\d{4}-\d{2}-\d{2}<\/p>/gi, '').trim()
     url.value = res.url
   } catch (error) {
     ElMessage.error('新闻加载失败')
