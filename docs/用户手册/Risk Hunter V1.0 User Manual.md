@@ -1,4 +1,7 @@
 # Risk Hunter V1.0 User Manual
+**Version**: v1.0.5
+**Author**: NJU-SagaCiti
+**Last Updated**: 2025.3.21
 
 [TOC]
 

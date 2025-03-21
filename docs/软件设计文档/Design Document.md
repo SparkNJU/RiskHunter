@@ -1,4 +1,7 @@
 # RiskHunter Detailed Design Document
+**Version**: v1.0.5
+**Author**: NJU-SagaCiti
+**Last Updated**: 2025.3.21
 
 [TOC]
 
@@ -60,7 +63,7 @@ The database schema includes three main tables: `risk_signal`, `user`, `chat_rec
     | `update_time` | DATETIME  | Not Null                    | Timestamp of last session update |
 
 ### 2.2. Database Class Diagram (PlantUML)
-![alt text](image.png)
+![alt text](2.2.png)
 
 ## 3. API Design
 
