@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AlertList: typeof import('./src/components/signal/AlertList.vue')['default']
     Dashboard: typeof import('./src/components/Dashboard.vue')['default']
     ElAffix: typeof import('element-plus/es')['ElAffix']
     ElAside: typeof import('element-plus/es')['ElAside']
@@ -39,6 +40,7 @@ declare module 'vue' {
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPagination: typeof import('element-plus/es')['ElPagination']
+    ElProgress: typeof import('element-plus/es')['ElProgress']
     ElRadio: typeof import('element-plus/es')['ElRadio']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElRow: typeof import('element-plus/es')['ElRow']
@@ -48,9 +50,13 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ExchangeRate: typeof import('./src/components/ExchangeRate.vue')['default']
+    ExchangeRateBoard: typeof import('./src/components/signal/ExchangeRateBoard.vue')['default']
+    ExposureMatrix: typeof import('./src/components/signal/ExposureMatrix.vue')['default']
     Gauge: typeof import('./src/components/Gauge.vue')['default']
     Header: typeof import('./src/components/layout/Header.vue')['default']
     Layout: typeof import('./src/components/layout/Layout.vue')['default']
+    PredictionAndAdvice: typeof import('./src/components/signal/PredictionAndAdvice.vue')['default']
+    RiskScore: typeof import('./src/components/signal/RiskScore.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

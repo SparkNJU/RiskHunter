@@ -4,7 +4,8 @@ import Home from "../views/home/Home.vue"
 import Login from "../views/user/Login.vue"
 import Register from "../views/user/Register.vue"
 import Profile from "../views/user/Profile.vue"
-import RiskSignal from "../views/signal/RiskSignal.vue"
+// import RiskSignal from "../views/signal/RiskSignal.vue"
+import RiskSignal from "../views/signal/Signal.vue"
 import ForexData from "../views/forex/ForexData.vue"
 import NewsPreview from "../views/news/NewsPreview.vue"
 import NewsList from "../views/news/NewsList.vue"
@@ -106,26 +107,26 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, _, next) => {
-    const token: string | null = sessionStorage.getItem('token');
+// router.beforeEach((to, _, next) => {
+//     const token: string | null = sessionStorage.getItem('token');
 
-    if (token) {
-        if(to.path === '/login' || to.path === '/register') {
-            ElMessage.error('您已登录')
-            next('/profile')
-        } else {
-            next()
-        }
-    } else {
-        if (to.path === '/login' || to.path === '/register') {
-            next();
-        } else if (to.path === '/' || to.path === '/home') {
-            next()
-        } else {
-            ElMessage.error('请先登录')
-            next('/login')
-        }
-    }
-})
+//     if (token) {
+//         if(to.path === '/login' || to.path === '/register') {
+//             ElMessage.error('您已登录')
+//             next('/profile')
+//         } else {
+//             next()
+//         }
+//     } else {
+//         if (to.path === '/login' || to.path === '/register') {
+//             next();
+//         } else if (to.path === '/' || to.path === '/home') {
+//             next()
+//         } else {
+//             ElMessage.error('请先登录')
+//             next('/login')
+//         }
+//     }
+// })
 
 export default router
