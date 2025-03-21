@@ -16,14 +16,13 @@ export interface EventMarker {
 }
 
 export interface RiskFactor {
-    volatility: number;
-    concentration: number;
-    hedgeGap: number;
+   name: string;
+   value: number;
 }
 
 export interface ScoreTrend {
-    score: number; // 相对分数
-    description: string; // 原因描述
+    value: number;
+    direction: string;
 }
 
 // 汇率波动
@@ -42,8 +41,8 @@ export interface RiskScoreVO {
     name: string;
     riskStatus: 'low' | 'medium' | 'high';
     score: number;
-    updateTime: Date;
-    factorBreakdown: RiskFactor;
+    updateTime: string;
+    factorBreakdown: RiskFactor[];
     trend: ScoreTrend;
 }
 
@@ -52,7 +51,7 @@ export interface AlertVO {
     level: 'urgent' | 'warning' | 'normal';
     title: string;
     content: string;
-    updateTime: Date;
+    updateTime: string;
 }
 
 // 风险地图数据

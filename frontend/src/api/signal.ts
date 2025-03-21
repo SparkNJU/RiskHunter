@@ -59,53 +59,53 @@ export const getExchangeRate = (currencyPair: number) => {
 
 // 获取风险评分
 export const getRiskScore = () => {
-  // return axios.get(`${SIGNAL_MODULE}/risk-score`)
+  return axios.get(`${SIGNAL_MODULE}/dashboard`)
 
-  return Promise.resolve({
-    data: {
-      name: '当前敞口',
-      riskStatus: 'medium',
-      score: 62,
-      updateTime: new Date(),
-      factorBreakdown: {
-        volatility: 0.4,
-        concentration: 0.3,
-        hedgeGap: 0.2
-      },
-      trend: {
-        score: 5,
-        description: '受人民币贬值压力增加影响'
-      }
-    }
-  })
+  // return Promise.resolve({
+  //   data: {
+  //     name: '当前敞口',
+  //     riskStatus: 'medium',
+  //     score: 62,
+  //     updateTime: new Date(),
+  //     factorBreakdown: {
+  //       volatility: 0.4,
+  //       concentration: 0.3,
+  //       hedgeGap: 0.2
+  //     },
+  //     trend: {
+  //       score: 5,
+  //       description: '受人民币贬值压力增加影响'
+  //     }
+  //   }
+  // })
 }
 
 // 获取预警列表
 export const getAlerts = () => {
-  // return axios.get(`${SIGNAL_MODULE}/alerts`)
+  return axios.get(`${SIGNAL_MODULE}/alert`)
 
-  return Promise.resolve({
-    data: [
-      {
-        level: 'urgent',
-        title: '阿根廷比索单周贬值12%',
-        content: '影响南美客户付款',
-        updateTime: new Date()
-      },
-      {
-        level: 'warning',
-        title: '欧元区通胀超预期',
-        content: 'ECB加息概率升至75%',
-        updateTime: new Date()
-      },
-      {
-        level: 'normal',
-        title: 'USD/CNY 1M远期对冲',
-        content: '对冲覆盖率达标（80%）',
-        updateTime: new Date()
-      }
-    ]
-  })
+  // return Promise.resolve({
+  //   data: [
+  //     {
+  //       level: 'urgent',
+  //       title: '阿根廷比索单周贬值12%',
+  //       content: '影响南美客户付款',
+  //       updateTime: new Date()
+  //     },
+  //     {
+  //       level: 'warning',
+  //       title: '欧元区通胀超预期',
+  //       content: 'ECB加息概率升至75%',
+  //       updateTime: new Date()
+  //     },
+  //     {
+  //       level: 'normal',
+  //       title: 'USD/CNY 1M远期对冲',
+  //       content: '对冲覆盖率达标（80%）',
+  //       updateTime: new Date()
+  //     }
+  //   ]
+  // })
 }
 
 export const getRiskMap = () => {
@@ -127,21 +127,23 @@ export const getRiskMap = () => {
 }
 
 export const getExposureMatrix = () => {
-  return Promise.resolve({
-    data: {
-      terms: [
-        { currency: 0, range: '<30天', amount: 500, riskLevel: 30 },
-        { currency: 0, range: '30-90天', amount: 800, riskLevel: 45 },
-        { currency: 0, range: '>90天', amount: 1200, riskLevel: 75 },
-        { currency: 1, range: '<30天', amount: 300, riskLevel: 25 },
-        { currency: 1, range: '30-90天', amount: 550, riskLevel: 40 },
-        { currency: 1, range: '>90天', amount: 700, riskLevel: 60 },
-        { currency: 2, range: '<30天', amount: 200, riskLevel: 20 },
-        { currency: 2, range: '30-90天', amount: 350, riskLevel: 35 },
-        { currency: 2, range: '>90天', amount: 450, riskLevel: 50 }
-      ]
-    }
-  })
+  return axios.get(`${SIGNAL_MODULE}/exposure`)
+
+  // return Promise.resolve({
+  //   data: {
+  //     terms: [
+  //       { currency: 0, range: '<30天', amount: 500, riskLevel: 30 },
+  //       { currency: 0, range: '30-90天', amount: 800, riskLevel: 45 },
+  //       { currency: 0, range: '>90天', amount: 1200, riskLevel: 75 },
+  //       { currency: 1, range: '<30天', amount: 300, riskLevel: 25 },
+  //       { currency: 1, range: '30-90天', amount: 550, riskLevel: 40 },
+  //       { currency: 1, range: '>90天', amount: 700, riskLevel: 60 },
+  //       { currency: 2, range: '<30天', amount: 200, riskLevel: 20 },
+  //       { currency: 2, range: '30-90天', amount: 350, riskLevel: 35 },
+  //       { currency: 2, range: '>90天', amount: 450, riskLevel: 50 }
+  //     ]
+  //   }
+  // })
 }
 
 export const getForecast = () => {

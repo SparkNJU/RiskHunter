@@ -3,7 +3,7 @@ import { ref,  nextTick } from 'vue';
 import * as echarts from 'echarts';
 import { type ExposureMatrixVO } from '../../types/signal';
 import { Money } from '@element-plus/icons-vue';
-import { parseCurrencyName } from '../../utils';
+import { CurrencyList, parseCurrencyName } from '../../utils';
 import { getExposureMatrix } from '../../api/signal';
 
 const chartRef = ref<HTMLElement | null>(null);
@@ -11,28 +11,39 @@ let chartInstance: echarts.ECharts | null = null;
 
 const loading = ref(false);
 
-const exposureData = ref<ExposureMatrixVO>();
+const exposureData = ref<ExposureMatrixVO[]>();
 
-const currencyNames = ['美元 (USD)', '欧元 (EUR)', '英镑 (GBP)'];
+const currencyNames = CurrencyList.map(c => parseCurrencyName(c.number));
 const termRanges = ['<30天', '30-90天', '>90天'];
+
+const getTermRangeIndex = (range: string) => {
+  const days = parseInt(range.replace(/[^0-9]/g, ''));
+  if (days < 30) return 0;
+  if (days <= 90) return 1;
+  return 2;
+};
 
 const processData = () => {
   const data: (string | number)[][] = [];
 
-  if(!exposureData.value) return data;
+  if (!exposureData.value) return data;
 
-  for (const term of exposureData.value.terms) {
+  // 合并所有terms数据
+  const allTerms = exposureData.value.flatMap(d => d.terms);
+
+  for (const term of allTerms) {
     data.push([
-      term.currency,                        // x-axis: currency
-      termRanges.indexOf(term.range),       // y-axis: term range
-      term.amount,                          // bubble size
-      term.riskLevel,                       // risk level for color
-      parseCurrencyName(term.currency),         // currency name
-      term.range,                           // term range
-      `${term.amount}万美元`,               // formatted amount
-      term.riskLevel                        // risk level for tooltip
+      term.currency - 1,
+      getTermRangeIndex(term.range),
+      term.amount / 1000,                   // 保持千美元单位转换
+      term.riskLevel * 33,                   // 将1-3级风险转换为33-99数值
+      parseCurrencyName(term.currency),
+      term.range.replace('天', '天'),        // 统一中文格式
+      `${(term.amount / 1000).toFixed(1)}千美元`,
+      ['低', '中', '高'][term.riskLevel - 1] // 风险等级转中文
     ]);
   }
+  console.log(allTerms)
 
   return data;
 };
@@ -53,7 +64,7 @@ const initBubbleChart = () => {
           <div style="font-weight:bold;">${params.data[4]}</div>
           <div>账期: ${params.data[5]}</div>
           <div>敞口金额: ${params.data[6]}</div>
-          <div>风险等级: ${params.data[7]}/100</div>
+          <div>风险等级: ${params.data[7]}（${params.data[3].toFixed(0)}/100）</div>
         `;
       }
     },
@@ -146,6 +157,7 @@ const loadData = async () => {
   try {
     loading.value = true
     getExposureMatrix().then((res: any) => {
+      console.log(res.data)
       exposureData.value = res.data
       nextTick(() => {
         initBubbleChart();
