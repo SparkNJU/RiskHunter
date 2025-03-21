@@ -86,6 +86,12 @@ const router = createRouter({
                 name: 'Chat',
                 component: Chat,
                 meta: { title: '智能体', requiresAuth: true }
+            },
+            {
+                path: '/exchange-rate',
+                name: 'ExchangeRate',
+                component: () => import('../components/ExchangeRate.vue'),
+                meta: { title: '汇率查询', requiresAuth: true }
             }
         ]
     }, {
