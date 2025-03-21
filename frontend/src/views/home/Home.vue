@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { InfoFilled, Warning, Memo, DataLine, Phone, Message, Location, Service } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
+import AboutUs from './AboutUs.vue'
 
 const router = useRouter()
 const navigateTo = (path: string) => {
@@ -27,7 +28,7 @@ const funcs = [
           <el-icon>
             <InfoFilled />
           </el-icon>
-          <span>关于我们</span>
+          <span>关于RiskHunter</span>
         </div>
         <p class="intro-description">
           Risk Hunter 是一个前沿的统计与AI工具，能够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。
@@ -81,6 +82,7 @@ const funcs = [
           </div>
         </el-card>
       </div>
+      <AboutUs />
 
       <!-- 联系栏 -->
       <div class="contact-container">
@@ -210,7 +212,7 @@ const funcs = [
     }
 
     to {
-      width: 60%
+      width: 80%
     }
   }
 
@@ -233,7 +235,6 @@ const funcs = [
   }
 }
 
-/* 关于我们样式优化 */
 .intro-about {
   display: flex;
   align-items: center;
@@ -358,7 +359,7 @@ const funcs = [
 }
 
 .risk-signal-card {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5)), url('../../assets/网站设计素材/风险信号背景.png') no-repeat left center / contain;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5)), url('../../assets/homeBackground/风险信号背景.png') no-repeat left center / contain;
   display: flex;
   align-items: center;
 }
@@ -371,9 +372,10 @@ const funcs = [
   margin-left: auto;
   padding-left: 50%;
 }
+
 /* 智能助手卡片样式 */
 .smart-assistant-card {
-  background: #ffffff url('../../assets/网站设计素材/智能助手背景.png') no-repeat right center / contain;
+  background: #ffffff url('../../assets/homeBackground/智能助手背景.png') no-repeat right center / contain;
   display: flex;
   align-items: center;
 }
@@ -386,7 +388,7 @@ const funcs = [
 
 /* 外汇数据卡片样式 */
 .forex-data-card {
-  background: rgba(235, 237, 250, 1) url('../../assets/网站设计素材/外汇数据背景.png') no-repeat left center / contain;
+  background: rgba(235, 237, 250, 1) url('../../assets/homeBackground/外汇数据背景.png') no-repeat left center / contain;
   position: relative;
   display: flex;
   align-items: center;
@@ -412,7 +414,7 @@ const funcs = [
 
 /* 新闻资讯卡片样式 */
 .news-card {
-  background: rgb(235, 243, 249) url('../../assets/网站设计素材/新闻资讯背景.png') no-repeat right center / contain;
+  background: rgb(235, 243, 249) url('../../assets/homeBackground/新闻资讯背景.png') no-repeat right center / contain;
   position: relative;
   display: flex;
   align-items: center;
@@ -539,13 +541,13 @@ const funcs = [
   .smart-assistant-content .card-title {
     font-size: 2rem;
   }
-  
+
   .smart-assistant-content .card-description {
     font-size: 0.95rem;
     line-height: 1.8;
     margin-bottom: 1.2rem;
   }
-  
+
   .smart-assistant-content .card-button {
     width: 250px;
     height: 45px;
@@ -560,14 +562,14 @@ const funcs = [
     margin-bottom: 1.2rem;
     padding-bottom: 0.6rem;
   }
-  
+
   .smart-assistant-content .card-description {
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1rem;
     max-width: 95%;
   }
-  
+
   .smart-assistant-content .card-button {
     width: 220px;
     height: 40px;
@@ -580,12 +582,12 @@ const funcs = [
   .smart-assistant-content .card-title {
     font-size: 1.5rem;
   }
-  
+
   .smart-assistant-content .card-description {
     font-size: 0.85rem;
     line-height: 1.5;
   }
-  
+
   .smart-assistant-content .card-button {
     width: 180px;
     height: 38px;
@@ -598,13 +600,13 @@ const funcs = [
   .forex-data-content .card-title {
     font-size: 2rem;
   }
-  
+
   .forex-data-content .card-description {
     font-size: 0.95rem;
     line-height: 1.8;
     margin-bottom: 1.2rem;
   }
-  
+
   .forex-data-content .card-button {
     width: 250px;
     height: 45px;
@@ -619,14 +621,14 @@ const funcs = [
     margin-bottom: 1.2rem;
     padding-bottom: 0.6rem;
   }
-  
+
   .forex-data-content .card-description {
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1rem;
     max-width: 95%;
   }
-  
+
   .forex-data-content .card-button {
     width: 220px;
     height: 40px;
@@ -639,12 +641,12 @@ const funcs = [
   .forex-data-content .card-title {
     font-size: 1.5rem;
   }
-  
+
   .forex-data-content .card-description {
     font-size: 0.85rem;
     line-height: 1.5;
   }
-  
+
   .forex-data-content .card-button {
     width: 180px;
     height: 38px;
@@ -657,13 +659,13 @@ const funcs = [
   .news-content .card-title {
     font-size: 2rem;
   }
-  
+
   .news-content .card-description {
     font-size: 0.95rem;
     line-height: 1.8;
     margin-bottom: 1.2rem;
   }
-  
+
   .news-content .card-button {
     width: 250px;
     height: 45px;
@@ -678,14 +680,14 @@ const funcs = [
     margin-bottom: 1.2rem;
     padding-bottom: 0.6rem;
   }
-  
+
   .news-content .card-description {
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1rem;
     max-width: 95%;
   }
-  
+
   .news-content .card-button {
     width: 220px;
     height: 40px;
@@ -698,12 +700,12 @@ const funcs = [
   .news-content .card-title {
     font-size: 1.5rem;
   }
-  
+
   .news-content .card-description {
     font-size: 0.85rem;
     line-height: 1.5;
   }
-  
+
   .news-content .card-button {
     width: 180px;
     height: 38px;
@@ -764,52 +766,65 @@ const funcs = [
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px; /* 与关于我们保持一致的间距 */
-  margin: 1.8rem 0; /* 与关于我们一致的边距 */
+  gap: 12px;
+  /* 与关于我们保持一致的间距 */
+  margin: 1.8rem 0;
+  /* 与关于我们一致的边距 */
 }
 
 .contact-title {
-  color: #512da8; /* 使用相同的蓝紫色 */
+  color: #512da8;
+  /* 使用相同的蓝紫色 */
   margin: 0;
-  font-size: 1.5rem; /* 与关于我们一致的字体大小 */
-  font-weight: 500; /* 与关于我们一致的字体粗细 */
+  font-size: 1.5rem;
+  /* 与关于我们一致的字体大小 */
+  font-weight: 500;
+  /* 与关于我们一致的字体粗细 */
 }
 
 .contact-header .el-icon {
-  color: #512da8; /* 图标也使用相同色调 */
-  font-size: 1.5rem; /* 与文字大小保持一致 */
+  color: #512da8;
+  /* 图标也使用相同色调 */
+  font-size: 1.5rem;
+  /* 与文字大小保持一致 */
 }
 
 .contact-content {
   max-width: 800px;
   margin: 0 auto;
-  color: #303030; /* 与关于我们内容一致的颜色 */
+  color: #303030;
+  /* 与关于我们内容一致的颜色 */
   line-height: 1.8;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 12px; /* 与关于我们保持一致的间距 */
+  gap: 12px;
+  /* 与关于我们保持一致的间距 */
   margin-bottom: 1rem;
   justify-content: center;
-  font-size: 1.1rem; /* 与介绍描述一致的字体大小 */
+  font-size: 1.1rem;
+  /* 与介绍描述一致的字体大小 */
 }
 
 .contact-icon {
   font-size: 1.2rem;
-  color: #512da8; /* 图标颜色与标题一致 */
+  color: #512da8;
+  /* 图标颜色与标题一致 */
 }
 
 /* 链接样式 */
 .contact-item a {
-  color: #626aef; /* 使用按钮颜色作为链接颜色 */
+  color: #626aef;
+  /* 使用按钮颜色作为链接颜色 */
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .contact-item a:hover {
-  color: #535bd4; /* 悬停颜色与按钮悬停颜色一致 */
+  color: #535bd4;
+  /* 悬停颜色与按钮悬停颜色一致 */
   text-decoration: underline;
 }
 </style>
