@@ -1,0 +1,14 @@
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .panel-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    .header-icon {
+        color: var(--el-color-primary);
+    }
+}
