@@ -41,6 +41,9 @@ public class RiskSignal {
     @ApiModelProperty(value = "外汇储备")
     private Double fxReserves;
 
+    @ApiModelProperty(value = "新闻指数")
+    private Double news;
+
     @ApiModelProperty(value = "分析结果")
     private String analysis;
 

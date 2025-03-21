@@ -1,23 +1,72 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { InfoFilled } from '@element-plus/icons-vue'
+import { InfoFilled } from '@element-plus/icons-vue';
+import MarkdownIt from 'markdown-it';
+
 
 // 定义选项卡选择状态
 const activeTab = ref('teachers');
 
-// 定义各组成员数据
+// 导入Markdown-it，增加链接自动识别
+const md = new MarkdownIt({
+  linkify: true,
+  typographer: true
+});
+
+// 定义各组成员数据，使用Markdown格式
 const teachers = [
     {
-        name: '张教授',
+        name: '蒋彧',
         title: '南京大学商学院',
-        description: '金融学教授，研究方向为汇率风险管理与国际金融',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        description: `**南京大学商学院金融与保险学系教授、博士生导师**，江苏高校"青蓝工程"中青年学术带头人。
+
+**教育背景**
+- 2001年 南京大学理学学士
+- 2004年 美国科罗拉多矿业学院（Colorado School of Mines）理学硕士
+- 2007年 美国爱荷华大学（University of Iowa）精算学硕士
+- 2009年 美国爱荷华大学（University of Iowa）理学博士
+
+**研究领域**：金融市场、行为金融、金融计量等
+
+**学术成果**：
+- SSCI/SCI来源期刊（如Journal of Econometrics）论文20余篇
+- CSSCI来源期刊（《金融研究》、《管理科学学报》等）论文近30篇
+
+**科研项目**：
+- 国家自然科学基金 1项
+- 教育部人文社科基金 1项
+- 教育部博士点基金 1项
+- 国家博士后基金 2项
+
+**学术兼职**：
+- 《南大商学评论》执行编辑
+- 多家国内外期刊匿名审稿人`,
+        avatar: 'src/assets/teamMembers/JiangY.jpg'
     },
     {
-        name: '李教授',
+        name: '毛云龙',
         title: '南京大学软件学院',
-        description: '人工智能与数据科学教授，专注于金融科技领域',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        description: `**南京大学准聘副教授**，南京大学计算机科学与技术系获学士学位和博士学位。导师为**仲盛教授**。
+
+**研究方向**：
+- 网络安全
+- 数据隐私保护
+- 机器学习安全
+- 区块链
+
+**学术成果**：研究成果发表在Security、CCS、ESORICS、IEEE TIFS、IEEE TDSC等国际会议和期刊。
+
+**学术兼职**：多次担任**数据安全和机器学习**等领域国际会议的程序委员。
+
+**科研项目**：
+- 国家自然科学基金面上项目
+- 国家自然科学基金青年项目
+- 江苏省科技厅优秀青年基金项目
+- 骨干成员参与国家自然科学基金杰出青年科学基金项目
+- 国家重点研发计划专项课题
+
+**产业合作**：长期保持和**华为、字节跳动、美团、百度等**企业的研究合作，工作成果在企业实践中得到了应用和验证。`,
+        avatar: '/src/assets/teamMembers/MaoYL.jpg'
     },
 ];
 
@@ -109,30 +158,23 @@ const techTeam = [
                 </div>
             </div>
 
-            <!-- 指导教师部分 - 横向布局 -->
-            <div class="team-members" v-if="activeTab === 'teachers'">
+    <!-- 指导教师部分 - 统一布局 -->
+    <div class="team-members" v-if="activeTab === 'teachers'">
         <div class="teachers-row">
-            <!-- 第一位教师 - 照片在左 -->
-            <div class="teacher-card left-image">
-                <div class="teacher-avatar">
-                    <img :src="teachers[0].avatar" alt="教师头像">
+            <!-- 教师卡片 - 统一布局，渲染Markdown内容 -->
+            <div class="teacher-card" v-for="(teacher, index) in teachers" :key="index">
+                <div class="teacher-left">
+                    <div class="teacher-avatar">
+                        <img :src="teacher.avatar" alt="教师头像">
+                    </div>
+                    <div class="teacher-brief">
+                        <h3 class="member-name">{{ teacher.name }}</h3>
+                        <div class="member-title">{{ teacher.title }}</div>
+                    </div>
                 </div>
                 <div class="teacher-info">
-                    <h3 class="member-name">{{ teachers[0].name }}</h3>
-                    <div class="member-title">{{ teachers[0].title }}</div>
-                    <p class="member-description">{{ teachers[0].description }}</p>
-                </div>
-            </div>
-
-            <!-- 第二位教师 - 照片在右 -->
-            <div class="teacher-card right-image">
-                <div class="teacher-info">
-                    <h3 class="member-name">{{ teachers[1].name }}</h3>
-                    <div class="member-title">{{ teachers[1].title }}</div>
-                    <p class="member-description">{{ teachers[1].description }}</p>
-                </div>
-                <div class="teacher-avatar">
-                    <img :src="teachers[1].avatar" alt="教师头像">
+                    <!-- 使用v-html和md.render渲染Markdown -->
+                    <div class="markdown-content" v-html="md.render(teacher.description)"></div>
                 </div>
             </div>
         </div>
@@ -172,39 +214,31 @@ const techTeam = [
         </div>
     </div>
 </template>
-
 <style scoped>
 .about-us-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 2rem 1rem;
     text-align: center;
 }
 
-/* 新增标题头部容器 */
+/* 标题容器 */
 .about-header {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    /* 图标和文字的间距 */
     margin: 1.8rem 0;
-    /* 上下边距 */
 }
 
-/* 修改标题样式 */
+/* 标题样式 */
 .about-title {
-    color: #512da8;
-    /* 更深的蓝紫色 */
+    color: #6a56c6;
     font-size: 1.5rem;
-    /* 调整字体大小与intro-about一致 */
     font-weight: 500;
-    /* 稍微加粗 */
     margin: 0;
-    /* 移除默认边距 */
     position: relative;
-    /* 保持相对定位用于下划线 */
 }
 
 /* 移除原来的下划线效果 */
@@ -212,15 +246,13 @@ const techTeam = [
     content: none;
 }
 
-/* 为图标设置样式 */
+/* 图标样式 */
 .about-header .el-icon {
-    color: #512da8;
-    /* 图标颜色与文字一致 */
+    color: #6a56c6;
     font-size: 1.5rem;
-    /* 图标大小与文字一致 */
 }
 
-
+/* 描述文本 */
 .about-description {
     color: #303030;
     font-size: 1.1rem;
@@ -232,6 +264,7 @@ const techTeam = [
     text-align: center;
 }
 
+/* 选项卡容器 */
 .tab-selector {
     display: flex;
     justify-content: center;
@@ -239,6 +272,7 @@ const techTeam = [
     border-bottom: 1px solid #e0e0e0;
 }
 
+/* 选项卡项目 */
 .tab-item {
     padding: 1rem 2rem;
     cursor: pointer;
@@ -249,11 +283,11 @@ const techTeam = [
 }
 
 .tab-item:hover {
-    color: #626aef;
+    color: #6a56c6;
 }
 
 .tab-item.active {
-    color: #626aef;
+    color: #6a56c6;
     font-weight: 500;
 }
 
@@ -264,13 +298,15 @@ const techTeam = [
     left: 0;
     width: 100%;
     height: 3px;
-    background-color: #626aef;
+    background-color: #6a56c6;
 }
 
+/* 团队成员容器 */
 .team-members {
     margin-top: 2rem;
 }
 
+/* 通用成员卡片样式 */
 .members-row {
     display: flex;
     flex-wrap: wrap;
@@ -282,15 +318,17 @@ const techTeam = [
     width: calc(50% - 2rem);
     max-width: 350px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background-color: #ebedfA;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .member-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .member-avatar {
@@ -313,155 +351,147 @@ const techTeam = [
 .member-info {
     padding: 1.5rem;
     text-align: center;
+    background: linear-gradient(to bottom, #ebedfA, #d7daef);
 }
 
 .member-name {
-    color: #303030;
+    color: #212121;
     margin: 0 0 0.5rem;
     font-size: 1.3rem;
 }
 
 .member-title {
-    color: #626aef;
+    color: #424242;
     font-size: 0.9rem;
+    font-weight: 500;
     margin-bottom: 1rem;
 }
 
 .member-description {
-    color: #303030;
+    color: #424242;
     font-size: 0.9rem;
     line-height: 1.6;
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .members-row {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .member-card {
-        width: 100%;
-        max-width: 400px;
-    }
-
-    .tab-item {
-        padding: 0.8rem 1rem;
-        font-size: 1rem;
-    }
-}
 /* 指导教师布局样式 */
 .teachers-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 2rem;
     margin-bottom: 2rem;
     width: 100%;
+    justify-content: center;
 }
 
-/* 基础教师卡片样式 */
+/* 教师卡片样式 */
 .teacher-card {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    width: calc(50% - 2rem);
+    max-width: 650px;
+    margin: 0;
+    background-color: #ebedfA;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
-    height: 180px;
-}
-
-/* 左侧图片布局 - 增加选择器特异性 */
-.teachers-row .teacher-card.left-image {
     display: flex;
-    flex-direction: row;
-}
-
-/* 右侧图片布局 - 增加选择器特异性 */
-.teachers-row .teacher-card.right-image {
-    display: flex;
-    flex-direction: row-reverse;
+    height: auto;
+    padding: 1.8rem;
 }
 
 .teacher-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* 左侧区域 - 包含头像和简介 - 减小宽度 */
+.teacher-left {
+    width: 140px; /* 减小宽度 */
+    display: flex;
+    flex-direction: column;
+    margin-right: 1.5rem; /* 减小右边距 */
+    flex-shrink: 0;
+}
+
+/* 头像样式 - 减小尺寸 */
 .teacher-avatar {
-    width: 15%;
-    min-width: 120px;
-    max-width: 135px;
+    width: 120px; /* 减小宽度 */
+    height: 160px; /* 减小高度但保持比例 */
     overflow: hidden;
-    flex-shrink: 0; /* 防止图片区域被压缩 */
+    border-radius: 5px;
+    margin-bottom: 1rem;
 }
 
 .teacher-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    aspect-ratio: 3/4;
 }
 
+/* 姓名和职位区域 */
+.teacher-brief {
+    text-align: center;
+}
+
+.teacher-brief .member-name {
+    margin: 0 0 0.3rem;
+    font-size: 1.2rem; /* 稍微减小字体 */
+    color: #212121;
+}
+
+.teacher-brief .member-title {
+    color: #424242;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 右侧介绍信息 - 移除滚动条和高度限制 */
 .teacher-info {
     flex: 1;
-    padding: 1.5rem 2.5rem;
-    text-align: left;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: flex-start;
+    padding-left: 1.5rem;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    /* 移除以下两行 */
+    /* overflow-y: auto; */
+    /* max-height: 350px; */
 }
 
-/* 商业组和技术组共用的头像样式 - 修改为证件照比例 */
-.business-card .member-avatar,
-.tech-card .member-avatar {
+/* Markdown内容样式 */
+.markdown-content {
+    font-size: 0.9rem; /* 减小字体大小 */
+    line-height: 1.6;
+    color: #303030;
+    text-align: left;
     width: 100%;
-    height: auto;
-    overflow: hidden;
-    position: relative;
-    padding-top: 133.33%; /* 3:4 证件照比例 */
 }
 
-.business-card .member-avatar img,
-.tech-card .member-avatar img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+/* Markdown格式化内容的样式 */
+.markdown-content :deep(p) {
+    margin: 0.6em 0; /* 减小段落间距 */
 }
 
-/* 重写冲突的响应式样式 */
-@media (max-width: 992px) {
-    /* 覆盖其他媒体查询中可能导致冲突的样式 */
-    .teachers-row .teacher-card {
-        height: auto;
-    }
-    
-    /* 明确指定在小屏幕上的布局 */
-    .teachers-row .teacher-card.left-image,
-    .teachers-row .teacher-card.right-image {
-        flex-direction: column;
-        max-width: 500px;
-    }
-    
-    .teacher-avatar {
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
-        height: 150px;
-    }
-    
-    .teacher-avatar img {
-        aspect-ratio: 16/9;
-    }
-    
-    .teacher-info {
-        text-align: center;
-        padding: 1.5rem;
-    }
+.markdown-content :deep(strong) {
+    color: #6a56c6;
+    font-weight: 600;
 }
+
+.markdown-content :deep(ul) {
+    padding-left: 1.2em;
+    margin: 0.6em 0; /* 减小列表间距 */
+}
+
+.markdown-content :deep(li) {
+    margin-bottom: 0.3em; /* 减小列表项间距 */
+}
+
+.markdown-content :deep(h3) {
+    margin: 0.8em 0 0.4em; /* 减小标题间距 */
+    color: #6a56c6;
+    font-size: 1.1rem;
+}
+
 /* 商业组布局样式 */
 .business-row {
     display: flex;
@@ -472,17 +502,18 @@ const techTeam = [
 
 .business-card {
     width: calc(25% - 1.5rem);
-    /* 一行四个 */
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background-color: #ebedfA;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .business-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* 技术组布局样式 */
@@ -495,99 +526,155 @@ const techTeam = [
 
 .tech-card {
     width: calc(20% - 1rem);
-    /* 一行五个 */
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    background-color: #ebedfA;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .tech-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* 商业组和技术组共用的头像样式 - 证件照比例 */
+.business-card .member-avatar,
+.tech-card .member-avatar {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    position: relative;
+    padding-top: 133.33%;
+}
+
+.business-card .member-avatar img,
+.tech-card .member-avatar img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* 商业组和技术组的信息部分样式 */
 .business-card .member-info,
 .tech-card .member-info {
-    padding: 1rem;
+    padding: 1.2rem;
+    background: linear-gradient(to bottom, #ebedfA, #d7daef);
 }
 
 .business-card .member-name,
 .tech-card .member-name {
     font-size: 1.1rem;
-    margin: 0 0 0.3rem;
+    margin: 0 0 0.4rem;
+    color: #212121;
 }
 
 .business-card .member-title,
 .tech-card .member-title {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+    color: #424242;
+    font-weight: 500;
 }
 
 .business-card .member-description,
 .tech-card .member-description {
-    font-size: 0.8rem;
-    line-height: 1.4;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #424242;
 }
 
 /* 响应式设计 */
 @media (max-width: 1200px) {
+    .teacher-card {
+        width: calc(50% - 2rem);
+    }
+    
     .business-card {
         width: calc(33.33% - 1.5rem);
-        /* 一行三个 */
     }
-
+    
     .tech-card {
         width: calc(25% - 1rem);
-        /* 一行四个 */
     }
 }
 
 @media (max-width: 992px) {
-    .teacher-card {
+    .teachers-row {
         flex-direction: column;
-        max-width: 500px;
+        align-items: center;
     }
-
-    .teacher-avatar {
+    
+    .teacher-card {
         width: 100%;
-        min-width: 100%;
+        max-width: 500px;
+        flex-direction: column;
     }
-
-    .teacher-avatar img {
-        aspect-ratio: 3/2;
+    
+    .teacher-left {
+        width: 100%;
+        align-items: center;
+        margin-right: 0;
+        margin-bottom: 1.5rem;
     }
-
+    
+    .teacher-avatar {
+        width: 120px;
+        height: 160px;
+    }
+    
     .teacher-info {
+        width: 100%;
+        padding-left: 0;
+        border-left: none;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
         text-align: center;
     }
-
+    
+    .markdown-content {
+        text-align: left;
+    }
+    
     .business-card {
         width: calc(50% - 1.5rem);
-        /* 一行两个 */
     }
-
+    
     .tech-card {
         width: calc(33.33% - 1rem);
-        /* 一行三个 */
     }
 }
 
 @media (max-width: 768px) {
+    .members-row {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .member-card {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .tab-item {
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+    }
+    
     .tech-card {
         width: calc(50% - 1rem);
-        /* 一行两个 */
     }
 }
 
 @media (max-width: 576px) {
-
     .business-card,
     .tech-card {
         width: 100%;
-        /* 一行一个 */
         max-width: 350px;
     }
 }
