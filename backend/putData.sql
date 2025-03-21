@@ -6,7 +6,7 @@ TRUNCATE TABLE risk_signal;
 SHOW VARIABLES LIKE 'secure_file_priv';
 
 -- 加载CSV数据（逗号分隔版本）
-LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.3\\Uploads\\emp_value.csv'
+LOAD DATA INFILE "C:\Program Files\MySQL\MySQL Server 9.0\Uploads\emp_value(1).csv"
 INTO TABLE risk_signal
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ','  -- 关键修改：改为逗号分隔
