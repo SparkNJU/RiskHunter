@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Notification } from '@element-plus/icons-vue';
 import { type AlertVO } from '../../types/signal';
 import { getAlerts } from '../../api/signal';
+import { parseTime } from '../../utils';
 
 const alerts = ref<AlertVO[]>([
 ]);
@@ -30,25 +31,25 @@ const getAlertIcon = (level: string) => {
 const formatTime = (date: Date) => {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
-  
+
   if (diff < 24 * 60 * 60 * 1000) {
     const hours = Math.floor(diff / (60 * 60 * 1000));
     return `${hours}小时前`;
   }
-  
+
   if (diff < 7 * 24 * 60 * 60 * 1000) {
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
     return `${days}天前`;
   }
-  
+
   return date.toLocaleDateString();
 };
 
 const loadData = async () => {
-  try{
+  try {
     loading.value = true;
-    getAlerts().then((res : any) => {
-      alerts.value = res.data
+    getAlerts().then((res: any) => {
+      alerts.value.push(res.data)
     })
   } finally {
     loading.value = false;
@@ -62,29 +63,30 @@ loadData()
     <template #header>
       <div class="panel-header">
         <h3 class="panel-title">
-          <el-icon class="header-icon"><Notification /></el-icon>
+          <el-icon class="header-icon">
+            <Notification />
+          </el-icon>
           预警列表
         </h3>
       </div>
     </template>
-    
+
     <div class="alert-content">
-      <div v-for="(alert, index) in alerts" :key="index" 
-           class="alert-item" :class="`alert-${alert.level}`">
+      <div v-for="(alert, index) in alerts" :key="index" class="alert-item" :class="`alert-${alert.level}`">
         <div class="alert-icon">{{ getAlertIcon(alert.level) }}</div>
         <div class="alert-details">
           <div class="alert-header">
             <div class="alert-title">{{ alert.title }}</div>
             <el-tag size="small" :type="getAlertTypeTag(alert.level)">
-              {{ alert.level === 'urgent' ? '紧急' : 
-                 alert.level === 'warning' ? '关注' : '正常' }}
+              {{ alert.level === 'urgent' ? '紧急' :
+                alert.level === 'warning' ? '关注' : '正常' }}
             </el-tag>
           </div>
           <div class="alert-message">{{ alert.content }}</div>
-          <div class="alert-time">{{ formatTime(alert.updateTime) }}</div>
+          <div class="alert-time">{{ parseTime(alert.updateTime) }}</div>
         </div>
       </div>
-      
+
       <div v-if="alerts.length === 0" class="no-alerts">
         暂无预警信息
       </div>

@@ -11,18 +11,14 @@ let chartInstance: echarts.ECharts | null = null;
 const loading = ref(false);
 
 const riskData = ref<RiskScoreVO>({
-  name: '综合风险评分',
-  riskStatus: 'medium',
+  name: '',
+  riskStatus: 'low',
   score: 62,
-  updateTime: new Date(),
-  factorBreakdown: {
-    volatility: 0.4,
-    concentration: 0.3,
-    hedgeGap: 0.2
-  },
+  updateTime: '',
+  factorBreakdown: [],
   trend: {
-    score: 5,
-    description: '受人民币贬值压力增加影响'
+    value: 0,
+    direction: ''
   }
 });
 
@@ -103,7 +99,7 @@ const initGaugeChart = () => {
         },
         data: [
           {
-            value: riskData.value.score,
+            value: riskData.value.score.toFixed(0),
             name: '风险评分',
             title: {
               color: riskData.value.score > 70 ? '#F56C6C' :
@@ -129,6 +125,7 @@ const loadData = async () => {
     loading.value = true
     getRiskScore().then((res: any) => {
       riskData.value = res.data
+      console.log(riskData.value)
       initGaugeChart()
     })
 
@@ -159,18 +156,11 @@ loadData()
       <div class="risk-breakdo wn">
         <h4 class="breakdown-title">风险分解</h4>
         <div class="factor-list">
-          <div v-for="([key, value], index) in Object.entries(riskData.factorBreakdown)" :key="index"
-            class="factor-item">
+          <div v-for="(factor, index) in riskData.factorBreakdown" :key="index" class="factor-item">
             <div class="factor-name">
-              {{
-                {
-                  volatility: '汇率波动',
-                  concentration: '敞口集中度',
-                  hedgeGap: '对冲缺口'
-                }[key]
-              }}
+              {{ factor.name }}
             </div>
-            <el-progress :percentage="value * 100" :format="(percentage: number) => `${percentage.toFixed(0)}%`"
+            <el-progress :percentage="factor.value * 100" :format="(percentage: number) => `${percentage.toFixed(0)}%`"
               :stroke-width="8" class="factor-progress" />
           </div>
         </div>
@@ -180,19 +170,19 @@ loadData()
         <div class="trend-header">
           <div class="trend-title">趋势</div>
           <div class="trend-indicator">
-            <el-icon v-if="riskData.trend.score > 0" color="#F56C6C">
+            <el-icon v-if="riskData.trend.direction === 'up'" color="#F56C6C">
               <ArrowUp />
             </el-icon>
-            <el-icon v-else-if="riskData.trend.score < 0" color="#67C23A">
+            <el-icon v-else color="#67C23A">
               <ArrowDown />
             </el-icon>
-            <span :class="riskData.trend.score > 0 ? 'trend-up' : 'trend-down'">
-              {{ riskData.trend.score > 0 ? '+' : '' }}{{ riskData.trend.score }}分
+            <span :class="riskData.trend.direction === 'up' ? 'trend-up' : 'trend-down'">
+              {{ riskData.trend.direction === 'up' ? '+' : '-' }}{{ riskData.trend.value }}分
             </span>
           </div>
         </div>
         <div class="trend-description">
-          {{ riskData.trend.description }}
+          <!-- {{ riskData.trend.description }} -->
         </div>
       </div>
     </div>
