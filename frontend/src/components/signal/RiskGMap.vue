@@ -1,28 +1,26 @@
 <template>
     <div class="risk-map-container" :style="{ height }">
-      <div v-if="mapError" class="map-error">
-        <el-alert
-          title="地图加载失败"
-          type="error"
-          description="请检查地图数据是否正确"
-          show-icon
-          :closable="false"
-        />
-        <el-button @click="retryLoadMap" type="primary" size="small" style="margin-top: 10px">
-          重试加载
-        </el-button>
-      </div>
-      <div v-else ref="chartContainer" class="chart-container"></div>
+      <div ref="chartContainer" class="chart-container"></div>
     </div>
   </template>
-    
+  
   <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch } from 'vue';
   import * as echarts from 'echarts';
+  // 导入Google Maps扩展
+  import 'echarts-extension-gmap';
   import { regionCodeToCountry } from '../../types/risk-map';
   import type { RiskMapVO } from '../../types/risk-map';
-  // 直接导入本地GeoJSON数据
-  import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
+  
+  // 声明Google Maps类型，避免TS错误
+  declare global {
+    interface Window {
+      google: any;
+    }
+  }
+  
+  // 配置Google Maps API密钥（需要从Google Cloud Console获取）
+  const GOOGLE_MAP_API_KEY = 'YOUR_API_KEY';
   
   const props = defineProps({
     height: {
@@ -30,13 +28,11 @@
       default: '400px'
     }
   });
-    
+  
   const chartContainer = ref<HTMLElement | null>(null);
   let chart: echarts.ECharts | null = null;
   const riskMapData = ref<RiskMapVO | null>(null);
-  const mapError = ref(false);
-  const isMapLoading = ref(false);
-    
+  
   // 将风险等级映射到颜色
   const getRiskColor = (level: number) => {
     const colors = [
@@ -49,23 +45,34 @@
     return colors[level - 1] || colors[0];
   };
   
-  // 重试加载地图
-  const retryLoadMap = () => {
-    mapError.value = false;
-    loadRiskMapData();
+  // 加载Google Maps脚本
+  const loadGoogleMapsScript = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // 检查是否已经加载
+      if (window.google && window.google.maps) {
+        resolve();
+        return;
+      }
+  
+      // 创建脚本
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAP_API_KEY}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Google Maps加载失败'));
+      document.head.appendChild(script);
+    });
   };
   
   // 加载风险地图数据
   const loadRiskMapData = async () => {
     try {
-      mapError.value = false;
-      isMapLoading.value = true;
-      
-      // 注册地图数据到echarts
-      echarts.registerMap('world', worldGeoJson);
+      // 先加载Google Maps脚本
+      await loadGoogleMapsScript();
       
       // 实际项目中，应该从API获取数据
-      // 这里使用与AMap相同的模拟数据
+      // 这里使用模拟数据
       const mockData: RiskMapVO = {
         regions: {
           1: { // 中国
@@ -148,6 +155,7 @@
             ],
             suggestions: ['考虑瑞士法郎作为避险资产', '关注瑞士银行业变化']
           },
+          // 新增南美国家数据
           9: { // 阿根廷
             riskLevel: 5,
             currencyPair: 9,
@@ -172,73 +180,57 @@
       };
       
       riskMapData.value = mockData;
-      console.log('风险数据加载完成');
-      
-      isMapLoading.value = false;
-      
-      // 确保数据加载完成后再初始化图表
-      setTimeout(() => {
-        initializeChart();
-      }, 100);
+      initializeChart();
     } catch (error) {
       console.error('加载风险地图数据失败:', error);
-      isMapLoading.value = false;
-      mapError.value = true;
     }
   };
   
   // 初始化图表
   const initializeChart = () => {
-    if (!chartContainer.value) {
-      console.error('图表容器不存在');
-      return;
-    }
-    
-    if (!riskMapData.value) {
-      console.error('风险数据为空');
-      return;
-    }
+    if (!chartContainer.value || !riskMapData.value) return;
     
     // 如果已经有实例，先销毁
     if (chart) {
       chart.dispose();
-      chart = null;
     }
     
-    console.log('开始初始化ECharts实例...');
-    
-    // 创建新实例，添加willReadFrequently优化属性
-    chart = echarts.init(chartContainer.value, null, {
-      renderer: 'canvas',
-      useDirtyRect: true
-    });
-    
+    // 创建新实例
+    chart = echarts.init(chartContainer.value);
     chart.showLoading({text: '加载中...'});
     
-    // 准备国家/地区数据映射
-    const countryDataMap = {};
-    
-    // 遍历风险数据，为每个国家/地区设置风险等级
-    Object.entries(riskMapData.value.regions).forEach(([code, data]) => {
+    // 准备国家/地区数据
+    const mapData = Object.entries(riskMapData.value.regions).map(([code, data]) => {
       const regionInfo = regionCodeToCountry[Number(code)];
-      if (!regionInfo) return;
+      if (!regionInfo) return null;
       
-      // 在地图数据中找到对应的国家
-      countryDataMap[regionInfo.name] = {
-        value: data.riskLevel,
-        regionCode: Number(code),
-        ...data
+      // 在世界地图上的英文国家名
+      const countryNameMap: {[key: string]: string} = {
+        '中国': 'China',
+        '美国': 'United States',
+        '英国': 'United Kingdom',
+        '日本': 'Japan',
+        '澳大利亚': 'Australia',
+        '瑞士': 'Switzerland',
+        '阿根廷': 'Argentina',
+        '巴西': 'Brazil',
+        '欧元区': 'Germany',
+        '香港': 'Hong Kong'
       };
-    });
-    
-    // 转换为ECharts需要的数据格式
-    const seriesData = Object.keys(countryDataMap).map(name => ({
-      name,
-      value: countryDataMap[name].value,
-      ...countryDataMap[name]
-    }));
-    
-    console.log('处理后的地图数据:', seriesData);
+      
+      // 获取英文国家名
+      const englishName = countryNameMap[regionInfo.name] || regionInfo.name;
+      
+      // 获取国家坐标（经纬度）
+      const coordinates = [regionInfo.lng, regionInfo.lat];
+      
+      return {
+        name: englishName,
+        value: [...coordinates, data.riskLevel],  // [lng, lat, value]
+        regionCode: Number(code),
+        data: data
+      };
+    }).filter(item => item !== null);
     
     chart.hideLoading();
     
@@ -254,22 +246,16 @@
       tooltip: {
         trigger: 'item',
         formatter: function(params: any) {
-          if (!params.data || params.data.value === undefined) {
-            return params.name;
-          }
+          const data = params.data;
+          if (!data || !data.data) return '';
           
-          const regionData = params.data;
+          const regionData = data.data;
+          const regionInfo = regionCodeToCountry[data.regionCode];
           
-          let html = `<div style="font-weight:bold;margin-bottom:5px;">${params.name}</div>`;
-          html += `<div>风险等级: <span style="color:${getRiskColor(regionData.value)}">${regionData.value}</span>/5</div>`;
-          
-          if (regionData.currentRate !== undefined) {
-            html += `<div>当前汇率: ${regionData.currentRate}</div>`;
-          }
-          
-          if (regionData.rateChange !== undefined) {
-            html += `<div>汇率变化: <span style="color:${regionData.rateChange >= 0 ? 'green' : 'red'}">${regionData.rateChange >= 0 ? '+' : ''}${regionData.rateChange}%</span></div>`;
-          }
+          let html = `<div style="font-weight:bold;margin-bottom:5px;">${regionInfo?.name || '未知地区'}</div>`;
+          html += `<div>风险等级: <span style="color:${getRiskColor(regionData.riskLevel)}">${regionData.riskLevel}</span>/5</div>`;
+          html += `<div>当前汇率: ${regionData.currentRate}</div>`;
+          html += `<div>汇率变化: <span style="color:${regionData.rateChange >= 0 ? 'green' : 'red'}">${regionData.rateChange >= 0 ? '+' : ''}${regionData.rateChange}%</span></div>`;
           
           if (regionData.hotNews && regionData.hotNews.length > 0) {
             html += `<div style="margin-top:5px;font-weight:bold;">最新动态:</div>`;
@@ -297,90 +283,81 @@
         left: 'center',
         bottom: '30px',
         text: ['高风险', '低风险'],
-        calculable: false
+        calculable: false,
+        dimension: 2  // 指定数据的第三个维度为视觉映射维度
       },
-      geo: {
-        map: 'world',
-        roam: true, // 允许缩放和平移
-        zoom: 1.2, // 初始缩放级别
-        scaleLimit: {
-          min: 0.8,
-          max: 5
-        },
-        label: {
-          show: false
-        },
-        itemStyle: {
-          areaColor: '#f7f7f7',
-          borderColor: '#ccc',
-          borderWidth: 0.5
-        },
-        emphasis: {
-          label: {
-            show: false
-          },
-          itemStyle: {
-            areaColor: '#f5f5f5'
-          }
+      gmap: {
+        center: [0, 40],  // 初始地图中心点
+        zoom: 2,          // 初始缩放级别
+        renderOnMoving: true,
+        roam: true,      // 允许缩放和平移
+        echartsLayerZIndex: 2019,
+        mapStyle: {      // 自定义地图样式，可选
+          styleJson: [
+            {
+              "featureType": "all",
+              "elementType": "all",
+              "stylers": { "visibility": "on" }
+            }
+          ]
         }
       },
       series: [
         {
           name: '风险等级',
-          type: 'map',
-          map: 'world',
-          roam: true,
-          zoom: 1.2,
-          data: seriesData,
-          label: {
-            show: false
+          type: 'scatter',
+          coordinateSystem: 'gmap',  // 使用gmap坐标系
+          data: mapData,
+          symbolSize: function(val: any) {
+            return val[2] * 8;  // 根据风险等级调整大小
           },
-          emphasis: {
-            label: {
-              show: false
-            }
+          encode: {
+            value: 2,  // 指定数据中第3个值为value
+            lng: 0,    // 经度是第1个值
+            lat: 1     // 纬度是第2个值
           },
-          // 设置地图选中样式
-          select: {
-            itemStyle: {
-              color: '#eee'
+          itemStyle: {
+            color: function(params: any) {
+              const value = params.value;
+              if (Array.isArray(value) && value.length > 2) {
+                return getRiskColor(value[2]);
+              }
+              return '#e0f3f8';
             }
           }
         }
       ]
     };
     
-    console.log('设置地图选项...');
     chart.setOption(option);
     
-    // 添加鼠标滚轮缩放支持
-    chartContainer.value!.addEventListener('mousewheel', () => {
-      setTimeout(() => {
-        chart?.resize();
-      }, 100);
-    });
-  };
-    
-  // 处理窗口大小变化
-  const handleResize = () => {
-    if (chart) {
-      chart.resize();
+    // 获取Google Map实例进行额外配置
+    // 使用任意类型避免TypeScript错误
+    const gmapComponent = (chart as any).getModel().getComponent('gmap');
+    if (gmapComponent && typeof gmapComponent.getGoogleMap === 'function') {
+      const gmap = gmapComponent.getGoogleMap();
+      // 可以添加额外的谷歌地图配置
+      console.log('Google Map 实例加载成功');
     }
   };
-    
+  
+  // 处理窗口大小变化
+  const handleResize = () => {
+    chart?.resize();
+  };
+  
   // 监听组件属性变化
   watch(() => props.height, () => {
     setTimeout(() => {
       handleResize();
     }, 300);
   });
-    
+  
   onMounted(() => {
-    console.log('组件已挂载，开始加载风险地图数据');
     loadRiskMapData();
     window.addEventListener('resize', handleResize);
   });
-    
+  
   onUnmounted(() => {
     if (chart) {
       chart.dispose();
@@ -389,7 +366,7 @@
     window.removeEventListener('resize', handleResize);
   });
   </script>
-    
+  
   <style scoped>
   .risk-map-container {
     width: 100%;
@@ -397,20 +374,10 @@
     border-radius: 4px;
     overflow: hidden;
     background-color: #fff;
-    position: relative;
   }
-    
+  
   .chart-container {
     width: 100%;
     height: 100%;
-  }
-  
-  .map-error {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    width: 80%;
   }
   </style>

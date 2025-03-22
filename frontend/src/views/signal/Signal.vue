@@ -4,6 +4,10 @@ import RiskScore from '../../components/signal/RiskScore.vue';
 import AlertList from '../../components/signal/AlertList.vue';
 import ExposureMatrix from '../../components/signal/ExposureMatrix.vue';
 import PredictionAndAdvice from '../../components/signal/PredictionAndAdvice.vue';
+import RiskAMap from '../../components/signal/RiskAMap.vue'; // 导入风险地图组件
+import RiskGMap from '../../components/signal/RiskGMap.vue'; // 导入风险地图组件
+import RiskMap from '../../components/signal/RiskMap.vue'; // 导入风险地图组件
+
 </script>
 
 <template>
@@ -24,15 +28,12 @@ import PredictionAndAdvice from '../../components/signal/PredictionAndAdvice.vue
 
     <el-row :gutter="20" class="signal-row">
       <el-col :span="24" class="signal-col">
-        <el-card>
-          <template #header>
-            <div class="panel-header">
-              <h3 class="panel-title">
-                风险地图
-              </h3>
-            </div>
-          </template>
-        </el-card>
+        <RiskMap height="500px" /> <!-- 使用风险地图组件 -->
+      </el-col>
+    </el-row>
+    <el-row :gutter="20" class="signal-row">
+      <el-col :span="24" class="signal-col">
+        <RiskAMap height="500px" /> <!-- 使用风险地图组件 -->
       </el-col>
     </el-row>
 

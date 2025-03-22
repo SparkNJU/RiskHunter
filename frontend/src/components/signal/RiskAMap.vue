@@ -4,7 +4,7 @@
         <el-alert
           title="地图加载失败"
           type="error"
-          description="请检查地图数据是否正确"
+          description="请检查网络连接和API密钥是否正确"
           show-icon
           :closable="false"
         />
@@ -19,11 +19,27 @@
   <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch } from 'vue';
   import * as echarts from 'echarts';
+  // 导入高德地图扩展
+  import 'echarts-extension-amap';
   import { regionCodeToCountry } from '../../types/risk-map';
   import type { RiskMapVO } from '../../types/risk-map';
-  // 直接导入本地GeoJSON数据
-  import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
-  
+    
+  // 声明高德地图类型，避免TS错误
+  declare global {
+    interface Window {
+      AMap: any;
+      _AMapSecurityConfig: any;
+      AMapLoader: any;
+    }
+  }
+    
+  // 配置高德地图API密钥（需要从高德开发者平台获取）
+  const AMAP_API_KEY = '7c66b8a52d9cac7a3561f1d90d1fb91f';
+  const AMAP_VERSION = '1.4.15';
+  const AMAP_PLUGINS = 'AMap.Scale,AMap.ToolBar';
+  // 安全密钥（替换为您申请的安全密钥）
+  const AMAP_SECURITY_KEY = 'da5c80fcd8944c17e4b92adcb6d2377e';
+    
   const props = defineProps({
     height: {
       type: String,
@@ -55,17 +71,71 @@
     loadRiskMapData();
   };
   
+  // 按官方推荐的方式加载高德地图
+  const loadAMapScript = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      // 检查是否已经加载
+      if (window.AMap) {
+        console.log('高德地图已加载，直接使用');
+        resolve();
+        return;
+      }
+  
+      try {
+        console.log('开始加载高德地图...');
+        isMapLoading.value = true;
+        
+        // 1. 先设置安全密钥配置 - 必须在脚本加载前设置
+        window._AMapSecurityConfig = {
+          securityJsCode: AMAP_SECURITY_KEY,
+        };
+  
+        console.log('安全密钥已设置');
+  
+        // 2. 直接加载地图脚本
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = `https://webapi.amap.com/maps?v=${AMAP_VERSION}&key=${AMAP_API_KEY}&plugin=${AMAP_PLUGINS}`;
+        
+        script.onload = () => {
+          console.log('高德地图API加载成功');
+          isMapLoading.value = false;
+          
+          // 确认AMap对象已存在
+          if (window.AMap) {
+            console.log('AMap对象已成功加载:', typeof window.AMap);
+            resolve();
+          } else {
+            console.error('AMap对象未成功加载');
+            reject(new Error('AMap对象未成功加载'));
+          }
+        };
+        
+        script.onerror = (error) => {
+          console.error('高德地图API加载失败', error);
+          isMapLoading.value = false;
+          reject(error);
+        };
+        
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('加载地图时发生错误:', error);
+        isMapLoading.value = false;
+        reject(error);
+      }
+    });
+  };
+  
   // 加载风险地图数据
   const loadRiskMapData = async () => {
     try {
       mapError.value = false;
-      isMapLoading.value = true;
       
-      // 注册地图数据到echarts
-      echarts.registerMap('world', worldGeoJson);
+      // 先加载高德地图脚本
+      await loadAMapScript();
       
       // 实际项目中，应该从API获取数据
-      // 这里使用与AMap相同的模拟数据
+      // 这里使用模拟数据
       const mockData: RiskMapVO = {
         regions: {
           1: { // 中国
@@ -174,19 +244,16 @@
       riskMapData.value = mockData;
       console.log('风险数据加载完成');
       
-      isMapLoading.value = false;
-      
       // 确保数据加载完成后再初始化图表
       setTimeout(() => {
         initializeChart();
       }, 100);
     } catch (error) {
       console.error('加载风险地图数据失败:', error);
-      isMapLoading.value = false;
       mapError.value = true;
     }
   };
-  
+    
   // 初始化图表
   const initializeChart = () => {
     if (!chartContainer.value) {
@@ -215,30 +282,23 @@
     
     chart.showLoading({text: '加载中...'});
     
-    // 准备国家/地区数据映射
-    const countryDataMap = {};
-    
-    // 遍历风险数据，为每个国家/地区设置风险等级
-    Object.entries(riskMapData.value.regions).forEach(([code, data]) => {
+    // 准备国家/地区数据
+    const mapData = Object.entries(riskMapData.value.regions).map(([code, data]) => {
       const regionInfo = regionCodeToCountry[Number(code)];
-      if (!regionInfo) return;
+      if (!regionInfo) return null;
       
-      // 在地图数据中找到对应的国家
-      countryDataMap[regionInfo.name] = {
-        value: data.riskLevel,
+      // 获取国家坐标（经纬度）
+      const coordinates = [regionInfo.lng, regionInfo.lat];
+      
+      return {
+        name: regionInfo.name,
+        value: [...coordinates, data.riskLevel],  // [lng, lat, value]
         regionCode: Number(code),
-        ...data
+        data: data
       };
-    });
+    }).filter(item => item !== null);
     
-    // 转换为ECharts需要的数据格式
-    const seriesData = Object.keys(countryDataMap).map(name => ({
-      name,
-      value: countryDataMap[name].value,
-      ...countryDataMap[name]
-    }));
-    
-    console.log('处理后的地图数据:', seriesData);
+    console.log('处理后的地图数据:', mapData);
     
     chart.hideLoading();
     
@@ -254,14 +314,14 @@
       tooltip: {
         trigger: 'item',
         formatter: function(params: any) {
-          if (!params.data || params.data.value === undefined) {
-            return params.name;
-          }
+          const data = params.data;
+          if (!data || !data.data) return '';
           
-          const regionData = params.data;
+          const regionData = data.data;
+          const regionInfo = regionCodeToCountry[data.regionCode];
           
-          let html = `<div style="font-weight:bold;margin-bottom:5px;">${params.name}</div>`;
-          html += `<div>风险等级: <span style="color:${getRiskColor(regionData.value)}">${regionData.value}</span>/5</div>`;
+          let html = `<div style="font-weight:bold;margin-bottom:5px;">${regionInfo?.name || '未知地区'}</div>`;
+          html += `<div>风险等级: <span style="color:${getRiskColor(regionData.riskLevel)}">${regionData.riskLevel}</span>/5</div>`;
           
           if (regionData.currentRate !== undefined) {
             html += `<div>当前汇率: ${regionData.currentRate}</div>`;
@@ -297,55 +357,61 @@
         left: 'center',
         bottom: '30px',
         text: ['高风险', '低风险'],
-        calculable: false
+        calculable: false,
+        dimension: 2  // 指定数据的第三个维度为视觉映射维度
       },
-      geo: {
-        map: 'world',
-        roam: true, // 允许缩放和平移
-        zoom: 1.2, // 初始缩放级别
-        scaleLimit: {
-          min: 0.8,
-          max: 5
-        },
-        label: {
-          show: false
-        },
-        itemStyle: {
-          areaColor: '#f7f7f7',
-          borderColor: '#ccc',
-          borderWidth: 0.5
-        },
-        emphasis: {
-          label: {
-            show: false
-          },
-          itemStyle: {
-            areaColor: '#f5f5f5'
-          }
-        }
+      amap: {
+        // 启用3D模式以提高渲染效果
+        viewMode: '2D',  // 改为2D先确保基本功能
+        // 初始地图中心点
+        center: [0, 40],
+        // 初始缩放级别
+        zoom: 2,
+        // 自适应窗口大小
+        resizeEnable: true,
+        // 地图样式 - 使用深色主题
+        mapStyle: 'amap://styles/dark',
+        // 地图移动时是否渲染
+        renderOnMoving: true,
+        // 图层交互性
+        echartsLayerInteractive: true,
+        // 是否启用大数据模式
+        largeMode: false,
+        // 地图旋转功能
+        rotateEnable: true,
+        // 地图俯仰角度
+        pitch: 0
       },
       series: [
         {
           name: '风险等级',
-          type: 'map',
-          map: 'world',
-          roam: true,
-          zoom: 1.2,
-          data: seriesData,
-          label: {
-            show: false
+          type: 'effectScatter',  // 从scatter改为effectScatter添加动画效果
+          coordinateSystem: 'amap',  // 使用amap坐标系
+          data: mapData,
+          symbolSize: function(val: any) {
+            return val[2] * 8;  // 根据风险等级调整大小
           },
-          emphasis: {
-            label: {
-              show: false
+          encode: {
+            value: 2  // 指定数据中第3个值为value
+          },
+          itemStyle: {
+            color: function(params: any) {
+              const value = params.value;
+              if (Array.isArray(value) && value.length > 2) {
+                return getRiskColor(value[2]);
+              }
+              return '#e0f3f8';
             }
           },
-          // 设置地图选中样式
-          select: {
-            itemStyle: {
-              color: '#eee'
-            }
-          }
+          // 添加涟漪效果
+          rippleEffect: {
+            brushType: 'stroke'
+          },
+          // 添加点的效果
+          showEffectOn: 'render',
+          // 闪烁效果
+          effectType: 'ripple',
+          zlevel: 1
         }
       ]
     };
@@ -353,12 +419,35 @@
     console.log('设置地图选项...');
     chart.setOption(option);
     
-    // 添加鼠标滚轮缩放支持
-    chartContainer.value!.addEventListener('mousewheel', () => {
+    // 获取高德地图实例并进行额外配置
+    try {
       setTimeout(() => {
-        chart?.resize();
-      }, 100);
-    });
+        if (chart) {
+          const amapComponent = (chart as any).getModel().getComponent('amap');
+          if (amapComponent && typeof amapComponent.getAMap === 'function') {
+            const amap = amapComponent.getAMap();
+            
+            if (amap) {
+              console.log('成功获取高德地图实例，添加控件');
+              // 添加控件
+              amap.plugin(['AMap.Scale', 'AMap.ToolBar'], function() {
+                amap.addControl(new window.AMap.Scale());
+                amap.addControl(new window.AMap.ToolBar());
+              });
+              
+              // 强制重绘
+              chart.resize();
+            } else {
+              console.error('无法获取AMap实例');
+            }
+          } else {
+            console.error('无法获取amap组件');
+          }
+        }
+      }, 500);
+    } catch (error) {
+      console.error('配置高德地图实例时出错:', error);
+    }
   };
     
   // 处理窗口大小变化
