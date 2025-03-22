@@ -1,14 +1,24 @@
-import type { NewsItem } from "./news";
 
-export const CurrencyPairs = [
-    'USD/CNY', 'EUR/CNY', 'GBP/CNY'
-]
+export interface CurrencyPairConfig {
+  id: number;
+  label: string;
+  fromCurrency: number;
+  toCurrency: number;
+}
 
-export const currencyOptions = [
-  { value: 0, label: 'USD/CNY' },
-  { value: 1, label: 'EUR/CNY' },
-  { value: 2, label: 'GBP/CNY' }
-]
+export const currencyPairList: CurrencyPairConfig[] = [
+  { id: 0, label: 'USD/CNY', fromCurrency: 2, toCurrency: 1 },
+  { id: 1, label: 'EUR/CNY', fromCurrency: 3, toCurrency: 1 },
+  { id: 2, label: 'GBP/CNY', fromCurrency: 5, toCurrency: 1 },
+  { id: 3, label: 'JPY/CNY', fromCurrency: 4, toCurrency: 1 },
+  { id: 4, label: 'AUD/CNY', fromCurrency: 6, toCurrency: 1 },
+  { id: 5, label: 'HKD/CNY', fromCurrency: 7, toCurrency: 1 },
+  { id: 6, label: 'CHF/CNY', fromCurrency: 8, toCurrency: 1 }
+];
+
+export function getCurrencyPairById(id: number): CurrencyPairConfig | undefined {
+  return currencyPairList.find(pair => pair.id === id);
+}
 
 export interface EventMarker {
     description: string;
@@ -27,7 +37,6 @@ export interface ScoreTrend {
 
 // 汇率波动
 export interface ExchangeRateVO {
-    data: ExchangeRateVO | undefined;
     currencyPair: number;
     currentRate: number;
     change24h: number;
@@ -54,19 +63,6 @@ export interface AlertVO {
     updateTime: string;
 }
 
-// 风险地图数据
-export interface RiskMapVO {
-    regions: {
-        [regionCode: string]: {
-            riskLevel: number;
-            currencyPair: string;
-            currentRate: number;
-            rateChange: number;
-            hotNews: NewsItem[];
-            suggestions: string[];
-        }
-    }
-}
 
 // 敞口分析
 export interface ExposureMatrixVO {

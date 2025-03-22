@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { currencyOptions, type ExchangeRateVO } from '../../types/signal';
+import { currencyPairList, type ExchangeRateVO } from '../../types/signal';
 import { getExchangeRate } from '../../api/signal';
 import { TrendCharts, Warning, DataBoard } from '@element-plus/icons-vue';
 
@@ -46,7 +46,7 @@ const getImpactLevel = (impact: number) => {
           汇率看板
         </h3>
         <el-select v-model="selectedCurrency" placeholder="选择货币对" class="currency-select">
-          <el-option v-for="item in currencyOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-option v-for="item in currencyPairList" :key="item.id" :label="item.label" :value="item.id" />
         </el-select>
       </div>
     </template>

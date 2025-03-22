@@ -125,7 +125,6 @@ const loadData = async () => {
     loading.value = true
     getRiskScore().then((res: any) => {
       riskData.value = res.data
-      console.log(riskData.value)
       initGaugeChart()
     })
 
@@ -138,7 +137,7 @@ loadData()
 </script>
 
 <template>
-  <el-card class="risk-score-card">
+  <el-card class="risk-score-card" v-loading="loading">
     <template #header>
       <div class="panel-header">
         <h3 class="panel-title">

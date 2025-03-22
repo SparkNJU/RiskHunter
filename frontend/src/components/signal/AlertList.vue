@@ -28,30 +28,16 @@ const getAlertIcon = (level: string) => {
   }
 };
 
-const formatTime = (date: Date) => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  if (diff < 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diff / (60 * 60 * 1000));
-    return `${hours}小时前`;
-  }
-
-  if (diff < 7 * 24 * 60 * 60 * 1000) {
-    const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-    return `${days}天前`;
-  }
-
-  return date.toLocaleDateString();
-};
-
 const loadData = async () => {
   try {
     loading.value = true;
     getAlerts().then((res: any) => {
       alerts.value.push(res.data)
     })
-  } finally {
+  } catch (error) {
+    console.error(error)
+  }
+  finally {
     loading.value = false;
   }
 }
@@ -59,7 +45,7 @@ loadData()
 </script>
 
 <template>
-  <el-card class="alert-list-card">
+  <el-card class="alert-list-card" v-loading="loading">
     <template #header>
       <div class="panel-header">
         <h3 class="panel-title">

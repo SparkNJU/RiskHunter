@@ -21,7 +21,6 @@ const loadData = async () => {
 
     getForecast().then((res: any) => {
       forecast.value = res.data
-      console.log(forecast.value.range)
     })
   } finally {
     loading.value = false

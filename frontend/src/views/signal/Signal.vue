@@ -28,7 +28,7 @@ import RiskMap from '../../components/signal/RiskMap.vue'; // 导入风险地图
 
     <el-row :gutter="20" class="signal-row">
       <el-col :span="24" class="signal-col">
-        <RiskMap height="500px" /> <!-- 使用风险地图组件 -->
+        <RiskMap height="700px" /> <!-- 使用风险地图组件 -->
       </el-col>
     </el-row>
     <el-row :gutter="20" class="signal-row">

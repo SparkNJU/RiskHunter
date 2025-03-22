@@ -1,416 +1,320 @@
 <template>
+  <el-card v-loading="isMapLoading">
+    <template #header>
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <el-icon class="header-icon">
+            <MapLocation />
+          </el-icon>
+          风险地图
+        </h3>
+      </div>
+    </template>
+
     <div class="risk-map-container" :style="{ height }">
       <div v-if="mapError" class="map-error">
-        <el-alert
-          title="地图加载失败"
-          type="error"
-          description="请检查地图数据是否正确"
-          show-icon
-          :closable="false"
-        />
+        <el-alert title="地图加载失败" type="error" description="请检查地图数据是否正确" show-icon :closable="false" />
         <el-button @click="retryLoadMap" type="primary" size="small" style="margin-top: 10px">
           重试加载
         </el-button>
       </div>
       <div v-else ref="chartContainer" class="chart-container"></div>
     </div>
-  </template>
-    
-  <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, watch } from 'vue';
-  import * as echarts from 'echarts';
-  import { regionCodeToCountry } from '../../types/risk-map';
-  import type { RiskMapVO } from '../../types/risk-map';
-  // 直接导入本地GeoJSON数据
-  import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
-  
-  const props = defineProps({
-    height: {
-      type: String,
-      default: '400px'
-    }
-  });
-    
-  const chartContainer = ref<HTMLElement | null>(null);
-  let chart: echarts.ECharts | null = null;
-  const riskMapData = ref<RiskMapVO | null>(null);
-  const mapError = ref(false);
-  const isMapLoading = ref(false);
-    
-  // 将风险等级映射到颜色
-  const getRiskColor = (level: number) => {
-    const colors = [
-      '#e0f3f8', // 最低风险
-      '#abd9e9',
-      '#74add1',
-      '#4575b4',
-      '#313695'  // 最高风险
-    ];
-    return colors[level - 1] || colors[0];
-  };
-  
-  // 重试加载地图
-  const retryLoadMap = () => {
+  </el-card>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { MapLocation } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import { regionCodeToCountry } from '../../types/risk-map';
+import type { RiskMapVO } from '../../types/risk-map';
+import { getRiskMap } from '../../api/signal';
+// 直接导入本地GeoJSON数据
+import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
+
+const props = defineProps({
+  height: {
+    type: String,
+    default: '400px'
+  }
+});
+
+const chartContainer = ref<HTMLElement | null>(null);
+let chart: echarts.ECharts | null = null;
+const riskMapData = ref<RiskMapVO | null>(null);
+const mapError = ref(false);
+const isMapLoading = ref(false);
+
+// 将风险等级映射到颜色
+const getRiskColor = (level: number) => {
+  const colors = [
+    '#e0f3f8', // 最低风险
+    '#abd9e9',
+    '#74add1',
+    '#4575b4',
+    '#313695'  // 最高风险
+  ];
+  return colors[level - 1] || colors[0];
+};
+
+// 重试加载地图
+const retryLoadMap = () => {
+  mapError.value = false;
+  loadRiskMapData();
+};
+
+// 加载风险地图数据
+const loadRiskMapData = async () => {
+  try {
     mapError.value = false;
-    loadRiskMapData();
-  };
-  
-  // 加载风险地图数据
-  const loadRiskMapData = async () => {
-    try {
-      mapError.value = false;
-      isMapLoading.value = true;
-      
-      // 注册地图数据到echarts
-      echarts.registerMap('world', worldGeoJson);
-      
-      // 实际项目中，应该从API获取数据
-      // 这里使用与AMap相同的模拟数据
-      const mockData: RiskMapVO = {
-        regions: {
-          1: { // 中国
-            riskLevel: 2,
-            currencyPair: 1,
-            currentRate: 7.1243,
-            rateChange: -0.42,
-            hotNews: [
-              { id: 1, title: '央行公布新一轮LPR利率', source: '央行网站', date: '2025-03-20', impact: 4 }
-            ],
-            suggestions: ['监控人民币汇率变化', '考虑增加美元储备']
-          },
-          2: { // 美国
-            riskLevel: 3,
-            currencyPair: 2,
-            currentRate: 1.0,
-            rateChange: 0,
-            hotNews: [
-              { id: 2, title: '美联储暗示年内可能降息', source: '彭博社', date: '2025-03-19', impact: 5 }
-            ],
-            suggestions: ['关注美联储政策动向', '减少美元敞口']
-          },
-          3: { // 欧元区
-            riskLevel: 4,
-            currencyPair: 3,
-            currentRate: 0.9235,
-            rateChange: -1.25,
-            hotNews: [
-              { id: 3, title: '欧元区通胀率升至5年高位', source: 'ECB报告', date: '2025-03-18', impact: 5 }
-            ],
-            suggestions: ['减少欧元计价资产', '购买通胀保值债券']
-          },
-          4: { // 日本
-            riskLevel: 1,
-            currencyPair: 4,
-            currentRate: 155.23,
-            rateChange: 2.15,
-            hotNews: [
-              { id: 4, title: '日本央行维持宽松货币政策', source: '日经新闻', date: '2025-03-21', impact: 3 }
-            ],
-            suggestions: ['考虑日元融资', '增加日本国债持有']
-          },
-          5: { // 英国
-            riskLevel: 3,
-            currencyPair: 5,
-            currentRate: 0.7843,
-            rateChange: -0.56,
-            hotNews: [
-              { id: 5, title: '英国零售销售数据好于预期', source: '英国统计局', date: '2025-03-15', impact: 3 }
-            ],
-            suggestions: ['关注英国贸易政策变化', '评估脱欧后续影响']
-          },
-          6: { // 澳大利亚
-            riskLevel: 2,
-            currencyPair: 6,
-            currentRate: 1.5241,
-            rateChange: 0.32,
-            hotNews: [
-              { id: 6, title: '澳大利亚GDP增长超出预期', source: '澳大利亚统计局', date: '2025-03-17', impact: 4 }
-            ],
-            suggestions: ['考虑增加澳大利亚资源股投资', '关注中澳贸易关系']
-          },
-          7: { // 香港
-            riskLevel: 5,
-            currencyPair: 7,
-            currentRate: 7.8124,
-            rateChange: -0.05,
-            hotNews: [
-              { id: 7, title: '香港金管局跟随美联储加息', source: '香港金管局', date: '2025-03-20', impact: 4 }
-            ],
-            suggestions: ['监控联系汇率稳定性', '评估香港作为金融中心地位变化']
-          },
-          8: { // 瑞士
-            riskLevel: 1,
-            currencyPair: 8,
-            currentRate: 0.9012,
-            rateChange: 0.75,
-            hotNews: [
-              { id: 8, title: '瑞士央行维持负利率政策', source: '瑞士央行公告', date: '2025-03-16', impact: 3 }
-            ],
-            suggestions: ['考虑瑞士法郎作为避险资产', '关注瑞士银行业变化']
-          },
-          9: { // 阿根廷
-            riskLevel: 5,
-            currencyPair: 9,
-            currentRate: 366.45,
-            rateChange: 115.2,
-            hotNews: [
-              { id: 9, title: '阿根廷通胀率达115%创新高', source: '路透社', date: '2025-03-14', impact: 5 }
-            ],
-            suggestions: ['要求预付款比例提升至50%', '购买CDS对冲风险']
-          },
-          10: { // 巴西
-            riskLevel: 3,
-            currencyPair: 10,
-            currentRate: 5.08,
-            rateChange: -2.35,
-            hotNews: [
-              { id: 10, title: '巴西央行维持基准利率', source: '彭博社', date: '2025-03-15', impact: 4 }
-            ],
-            suggestions: ['关注巴西国内政治局势', '评估大宗商品价格波动影响']
-          }
+    isMapLoading.value = true;
+
+    // 注册地图数据到echarts
+    echarts.registerMap('world', worldGeoJson);
+
+    getRiskMap().then((res: any) => {
+      riskMapData.value = res.data
+      initializeChart()
+    })
+  } catch (error) {
+    console.error('加载风险地图数据失败:', error);
+    mapError.value = true;
+  } finally {
+    isMapLoading.value = false
+  }
+};
+
+// 初始化图表
+const initializeChart = () => {
+  if (!chartContainer.value) {
+    console.error('图表容器不存在');
+    return;
+  }
+
+  if (!riskMapData.value) {
+    console.error('风险数据为空');
+    return;
+  }
+
+  // 如果已经有实例，先销毁
+  if (chart) {
+    chart.dispose();
+    chart = null;
+  }
+
+  console.log('开始初始化ECharts实例...');
+
+  // 创建新实例，添加willReadFrequently优化属性
+  chart = echarts.init(chartContainer.value, null, {
+    renderer: 'canvas',
+    useDirtyRect: true
+  });
+
+  chart.showLoading({ text: '加载中...' });
+
+  // 准备国家/地区数据映射
+  const countryDataMap: { [key: string]: any } = {};
+
+  // 遍历风险数据，为每个国家/地区设置风险等级
+  Object.entries(riskMapData.value.regions).forEach(([code, data]) => {
+    const regionInfo = regionCodeToCountry[Number(code)];
+    if (!regionInfo) return;
+
+    // 在地图数据中找到对应的国家
+    countryDataMap[regionInfo.name] = {
+      value: data.riskLevel,
+      regionCode: Number(code),
+      ...data
+    };
+  });
+
+  // 转换为ECharts需要的数据格式
+  const seriesData = Object.keys(countryDataMap).map(name => ({
+    name,
+    value: countryDataMap[name].value,
+    ...countryDataMap[name]
+  }));
+
+  console.log('处理后的地图数据:', seriesData);
+
+  chart.hideLoading();
+
+  // 设置地图配置项
+  const option: echarts.EChartsOption = {
+    backgroundColor: '#ffffff',
+    title: {
+      text: '全球金融风险热力图',
+      subtext: '风险等级从低(1)到高(5)',
+      left: 'center',
+      top: '20px'
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function (params: any) {
+        if (!params.data || params.data.value === undefined) {
+          return params.name;
         }
-      };
-      
-      riskMapData.value = mockData;
-      console.log('风险数据加载完成');
-      
-      isMapLoading.value = false;
-      
-      // 确保数据加载完成后再初始化图表
-      setTimeout(() => {
-        initializeChart();
-      }, 100);
-    } catch (error) {
-      console.error('加载风险地图数据失败:', error);
-      isMapLoading.value = false;
-      mapError.value = true;
-    }
-  };
-  
-  // 初始化图表
-  const initializeChart = () => {
-    if (!chartContainer.value) {
-      console.error('图表容器不存在');
-      return;
-    }
-    
-    if (!riskMapData.value) {
-      console.error('风险数据为空');
-      return;
-    }
-    
-    // 如果已经有实例，先销毁
-    if (chart) {
-      chart.dispose();
-      chart = null;
-    }
-    
-    console.log('开始初始化ECharts实例...');
-    
-    // 创建新实例，添加willReadFrequently优化属性
-    chart = echarts.init(chartContainer.value, null, {
-      renderer: 'canvas',
-      useDirtyRect: true
-    });
-    
-    chart.showLoading({text: '加载中...'});
-    
-    // 准备国家/地区数据映射
-    const countryDataMap = {};
-    
-    // 遍历风险数据，为每个国家/地区设置风险等级
-    Object.entries(riskMapData.value.regions).forEach(([code, data]) => {
-      const regionInfo = regionCodeToCountry[Number(code)];
-      if (!regionInfo) return;
-      
-      // 在地图数据中找到对应的国家
-      countryDataMap[regionInfo.name] = {
-        value: data.riskLevel,
-        regionCode: Number(code),
-        ...data
-      };
-    });
-    
-    // 转换为ECharts需要的数据格式
-    const seriesData = Object.keys(countryDataMap).map(name => ({
-      name,
-      value: countryDataMap[name].value,
-      ...countryDataMap[name]
-    }));
-    
-    console.log('处理后的地图数据:', seriesData);
-    
-    chart.hideLoading();
-    
-    // 设置地图配置项
-    const option: echarts.EChartsOption = {
-      backgroundColor: '#f5f5f5',
-      title: {
-        text: '全球金融风险热力图',
-        subtext: '风险等级从低(1)到高(5)',
-        left: 'center',
-        top: '20px'
-      },
-      tooltip: {
-        trigger: 'item',
-        formatter: function(params: any) {
-          if (!params.data || params.data.value === undefined) {
-            return params.name;
-          }
-          
-          const regionData = params.data;
-          
-          let html = `<div style="font-weight:bold;margin-bottom:5px;">${params.name}</div>`;
-          html += `<div>风险等级: <span style="color:${getRiskColor(regionData.value)}">${regionData.value}</span>/5</div>`;
-          
-          if (regionData.currentRate !== undefined) {
-            html += `<div>当前汇率: ${regionData.currentRate}</div>`;
-          }
-          
-          if (regionData.rateChange !== undefined) {
-            html += `<div>汇率变化: <span style="color:${regionData.rateChange >= 0 ? 'green' : 'red'}">${regionData.rateChange >= 0 ? '+' : ''}${regionData.rateChange}%</span></div>`;
-          }
-          
-          if (regionData.hotNews && regionData.hotNews.length > 0) {
-            html += `<div style="margin-top:5px;font-weight:bold;">最新动态:</div>`;
-            html += `<div>${regionData.hotNews[0].title}</div>`;
-          }
-          
-          if (regionData.suggestions && regionData.suggestions.length > 0) {
-            html += `<div style="margin-top:5px;font-weight:bold;">建议:</div>`;
-            html += `<div>${regionData.suggestions[0]}</div>`;
-          }
-          
-          return html;
+
+        const regionData = params.data;
+
+        let html = `<div style="font-weight:bold;margin-bottom:5px;">${params.name}</div>`;
+        html += `<div>风险等级: <span style="color:${getRiskColor(regionData.value)}">${regionData.value}</span>/5</div>`;
+
+        if (regionData.currentRate !== undefined) {
+          html += `<div>当前汇率: ${regionData.currentRate}</div>`;
         }
-      },
-      visualMap: {
-        type: 'piecewise',
-        pieces: [
-          { min: 1, max: 1, label: '极低', color: '#e0f3f8' },
-          { min: 2, max: 2, label: '低', color: '#abd9e9' },
-          { min: 3, max: 3, label: '中', color: '#74add1' },
-          { min: 4, max: 4, label: '高', color: '#4575b4' },
-          { min: 5, max: 5, label: '极高', color: '#313695' }
-        ],
-        orient: 'horizontal',
-        left: 'center',
-        bottom: '30px',
-        text: ['高风险', '低风险'],
-        calculable: false
-      },
-      geo: {
+
+        if (regionData.rateChange !== undefined) {
+          html += `<div>汇率变化: <span style="color:${regionData.rateChange >= 0 ? 'green' : 'red'}">${regionData.rateChange >= 0 ? '+' : ''}${regionData.rateChange}%</span></div>`;
+        }
+
+        if (regionData.hotNews && regionData.hotNews.length > 0) {
+          html += `<div style="margin-top:5px;font-weight:bold;">最新动态:</div>`;
+          html += `<div>${regionData.hotNews[0].title}</div>`;
+        }
+
+        if (regionData.suggestions && regionData.suggestions.length > 0) {
+          html += `<div style="margin-top:5px;font-weight:bold;">建议:</div>`;
+          html += `<div>${regionData.suggestions[0]}</div>`;
+        }
+
+        return html;
+      }
+    },
+    visualMap: {
+      type: 'piecewise',
+      pieces: [
+        { min: 1, max: 1, label: '极低', color: '#e0f3f8' },
+        { min: 2, max: 2, label: '低', color: '#abd9e9' },
+        { min: 3, max: 3, label: '中', color: '#74add1' },
+        { min: 4, max: 4, label: '高', color: '#4575b4' },
+        { min: 5, max: 5, label: '极高', color: '#313695' }
+      ],
+      orient: 'horizontal',
+      left: 'center',
+      bottom: '30px',
+      text: ['高风险', '低风险'],
+      calculable: false
+    },
+    // 如果有这个配置会多一层图层, 不知道这是不是feature
+    // geo: {
+    //   map: 'world',
+    //   roam: true, // 允许缩放和平移
+    //   zoom: 1.2, // 初始缩放级别
+    //   scaleLimit: {
+    //     min: 0.8,
+    //     max: 5
+    //   },
+    //   label: {
+    //     show: false
+    //   },
+    //   itemStyle: {
+    //     areaColor: '#f7f7f7',
+    //     borderColor: '#ccc',
+    //     borderWidth: 0.5
+    //   },
+    //   emphasis: {
+    //     label: {
+    //       show: false
+    //     },
+    //     itemStyle: {
+    //       areaColor: '#f5f5f5'
+    //     }
+    //   }
+    // },
+    series: [
+      {
+        name: '风险等级',
+        type: 'map',
         map: 'world',
-        roam: true, // 允许缩放和平移
-        zoom: 1.2, // 初始缩放级别
+        roam: true,
+        zoom: 1.2,
         scaleLimit: {
-          min: 0.8,
-          max: 5
+          min: 1.0,
+          max: 5.0
         },
+        center: [0, 15],
+        data: seriesData,
         label: {
           show: false
-        },
-        itemStyle: {
-          areaColor: '#f7f7f7',
-          borderColor: '#ccc',
-          borderWidth: 0.5
         },
         emphasis: {
           label: {
             show: false
-          },
+          }
+        },
+        // 设置地图选中样式
+        select: {
           itemStyle: {
-            areaColor: '#f5f5f5'
+            color: '#eee'
           }
         }
-      },
-      series: [
-        {
-          name: '风险等级',
-          type: 'map',
-          map: 'world',
-          roam: true,
-          zoom: 1.2,
-          data: seriesData,
-          label: {
-            show: false
-          },
-          emphasis: {
-            label: {
-              show: false
-            }
-          },
-          // 设置地图选中样式
-          select: {
-            itemStyle: {
-              color: '#eee'
-            }
-          }
-        }
-      ]
-    };
-    
-    console.log('设置地图选项...');
-    chart.setOption(option);
-    
-    // 添加鼠标滚轮缩放支持
-    chartContainer.value!.addEventListener('mousewheel', () => {
-      setTimeout(() => {
-        chart?.resize();
-      }, 100);
-    });
+      }
+    ]
   };
-    
-  // 处理窗口大小变化
-  const handleResize = () => {
-    if (chart) {
-      chart.resize();
-    }
-  };
-    
-  // 监听组件属性变化
-  watch(() => props.height, () => {
+
+  console.log('设置地图选项...');
+  chart.setOption(option);
+
+  // 添加鼠标滚轮缩放支持
+  chartContainer.value!.addEventListener('mousewheel', () => {
     setTimeout(() => {
-      handleResize();
-    }, 300);
+      chart?.resize();
+    }, 100);
   });
-    
-  onMounted(() => {
-    console.log('组件已挂载，开始加载风险地图数据');
-    loadRiskMapData();
-    window.addEventListener('resize', handleResize);
-  });
-    
-  onUnmounted(() => {
-    if (chart) {
-      chart.dispose();
-      chart = null;
-    }
-    window.removeEventListener('resize', handleResize);
-  });
-  </script>
-    
-  <style scoped>
-  .risk-map-container {
-    width: 100%;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    background-color: #fff;
-    position: relative;
+};
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (chart) {
+    chart.resize();
   }
-    
-  .chart-container {
-    width: 100%;
-    height: 100%;
+};
+
+// 监听组件属性变化
+watch(() => props.height, () => {
+  setTimeout(() => {
+    handleResize();
+  }, 300);
+});
+
+onMounted(() => {
+  // console.log('组件已挂载，开始加载风险地图数据');
+  loadRiskMapData();
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  if (chart) {
+    chart.dispose();
+    chart = null;
   }
-  
-  .map-error {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    width: 80%;
-  }
-  </style>
+  window.removeEventListener('resize', handleResize);
+});
+</script>
+
+<style scoped>
+.risk-map-container {
+  width: 100%;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #fff;
+  position: relative;
+}
+
+.chart-container {
+  width: 100%;
+  height: 100%;
+}
+
+.map-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 80%;
+}
+</style>

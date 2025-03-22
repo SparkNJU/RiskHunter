@@ -43,7 +43,6 @@ const processData = () => {
       ['低', '中', '高'][term.riskLevel - 1] // 风险等级转中文
     ]);
   }
-  console.log(allTerms)
 
   return data;
 };
@@ -157,7 +156,6 @@ const loadData = async () => {
   try {
     loading.value = true
     getExposureMatrix().then((res: any) => {
-      console.log(res.data)
       exposureData.value = res.data
       nextTick(() => {
         initBubbleChart();
