@@ -2,46 +2,45 @@
 import { ref, computed } from 'vue'
 import { userInfo, userInfoUpdate } from '../../api/user.ts'
 import { parseRole } from "../../utils"
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from "element-plus"
+import { ElMessage } from "element-plus"
 import { User, Phone, LocationInformation, Lock } from '@element-plus/icons-vue'
 
-const router = useRouter()
 const role = ref(1);
 const username = ref('')
+const newName = ref('')
 const phone = ref('')
 const address = ref('')
-
-const newName = ref('')
-
-const displayInfoCard = ref(true)
-
+const newAddress = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
+// 前端表单验证
+const hasNameInput = computed(() => newName.value.trim() !== '')
 const hasPasswordInput = computed(() => password.value !== '')
 const isPasswordValid = computed(() => password.value.length >= 6)
 const hasConfirmPasswordInput = computed(() => confirmPassword.value != '')
 const isPasswordMatching = computed(() => password.value == confirmPassword.value)
-const changeDisabled = computed(() => {
-  return !(hasConfirmPasswordInput.value && isPasswordMatching.value)
+const changeEnable = computed(() => {
+  return (hasPasswordInput.value && isPasswordValid.value && hasConfirmPasswordInput.value && isPasswordMatching.value) ||
+    (!hasPasswordInput.value && !hasConfirmPasswordInput.value && ((hasNameInput.value && newName.value !== username.value) || newAddress.value !== address.value))
 })
-
 
 const getUserInfo = async () => {
   userInfo().then(res => {
     role.value = res.data.result.role
     username.value = res.data.result.username
-    phone.value = res.data.result.phone
     newName.value = username.value
+    phone.value = res.data.result.phone
+    address.value = res.data.result.address
+    newAddress.value = address.value
   })
 }
-getUserInfo()
 
-const updateInfo = async() => {
+const updateInfo = async () => {
   userInfoUpdate({
     username: newName.value,
-    password: undefined,
+    address: newAddress.value.trim() ? newAddress.value.trim() : undefined,
+    password: password.value ? password.value : undefined,
   }).then(res => {
     if (res.data.code === '000') {
       ElMessage({
@@ -60,38 +59,8 @@ const updateInfo = async() => {
   })
 }
 
-const updatePassword = async() => {
-  userInfoUpdate({
-    username: undefined,
-    password: password.value,
-  }).then(res => {
-    if (res.data.code === '000') {
-      password.value = ''
-      confirmPassword.value = ''
-      ElMessageBox.alert(
-        `请重新登录`,
-        '修改成功',
-        {
-          customClass: "customDialog",
-          confirmButtonText: '跳转到登录',
-          type: "success",
-          showClose: false,
-          roundButton: true,
-          center: true
-        }).then(() => router.push({ path: "/login" }))
-    } else if (res.data.code === '400') {
-      ElMessage({
-        customClass: 'customMessage',
-        type: 'error',
-        message: res.data.msg,
-      })
-      password.value = ''
-      confirmPassword.value = ''
-    }
-  })
-}
+getUserInfo()
 </script>
-
 
 <template>
   <el-main class="profile-container">
@@ -99,30 +68,25 @@ const updatePassword = async() => {
       <!-- 个人信息页 -->
       <el-col :xs="24" :sm="24" :md="10" class="profile-col">
         <el-card shadow="hover">
-          <div class="avatar-area">
-            <span class="profile-title">欢迎您，{{ username }}</span>
+          <div class="avatar-gradient">
+            <div class="avatar-area">
+              <span class="avatar-title">{{ username }}</span>
+            </div>
           </div>
 
-          <el-divider />
+          <el-divider class="custom-divider" />
 
-          <el-descriptions :column="1" border title="个人信息">
-            <template #extra>
-              <el-button type="primary" @click="displayInfoCard = !displayInfoCard">
-                <span v-if="displayInfoCard">修改密码</span>
-                <span v-else>修改个人信息</span>
-              </el-button>
-            </template>
-
+          <el-descriptions :column="1" border>
             <el-descriptions-item>
               <template #label>
                 <div style="display: flex; align-items: center; gap: 8px">
                   <el-icon>
                     <User />
                   </el-icon>
-                  <span>身份</span>
+                  <span>用户身份</span>
                 </div>
               </template>
-              <el-tag>{{ parseRole(role) }}</el-tag>
+              <el-tag :type="role == 1 ? 'primary' : 'success'">{{ parseRole(role) }}</el-tag>
             </el-descriptions-item>
 
             <el-descriptions-item>
@@ -141,27 +105,26 @@ const updatePassword = async() => {
         </el-card>
       </el-col>
 
-
       <!-- 修改页 -->
-      <el-col :xs="24" :sm="24" :md="14" class="profile-col">
+      <el-col :xs="24" :sm="24" :md="14" class="change-col">
         <!-- 修改个人信息 -->
-        <el-card v-if="displayInfoCard" shadow="hover">
+        <el-card shadow="hover">
           <template #header>
-            <div class="profile-header">
+            <div class="change-header">
               <span class="profile-title">修改个人信息</span>
-              <el-button type="primary" @click="updateInfo">更新</el-button>
+              <el-button type="primary" @click="updateInfo" :disabled="!changeEnable">更新</el-button>
             </div>
           </template>
 
           <el-form>
             <el-form-item>
-              <label class="custom-label">
+              <label class="custom-label" :class="{ 'error': !hasNameInput }">
                 <el-icon>
                   <User />
                 </el-icon>
-                <span>新用户名</span>
+                <span>{{ hasNameInput ? '新用户名' : '新用户名不能为空' }}</span>
               </label>
-              <el-input v-model="newName" placeholder="请输入新用户名" />
+              <el-input v-model="newName" :class="{ 'error-input': !hasNameInput }" placeholder="请输入新用户名" />
             </el-form-item>
 
             <el-form-item>
@@ -181,29 +144,15 @@ const updatePassword = async() => {
                 </el-icon>
                 <span>地址</span>
               </label>
-              <el-input v-model="address" placeholder="请输入地址" />
+              <el-input v-model="newAddress" placeholder="请输入地址" />
             </el-form-item>
-          </el-form>
-        </el-card>
 
-        <!-- 修改密码 -->
-        <el-card v-else shadow="hover">
-          <template #header>
-            <div class="profile-header">
-              <span class="profile-title">修改密码</span>
-              <el-button type="primary" @click="updatePassword" :disabled="changeDisabled">
-                更新
-              </el-button>
-            </div>
-          </template>
-
-          <el-form>
             <el-form-item>
               <label class="custom-label" :class="{ 'error': hasPasswordInput && !isPasswordValid }">
                 <el-icon>
                   <Lock />
                 </el-icon>
-                <span>{{ !hasPasswordInput || isPasswordValid ? '密码' : '密码长度至少为6位' }}</span>
+                <span>{{ !hasPasswordInput || isPasswordValid ? '新密码 (无需修改则留白)' : '密码长度至少为6位' }}</span>
               </label>
               <el-input type="password" v-model="password"
                 :class="{ 'error-input': hasPasswordInput && !isPasswordValid }" placeholder="请输入新密码" show-password />
@@ -229,16 +178,52 @@ const updatePassword = async() => {
 
 
 <style scoped>
-.profile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.profile-col {
+  .avatar-gradient {
+    background: linear-gradient(135deg, var(--el-color-primary) 0%, #512da8 100%);
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+  }
+
+  .avatar-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .avatar-title {
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 600;
+    background: linear-gradient(90deg, #fff 20%, #e0f7fa 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
-.profile-title {
-  color: var(--el-text-color-primary);
-  font-size: 1.2rem;
-  font-weight: 600;
+.custom-divider {
+  margin: 1.5rem 0;
+}
+
+.change-col {
+  .change-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .profile-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--el-color-primary);
+    }
+  }
+
+  :deep(.el-input__wrapper) {
+    height: 2.5rem;
+    width: 100%;
+  }
 }
 
 :deep(.el-row) {
@@ -251,10 +236,7 @@ const updatePassword = async() => {
   margin-bottom: 20px;
 }
 
-:deep(.el-input__wrapper) {
-  height: 2.5rem;
-  width: 100%;
-}
+
 
 /* 移动端适配: 调整字体大小和间距 */
 @media (max-width: 768px) {
