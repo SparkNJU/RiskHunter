@@ -26,6 +26,12 @@ const techImages = {
   lyy: new URL('../../assets/teamMembers/IT5_lyy.jpg', import.meta.url).href
 };
 
+const FinaImages = {
+    wyf: new URL('../../assets/teamMembers/Fn1_wyf.jpg', import.meta.url).href,
+    llt: new URL('../../assets/teamMembers/Fn2_llt.jpg', import.meta.url).href,
+    gyx: new URL('../../assets/teamMembers/Fn3_gyx.jpg', import.meta.url).href,
+    szh: new URL('../../assets/teamMembers/Fn4_szh.jpg', import.meta.url).href
+}
 // 默认头像
 const defaultAvatar = new URL('../assets/teamMembers/arknights.jpg', import.meta.url).href;
 
@@ -88,28 +94,28 @@ const teachers = [
 
 const businessTeam = [
     {
-        name: '陈展',
-        title: '后端开发与大语言模型处理',
-        description: '南京大学软件学院23级本科生，曾获2024年美国大学生数学建模竞赛H奖、2023-2024年度人民奖学金。负责RiskHunter项目的后端开发与测试工作、大模型的训练与优化工作，为智能助手引入了流式输出和RAG检索增强生成等优化技术。',
-        avatar: techImages.cz
+        name: '吴怡菲',
+        title: 'RiskHunter创业公司CEO',
+        description: "2023级南京大学商学院工商管理专业本科生，曾获2023-2024年度人民奖学金一等奖、北京市三好学生等荣誉。商赛经验丰富，曾获毕马威ESG案例分析赛优秀案例，清华大学SDG创新创业挑战赛社会意义奖。曾在医药公司实习，对于技术项目的商业落地掌握一定经验。在本次花旗杯项目中负责商业计划书全流程制作，任商业组组长，Risk Hunter创业公司CEO。",
+        avatar: FinaImages.wyf
     },
     {
-        name: '陈明',
+        name: '刘亮彤',
         title: '数据分析师',
         description: '南京大学商学院，专注于外汇市场分析与预测',
-        avatar: defaultAvatar
+        avatar: FinaImages.llt
     },
     {
-        name: '赵婷',
-        title: '商业顾问',
-        description: '南京大学商学院市场营销专业，负责市场需求分析',
-        avatar: defaultAvatar
+        name: '官咏欣',
+        title: 'RiskHunter创业公司CMO',
+        description: '2023级南京大学商学院金融专业本科生，曾获2023-2024年度行知奖学金、83经济奖学金、南京大学优秀学生等荣誉，曾参与金融数据的机器学习处理相关领域的科研训练。曾在证券公司实习并负责行业研究岗位，具备充足的行业研究能力与清晰的市场洞察力，对于技术项目的营销战略掌握了丰富的经验。在本次花旗杯项目中任Risk Hunter创业公司CMO。',
+        avatar: FinaImages.gyx
     },
     {
-        name: '周楠',
-        title: '金融顾问',
-        description: '南京大学商学院金融学，专注金融风险管理研究',
-        avatar: defaultAvatar
+        name: '沙子航',
+        title: 'RiskHunter创业公司CFO',
+        description: '2023级南京大学商学院金融学专业本科生，曾获2023-2024年度人民奖学金、曙明奖学金等荣誉。对金融理论和模型较为了解，曾参与美国大学生数学建模比赛，加密货币波动溢出效应课题研究等项目。在本次花旗杯项目中负责风险预警指标体系的构建与相应数据的搜集和优化，及商业计划书中商业模式和风险分析部分的优化，任Risk Hunter创业公司CFO。',
+        avatar: FinaImages.szh
     },
 ];
 

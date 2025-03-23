@@ -76,5 +76,19 @@ export const sendMessageNoStream = (chatRequestDTO: ChatRequestDTO) => {
  * 发送聊天消息（流式响应）
  * @param chatRequestDTO 聊天请求对象
  */
+
 export const CHAT_STREAM_DEFAULT = `${axios.defaults.baseURL}${CHAT_MODULE}/stream`;
 export const CHAT_STREAM_RAG = `${axios.defaults.baseURL}${CHAT_MODULE}/ragChat`;
+
+/**
+ * 删除聊天会话
+ * @param sessionId 会话ID
+ * @param userId 用户ID
+ */
+export const deleteSession = (sessionId: number, userId: number) => {
+    return axios.delete(`${CHAT_MODULE}/session/${sessionId}`, {
+      params: {
+        userId
+      }
+    })
+  }
