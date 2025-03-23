@@ -175,4 +175,14 @@ public class ChatController {
             @ApiParam(value = "新标题") @RequestParam String title) {
         return ResultVO.buildSuccess(chatService.updateSessionTitle(sessionId, userId, title));
     }
+
+
+    @ApiOperation(value = "删除会话", notes = "删除指定的会话")
+    @DeleteMapping("/session/{sessionId}")
+    public ResultVO<Boolean> deleteSession(
+            @ApiParam(value = "会话ID") @PathVariable Long sessionId,
+            @ApiParam(value = "用户ID") @RequestParam Long userId) {
+        log.info("Deleting session with ID: {}, for user: {}", sessionId, userId);
+        return ResultVO.buildSuccess(chatService.deleteSession(sessionId, userId));
+    }
 }
