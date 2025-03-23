@@ -1,42 +1,206 @@
 /* 存放注册和登录的样式 */
 .auth-container {
+  height: 95vh;
+  padding: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 440px;
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.auth-content {
+  display: flex;
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+/* 左侧品牌区域 */
+.auth-branding {
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(135deg, #626aef 0%, #512da8 100%);
+  color: white;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+  .brand-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    animation: fadeInLeft 0.8s ease-out;
+  }
+
+  .brand-subtitle {
+    font-size: 1.8rem;
+    font-weight: 300;
+    line-height: 1.5;
+    animation: fadeInLeft 1s ease-out 0.2s;
+    animation-fill-mode: backwards;
+  }
+}
+
+/* 渐进动画 */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 右侧表单区域 */
+.auth-form-wrapper {
+  flex: 1;
+  height: 100%;
+  /* 铺满父容器高度 */
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: var(--el-box-shadow-light);
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.auth-title {
-  color: var(--el-text-color-primary);
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.auth-button-group {
   display: flex;
-  gap: 12px;
-  margin-top: 1.5rem;
-}
-
-.auth-verify-group {
-  display: flex;
-  gap: 10px;
-  width: 100%;
   align-items: center;
+  justify-content: center;
+
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-title {
+      color: var(--el-text-color-primary);
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    /* 验证码区域样式 */
+    .auth-verify-group {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      align-items: center;
+    }
+
+    .captcha-image {
+      width: 120px;
+      height: 2.5rem;
+      cursor: pointer;
+      border: 1px solid var(--el-border-color-base);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .captcha-image img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* 按钮组样式 */
+    .auth-button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+    }
+
+    .auth-button-group .el-button {
+      width: 48%;
+    }
+
+    :deep(.el-input__wrapper) {
+      height: 2.5rem;
+      width: 100%;
+    }
+  }
 }
 
-/* 表单相关, 在个人页也有使用 */
+/* 响应式调整 */
+@media (max-width: 992px) {
+  .auth-content {
+    flex-direction: column;
+    width: 95%;
+    height: auto;
+    /* 在小屏幕上允许高度自适应 */
+    min-height: 95vh;
+    /* 但仍然至少占据95%视口高度 */
+  }
+
+  .auth-branding {
+    padding: 2rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .brand-title {
+    font-size: 2.5rem;
+  }
+
+  .brand-subtitle {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-content {
+    width: 100%;
+    height: 100vh;
+    /* 在最小屏幕上完全铺满 */
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  .auth-form-wrapper {
+    padding: 1.5rem;
+  }
+
+  .auth-branding {
+    padding: 1.5rem;
+  }
+
+  .brand-title {
+    font-size: 2rem;
+  }
+
+  .brand-subtitle {
+    font-size: 1.2rem;
+  }
+}
+
+/* 表单标签, 通用 */
 .custom-label {
   display: flex;
   align-items: center;
