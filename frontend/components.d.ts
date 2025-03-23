@@ -49,6 +49,7 @@ declare module 'vue' {
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ExchangeRate: typeof import('./src/components/ExchangeRate.vue')['default']
     ExchangeRateBoard: typeof import('./src/components/signal/ExchangeRateBoard.vue')['default']
     ExposureMatrix: typeof import('./src/components/signal/ExposureMatrix.vue')['default']

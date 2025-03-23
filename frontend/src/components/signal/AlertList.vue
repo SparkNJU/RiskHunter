@@ -5,9 +5,7 @@ import { type AlertVO } from '../../types/signal';
 import { getAlerts } from '../../api/signal';
 import { parseTime } from '../../utils';
 
-const alerts = ref<AlertVO[]>([
-]);
-
+const alerts = ref<AlertVO[]>([]);
 const loading = ref(false);
 
 const getAlertTypeTag = (level: string) => {
@@ -31,17 +29,18 @@ const getAlertIcon = (level: string) => {
 const loadData = async () => {
   try {
     loading.value = true;
-    getAlerts().then((res: any) => {
-      alerts.value.push(res.data)
-    })
+    const res = await getAlerts();
+    // 修改此处: 直接赋值整个数组，而不是push
+    alerts.value = res.data; 
   } catch (error) {
-    console.error(error)
-  }
-  finally {
+    console.error(error);
+  } finally {
     loading.value = false;
   }
-}
-loadData()
+};
+
+// 页面加载时获取数据
+loadData();
 </script>
 
 <template>

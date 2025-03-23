@@ -158,7 +158,7 @@ const techTeam = [
         </div>
 
         <p class="about-description">
-            RiskHunter平台由NJU-SagaCiti团队开发，团队成员来自南京大学商学院、软件学院和人工智能学院，具有深厚的跨学科专业背景、强大的商业分析能力和开发技术。
+            RiskHunter 平台由 NJU-SagaCiti 团队研发，核心成员汇聚南京大学商学院、软件学院与人工智能学院的跨学科人才，融合金融分析、机器学习与 Web 开发技术，兼具商业洞察深度与工程实践能力，形成 "金融 + AI + 软件" 三位一体的技术研发矩阵。
         </p>
 
         <div class="team-tabs">

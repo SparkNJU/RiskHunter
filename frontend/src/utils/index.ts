@@ -7,10 +7,16 @@ export function parseRole(role: number | null) {
     }
 }
 
-//将时间转化为日常方式
+// 将时间转化为日常方式
 export function parseTime(time: string) {
+    // 如果时间已经是 'YYYY-MM-DD HH:MM:SS' 格式，直接返回
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(time)) {
+        return time;
+    }
+    
+    // 处理ISO格式 'YYYY-MM-DDTHH:MM:SS.sssZ'
     let times = time.split(/T|\./)
-    return times[0] + " " + times[1]
+    return times[0] + " " + (times[1] || "");
 }
 
 export const CurrencyList = [

@@ -64,17 +64,37 @@
   }
 }
 
-/* 渐进动画 */
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
+/* 循环渐进动画 - 替换原来的fadeInLeft */
+@keyframes fadeInOutLeft {
+  0% {
+    opacity: 0.7;
+    transform: translateX(-10px);
   }
-
-  to {
+  50% {
     opacity: 1;
     transform: translateX(0);
   }
+  100% {
+    opacity: 0.7;
+    transform: translateX(-10px);
+  }
+}
+
+/* 左侧品牌区域内部的样式更新 */
+.auth-branding .brand-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  animation: fadeInOutLeft 3s ease-in-out infinite; /* 修改为无限循环 */
+}
+
+.auth-branding .brand-subtitle {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1.5;
+  animation: fadeInOutLeft 3s ease-in-out infinite; /* 修改为无限循环 */
+  animation-delay: 1s; /* 延迟1秒，使动画错开，更有层次感 */
 }
 
 /* 右侧表单区域 */

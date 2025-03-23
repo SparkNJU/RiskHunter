@@ -159,7 +159,7 @@ public class ChatController {
 
     /**
      * 更新会话标题
-     * 
+     *
      * @param sessionId 会话ID
      * @param userId    用户ID
      * @param title     新标题

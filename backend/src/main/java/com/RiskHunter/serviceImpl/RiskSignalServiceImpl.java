@@ -26,6 +26,7 @@ public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSig
         if (end != null) {
             wrapper.le("time", end);
         }
+        wrapper.orderByAsc("time"); // Ensure ascending order by time
         return page(new Page<>(page, size), wrapper);
     }
 
@@ -33,7 +34,7 @@ public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSig
     public Page<RiskSignal> advancedSearch(RiskSignalQueryDTO queryDTO) {
         Page<RiskSignal> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
         QueryWrapper<RiskSignal> wrapper = new QueryWrapper<>();
-        
+
         if (queryDTO.getMinEmp() != null) {
             wrapper.ge("emp", queryDTO.getMinEmp());
         }
@@ -55,8 +56,8 @@ public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSig
         if (queryDTO.getTargetCurrency() != null) {
             wrapper.eq("target_currency", queryDTO.getTargetCurrency());
         }
-        
-        wrapper.orderByDesc("time");
+
+        wrapper.orderByAsc("time"); // Ensure ascending order by time
 
         // 获取总记录数
         long total = count(wrapper);
