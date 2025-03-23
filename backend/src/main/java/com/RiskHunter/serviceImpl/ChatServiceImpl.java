@@ -6,6 +6,7 @@ import com.RiskHunter.po.ChatRecord;
 import com.RiskHunter.po.ChatSession;
 import com.RiskHunter.service.ChatService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -536,5 +537,35 @@ public class ChatServiceImpl implements ChatService {
             return result.toString();
         }
         return "未找到相关知识点";
+    }
+
+
+    @Override
+    public boolean deleteSession(Long sessionId, Long userId) {
+        // 先验证会话是否存在且属于该用户
+        ChatSession session = sessionMapper.selectOne(
+                new QueryWrapper<ChatSession>()
+                        .eq("id", sessionId)
+                        .eq("user_id", userId));
+
+        if (session == null) {
+            log.warn("Session not found or does not belong to user. SessionId: {}, UserId: {}", sessionId, userId);
+            return false;
+        }
+
+        // 删除会话及相关记录
+        try {
+            // 先删除相关的聊天记录
+            recordMapper.delete(new QueryWrapper<ChatRecord>()
+                    .eq("session_id", sessionId));
+
+            // 删除会话
+            sessionMapper.deleteById(sessionId);
+            log.info("Successfully deleted session. SessionId: {}", sessionId);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to delete session. SessionId: {}, Error: {}", sessionId, e.getMessage(), e);
+            throw new RuntimeException("删除会话失败", e);
+        }
     }
 }

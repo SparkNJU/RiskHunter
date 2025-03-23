@@ -24,4 +24,6 @@ public interface ChatService {
     public Flux<String> ragChatWithStream(Long sessionId, String message, Long userId);
 
     public String ragSearch(Long sessionId, String message, Long userId);
+
+    boolean deleteSession(Long sessionId, Long userId);
 }
