@@ -14,8 +14,10 @@ const loadData = async () => {
     loading.value = true;
     getExchangeRate(selectedCurrency.value).then((res: any) => {
       rateData.value = res.data;
+      loading.value = false;
     });
-  } finally {
+  } catch (error) {
+    console.error(error)
     loading.value = false;
   }
 };

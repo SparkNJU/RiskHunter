@@ -1,79 +1,184 @@
 import { axios } from '../utils/request'
 import { SIGNAL_MODULE } from './_prefix'
-//import { getRealTimeExchangeRate, getProcessedDailyRates } from '../utils/getExchangeRate'
-//import { getCurrencyPairById, type ExchangeRateVO } from '../types/signal'
+import { getRealTimeExchangeRate, getProcessedDailyRates } from '../utils/getExchangeRate'
+import { getCurrencyPairById, type ExchangeRateVO } from '../types/signal'
 
+
+const mockExchangeRate = [
+  {
+    currencyPair: 0,
+    currentRate: 7.2481,
+    change24h: 0.0014,
+    volatility7d: 0.011,
+    volatilityPercentile: 11,
+    upcomingEvents: [
+      {
+        description: '3月22日急贬近百点后次日强势反弹0.58%',
+        expectedImpact: 3
+      },
+      {
+        description: '美元指数下行周期下人民币双向波动加剧',
+        expectedImpact: 2
+      }
+    ]
+  },
+  {
+    currencyPair: 1,
+    currentRate: 7.8398,
+    change24h: -0.0158,
+    volatility7d: 0.023,
+    volatilityPercentile: 23,
+    upcomingEvents: [
+      {
+        description: '2025年初欧元区刺激政策推升人民币兑欧元汇率',
+        expectedImpact: 2
+      },
+      {
+        description: '中欧贸易顺差扩大支撑人民币汇率稳定',
+        expectedImpact: 1
+      }
+    ]
+  },
+  {
+    currencyPair: 2,
+    currentRate: 9.3629,
+    change24h: 0.0311,
+    volatility7d: 0.016,
+    volatilityPercentile: 16,
+    upcomingEvents: [
+      {
+        description: '英镑兑人民币汇率突破9.3关口，留学成本飙升20%',
+        expectedImpact: 1
+      },
+      {
+        description: '英国经济复苏预期推动英镑短期走强',
+        expectedImpact: 3
+      }
+    ]
+  }, {
+    currencyPair: 3,
+    currentRate: 0.0485,
+    change24h: -0.0001,
+    volatility7d: 0.0,
+    volatilityPercentile: 0,
+    upcomingEvents: [
+      {
+        description: '日元汇率跌破5.0大关引发中国资本涌入日本资产',
+        expectedImpact: 3
+      },
+      {
+        description: '日本央行维持宽松政策加剧日元贬值压力',
+        expectedImpact: 1
+      }
+    ]
+  },
+  {
+    currencyPair: 4,
+    currentRate: 4.5471,
+    change24h: -0.0134,
+    volatility7d: 0.025,
+    volatilityPercentile: 25,
+    upcomingEvents: [
+      {
+        description: '美联储降息预期引发澳元兑人民币汇率暴跌至两年新低',
+        expectedImpact: 3
+      },
+      {
+        description: '澳洲铁矿出口疲软加剧澳元贬值压力',
+        expectedImpact: 1
+      }
+    ]
+  },
+  {
+    currencyPair: 5,
+    currentRate: 0.9320,
+    change24h: 0.0,
+    volatility7d: 0.001,
+    volatilityPercentile: 1,
+    upcomingEvents: [
+      {
+        description: '港元兑人民币汇率突破0.93，北上消费热潮持续',
+        expectedImpact: 2
+      },
+      {
+        description: '央行逆周期调节抑制港元汇率单边波动',
+        expectedImpact: 3
+      }
+    ]
+  },
+  {
+    currencyPair: 6,
+    currentRate: 8.2060,
+    change24h: -0.0090,
+    volatility7d: 0.021,
+    volatilityPercentile: 21,
+    upcomingEvents: [
+      {
+        description: '瑞士央行意外降息冲击人民币汇率',
+        expectedImpact: 3
+      },
+      {
+        description: '避险需求推升瑞郎兑人民币中间价年内下调147基点',
+        expectedImpact: 1
+      }
+    ]
+  }
+]
 
 // 获取汇率数据
 export const getExchangeRate = async (currencyPair: number) => {
-  currencyPair = currencyPair||0;
-  //currencyPair: number
-  // 测试可行
-  // try {
-  //   const pairConfig = getCurrencyPairById(currencyPair);
+  // 最新假数据
+  // return Promise.resolve({
+  //   data: mockExchangeRate.find((item) => item.currencyPair === currencyPair)
+  // })
 
-  //   if (!pairConfig) {
-  //     throw new Error(`Invalid currency pair ID: ${currencyPair}`);
-  //   }
+  try {
+    const pairConfig = getCurrencyPairById(currencyPair);
 
-  //   const realTimeData = await getRealTimeExchangeRate(
-  //     pairConfig.fromCurrency,
-  //     pairConfig.toCurrency
-  //   );
-  //   console.log(realTimeData)
-
-  //   const dailyRates = await getProcessedDailyRates(
-  //     pairConfig.fromCurrency,
-  //     pairConfig.toCurrency,
-  //     7
-  //   );
-
-  //   const latestRate = parseFloat(realTimeData['Realtime Currency Exchange Rate']['5. Exchange Rate']);
-  //   const previousDayRate = dailyRates[dailyRates.length - 2]?.rate || latestRate;
-  //   const change24h = latestRate - previousDayRate;
-
-  //   const rateValues = dailyRates.map(d => d.rate);
-  //   const mean = rateValues.reduce((sum, val) => sum + val, 0) / rateValues.length;
-  //   const variance = rateValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / rateValues.length;
-  //   const volatility7d = Math.sqrt(variance);
-
-  //   const volatilityPercentile = Math.min(Math.round(volatility7d * 1000), 100);
-
-  //   const exchangeRateData: ExchangeRateVO = {
-  //     currencyPair,
-  //     currentRate: latestRate,
-  //     change24h,
-  //     volatility7d,
-  //     volatilityPercentile,
-  //     upcomingEvents: [{
-  //       description: '欧洲央行利率决议',
-  //       expectedImpact: 3
-  //     }]
-  //   };
-
-  //   return Promise.resolve({
-  //     data: exchangeRateData
-  //   });
-  // } catch (error) {
-  //   console.error('Error fetching real-time exchange rate:', error);
-  // }
-
-  // 假数据
-  return Promise.resolve({
-    data: {
-      currencyPair: 0,
-      currentRate: 6.8723,
-      change24h: 0.0035,
-      volatility7d: 0.082,
-      volatilityPercentile: 80,
-      upcomingEvents: [
-        {
-          description: '10月8日美国非农数据发布',
-          expectedImpact: 3
-        }
-      ]
+    if (!pairConfig) {
+      throw new Error(`Invalid currency pair ID: ${currencyPair}`);
     }
-  })
+
+    const realTimeData = await getRealTimeExchangeRate(
+      pairConfig.fromCurrency,
+      pairConfig.toCurrency
+    );
+
+    const dailyRates = await getProcessedDailyRates(
+      pairConfig.fromCurrency,
+      pairConfig.toCurrency,
+      7
+    );
+
+    const latestRate = parseFloat(realTimeData['Realtime Currency Exchange Rate']['5. Exchange Rate']);
+    const previousDayRate = dailyRates[dailyRates.length - 2]?.rate || latestRate;
+    const change24h = latestRate - previousDayRate;
+
+    const rateValues = dailyRates.map(d => d.rate);
+    const mean = rateValues.reduce((sum, val) => sum + val, 0) / rateValues.length;
+    const variance = rateValues.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / rateValues.length;
+    const volatility7d = Math.sqrt(variance);
+
+    const volatilityPercentile = Math.min(Math.round(volatility7d * 1000), 100);
+
+    const exchangeRateData: ExchangeRateVO = {
+      currencyPair,
+      currentRate: latestRate,
+      change24h,
+      volatility7d,
+      volatilityPercentile,
+      upcomingEvents: mockExchangeRate.find((item) => item.currencyPair === currencyPair)?.upcomingEvents || []
+    };
+
+    return Promise.resolve({
+      data: exchangeRateData
+    });
+  } catch (error) {
+    // console.error('Error fetching real-time exchange rate:', error);
+    return Promise.resolve({
+      data: mockExchangeRate.find((item) => item.currencyPair === currencyPair)
+    })
+  }
 };
 
 // 获取风险评分
@@ -240,30 +345,18 @@ export const getRiskMap = () => {
 
 export const getExposureMatrix = () => {
   return axios.get(`${SIGNAL_MODULE}/exposure`)
-
-  // return Promise.resolve({
-  //   data: {
-  //     terms: [
-  //       { currency: 0, range: '<30天', amount: 500, riskLevel: 30 },
-  //       { currency: 0, range: '30-90天', amount: 800, riskLevel: 45 },
-  //       { currency: 0, range: '>90天', amount: 1200, riskLevel: 75 },
-  //       { currency: 1, range: '<30天', amount: 300, riskLevel: 25 },
-  //       { currency: 1, range: '30-90天', amount: 550, riskLevel: 40 },
-  //       { currency: 1, range: '>90天', amount: 700, riskLevel: 60 },
-  //       { currency: 2, range: '<30天', amount: 200, riskLevel: 20 },
-  //       { currency: 2, range: '30-90天', amount: 350, riskLevel: 35 },
-  //       { currency: 2, range: '>90天', amount: 450, riskLevel: 50 }
-  //     ]
-  //   }
-  // })
 }
 
 export const getForecast = () => {
   return Promise.resolve({
     data: {
-      range: [6.65, 7.10],
+      range: [7.20, 7.35],
       confidence: 80,
-      warnings: ["若中美关税升级，可能突破7.20（概率5%）"]
+      warnings: [
+        "美联储政策转向或美元指数反弹可能加剧人民币波动",
+        "中美贸易摩擦升级（如特朗普关税政策落地）或导致阶段性贬值压力",
+        "国际资本流动变化可能引发汇率短期超调风险"
+      ]
     }
   })
 }
@@ -272,21 +365,20 @@ export const getAdvice = () => {
   return Promise.resolve({
     data: [
       {
-        type: 'immediate',
-        title: '立即行动',
-        items: [
-          '与工行签订6个月远期合约（锁定汇率6.89）',
-          '增加30%的外币资产配置以对冲风险',
-          '控制贸易融资成本，减少使用信用证'
+        "type": "immediate",
+        "title": "立即行动",
+        "items": [
+          "【做空美元/离岸人民币】结合中国央行稳汇率政策（如逆周期因子调节），可短线做空USD/CNH至7.28，止损设于7.30上方",
+          "【关注美联储政策信号】3月25日美联储主席鲍威尔讲话若重申“维持高利率”，美元指数或上探104.5阻力位，建议在数据公布前买入美元/瑞郎（USD/CHF）对冲波动风险",
+          "【日元波段交易】建议在151.50-152.50区间高抛低吸，同时买入152.00看跌期权对冲干预风险"
         ]
       },
       {
-        type: 'long_term',
-        title: '长期建议',
-        items: [
-          '调整欧元区客户账期至60天以内',
-          '增加人民币计价出口合同比例',
-          '采用跨币种净额结算减少外汇交易成本'
+        "type": "long_term",
+        "title": "长期建议",
+        "items": [
+          "【分散资产配置】建议配置20%-30%美元资产，同时增加黄金（XAU/USD）及日元对冲美元波动，避免单一货币敞口过大",
+          "【布局人民币资产】中国GDP增速预期5%且外汇储备稳定，可关注A股科技板块（受益国产AI爆发）及国债等人民币计价资产的长期收益"
         ]
       }
     ]
