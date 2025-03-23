@@ -1,11 +1,13 @@
 import { axios } from '../utils/request'
 import { SIGNAL_MODULE } from './_prefix'
-import { getRealTimeExchangeRate, getProcessedDailyRates } from '../utils/getExchangeRate'
-import { getCurrencyPairById, type ExchangeRateVO } from '../types/signal'
+//import { getRealTimeExchangeRate, getProcessedDailyRates } from '../utils/getExchangeRate'
+//import { getCurrencyPairById, type ExchangeRateVO } from '../types/signal'
 
 
 // 获取汇率数据
 export const getExchangeRate = async (currencyPair: number) => {
+  currencyPair = currencyPair||0;
+  //currencyPair: number
   // 测试可行
   // try {
   //   const pairConfig = getCurrencyPairById(currencyPair);

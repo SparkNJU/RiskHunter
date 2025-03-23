@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { InfoFilled } from '@element-plus/icons-vue';
 import MarkdownIt from 'markdown-it';
 
-
 // 定义选项卡选择状态
 const activeTab = ref('teachers');
 
@@ -12,6 +11,23 @@ const md = new MarkdownIt({
   linkify: true,
   typographer: true
 });
+
+// 使用URL构造器处理所有图片路径
+const teacherImages = {
+  jiangY: new URL('../../assets/teamMembers/JiangY.jpg', import.meta.url).href,
+  maoYL: new URL('../../assets/teamMembers/MaoYL.jpg', import.meta.url).href
+};
+
+const techImages = {
+  cz: new URL('../../assets/teamMembers/IT1_cz.jpg', import.meta.url).href,
+  oly: new URL('../../assets/teamMembers/IT2_oly.jpg', import.meta.url).href,
+  zyy: new URL('../../assets/teamMembers/IT3_zyy.jpg', import.meta.url).href,
+  crz: new URL('../../assets/teamMembers/IT4_crz.jpg', import.meta.url).href,
+  lyy: new URL('../../assets/teamMembers/IT5_lyy.jpg', import.meta.url).href
+};
+
+// 默认头像
+const defaultAvatar = new URL('../assets/teamMembers/arknights.jpg', import.meta.url).href;
 
 // 定义各组成员数据，使用Markdown格式
 const teachers = [
@@ -41,7 +57,7 @@ const teachers = [
 **学术兼职**：
 - 《南大商学评论》执行编辑
 - 多家国内外期刊匿名审稿人`,
-        avatar: 'src/assets/teamMembers/JiangY.jpg'
+        avatar: teacherImages.jiangY
     },
     {
         name: '毛云龙',
@@ -66,67 +82,67 @@ const teachers = [
 - 国家重点研发计划专项课题
 
 **产业合作**：长期保持和**华为、字节跳动、美团、百度等**企业的研究合作，工作成果在企业实践中得到了应用和验证。`,
-        avatar: '/src/assets/teamMembers/MaoYL.jpg'
+        avatar: teacherImages.maoYL
     },
 ];
 
 const businessTeam = [
     {
-        name: '王琦',
-        title: '团队负责人',
-        description: '南京大学商学院金融系，擅长金融风险建模与分析',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '陈展',
+        title: '后端开发与大语言模型处理',
+        description: '南京大学软件学院23级本科生，曾获2024年美国大学生数学建模竞赛H奖、2023-2024年度人民奖学金。负责RiskHunter项目的后端开发与测试工作、大模型的训练与优化工作，为智能助手引入了流式输出和RAG检索增强生成等优化技术。',
+        avatar: techImages.cz
     },
     {
         name: '陈明',
         title: '数据分析师',
         description: '南京大学商学院，专注于外汇市场分析与预测',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        avatar: defaultAvatar
     },
     {
         name: '赵婷',
         title: '商业顾问',
         description: '南京大学商学院市场营销专业，负责市场需求分析',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        avatar: defaultAvatar
     },
     {
         name: '周楠',
         title: '金融顾问',
         description: '南京大学商学院金融学，专注金融风险管理研究',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        avatar: defaultAvatar
     },
 ];
 
 const techTeam = [
     {
-        name: '张浩',
-        title: '技术负责人',
-        description: '南京大学软件学院，全栈开发工程师，项目架构师',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '陈展',
+        title: '后端开发与大语言模型处理',
+        description: '南京大学软件学院2023级本科生，曾获2024年美国大学生数学建模竞赛H奖、2023-2024年度人民奖学金等。负责RiskHunter项目的后端开发与测试工作、大模型的训练与优化工作，为智能助手建立了系统提示词工程，引入了流式输出和RAG检索增强生成等模型优化技术。',
+        avatar: techImages.cz
     },
     {
-        name: '刘伟',
-        title: '后端开发',
-        description: '南京大学软件学院，专注Python与数据处理技术',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '欧立言',
+        title: '前端开发与人机交互设计',
+        description: '南京大学软件学院2023级本科生，曾获2023-2024年度人民奖学金等。负责RiskHunter项目的前端开发与用户界面设计工作，为智能助手引入了多轮对话等技术，负责撰写用户手册等技术文档，负责各类数据来源API的接口调通，为风险信号看板等功能提供了友好的用户交互体验。',
+        avatar: techImages.oly
     },
     {
-        name: '徐佳',
-        title: '前端开发',
-        description: '南京大学软件学院，Vue.js专家，负责用户界面开发',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '张耀宇',
+        title: '技术负责人、数据处理与前后端交互',
+        description: '南京大学软件学院2023级本科生，曾获2023-2024年度国家奖学金、行知奖学金、2024年全国大学生数学竞赛江苏省三等奖、百度"星河杯"三等奖、最佳人气奖等。负责RiskHunter项目的技术架构设计、数据处理与前后端交互工作，对另类数据进行爬取并利用LLM的API进行处理。',    
+        avatar: techImages.zyy
     },
     {
-        name: '孙琪',
-        title: 'AI工程师',
-        description: '南京大学人工智能学院，负责模型训练与优化',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '陈瑞泽',
+        title: '机器学习模型搭建与优化',
+        description: '南京大学软件学院2023级本科生，曾获2023-2024年度人民奖学金一等奖、EL程序设计竞赛三等奖等，曾参与有关机器学习的科研训练项目。负责外汇风险预测模型的构建、分析和训练，搭建了主要的机器学习模型和神经网络模型，为外汇风险信号的计算和建模提供了主要支持。',
+        avatar: techImages.crz
     },
     {
-        name: '孙琪',
-        title: 'AI工程师',
-        description: '南京大学人工智能学院，负责模型训练与优化',
-        avatar: '/src/assets/teamMembers/arknights.jpg'
+        name: '龙彦宇',
+        title: '神经网络模型训练与分析',
+        description: '南京大学人工智能学院2023级本科生，曾获2023-2024年度人民奖学金一等奖、2024年全国大学生数学竞赛江苏省一等奖、百度"星河杯"三等奖、最佳人气奖等。负责外汇风险预测模型的训练、分析和优化，对外汇风险信号的指标和预测模型进行了关键优化。',
+        avatar: techImages.lyy
     },
 ];
 </script>
@@ -158,27 +174,27 @@ const techTeam = [
                 </div>
             </div>
 
-    <!-- 指导教师部分 - 统一布局 -->
-    <div class="team-members" v-if="activeTab === 'teachers'">
-        <div class="teachers-row">
-            <!-- 教师卡片 - 统一布局，渲染Markdown内容 -->
-            <div class="teacher-card" v-for="(teacher, index) in teachers" :key="index">
-                <div class="teacher-left">
-                    <div class="teacher-avatar">
-                        <img :src="teacher.avatar" alt="教师头像">
+            <!-- 指导教师部分 - 统一布局 -->
+            <div class="team-members" v-if="activeTab === 'teachers'">
+                <div class="teachers-row">
+                    <!-- 教师卡片 - 统一布局，渲染Markdown内容 -->
+                    <div class="teacher-card" v-for="(teacher, index) in teachers" :key="index">
+                        <div class="teacher-left">
+                            <div class="teacher-avatar">
+                                <img :src="teacher.avatar" alt="教师头像">
+                            </div>
+                            <div class="teacher-brief">
+                                <h3 class="member-name">{{ teacher.name }}</h3>
+                                <div class="member-title">{{ teacher.title }}</div>
+                            </div>
+                        </div>
+                        <div class="teacher-info">
+                            <!-- 使用v-html和md.render渲染Markdown -->
+                            <div class="markdown-content" v-html="md.render(teacher.description)"></div>
+                        </div>
                     </div>
-                    <div class="teacher-brief">
-                        <h3 class="member-name">{{ teacher.name }}</h3>
-                        <div class="member-title">{{ teacher.title }}</div>
-                    </div>
-                </div>
-                <div class="teacher-info">
-                    <!-- 使用v-html和md.render渲染Markdown -->
-                    <div class="markdown-content" v-html="md.render(teacher.description)"></div>
                 </div>
             </div>
-        </div>
-    </div>
 
             <!-- 商业组部分 - 一行四个 -->
             <div class="team-members" v-if="activeTab === 'business'">
@@ -214,6 +230,7 @@ const techTeam = [
         </div>
     </div>
 </template>
+
 <style scoped>
 .about-us-container {
     width: 100%;
@@ -453,9 +470,6 @@ const techTeam = [
     align-items: flex-start;
     padding-left: 1.5rem;
     border-left: 1px solid rgba(0, 0, 0, 0.1);
-    /* 移除以下两行 */
-    /* overflow-y: auto; */
-    /* max-height: 350px; */
 }
 
 /* Markdown内容样式 */
@@ -525,7 +539,7 @@ const techTeam = [
 }
 
 .tech-card {
-    width: calc(20% - 1rem);
+    width: calc(20% - 1.8rem);
     margin-bottom: 1.5rem;
     background-color: #ebedfA;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -540,31 +554,31 @@ const techTeam = [
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* 商业组和技术组共用的头像样式 - 证件照比例 */
+/* 商业组和技术组共用的头像样式 - 改为方形但保持尺寸 */
 .business-card .member-avatar,
 .tech-card .member-avatar {
-    width: 100%;
-    height: auto;
+    width: 150px;
+    height: 210px;
+    border-radius: 8px; /* 从50%改为8px，创建轻微圆角的方形 */
     overflow: hidden;
-    position: relative;
-    padding-top: 133.33%;
+    margin: 1.5rem auto 1rem;
+    border: 3px solid #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .business-card .member-avatar img,
 .tech-card .member-avatar img {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-/* 商业组和技术组的信息部分样式 */
+/* 商业组和技术组的信息部分样式 - 增加比例 */
 .business-card .member-info,
 .tech-card .member-info {
-    padding: 1.2rem;
+    padding: 1rem 1.2rem 1.5rem;
     background: linear-gradient(to bottom, #ebedfA, #d7daef);
+    flex: 1;
 }
 
 .business-card .member-name,
@@ -577,7 +591,7 @@ const techTeam = [
 .business-card .member-title,
 .tech-card .member-title {
     font-size: 0.85rem;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
     color: #424242;
     font-weight: 500;
 }
@@ -587,6 +601,8 @@ const techTeam = [
     font-size: 0.85rem;
     line-height: 1.5;
     color: #424242;
+    /* 增加描述文字高度 */
+    min-height: 100px;
 }
 
 /* 响应式设计 */

@@ -38,9 +38,9 @@ public class User {
     private String password;
 
     @Basic
-    @Column(name = "address")
-    @ApiModelProperty(value = "地址")
-    private String address;
+    @Column(name = "description")
+    @ApiModelProperty(value = "描述")
+    private String description;
 
     @Basic
     @Column(name = "role")
@@ -50,7 +50,7 @@ public class User {
     public UserVO toVO(){
         UserVO userVO=new UserVO();
         userVO.setId(this.id);
-        userVO.setAddress(this.address);
+        userVO.setDescription(this.description);
         userVO.setUsername(this.username);
         userVO.setRole(this.role);
         userVO.setPhone(this.phone);

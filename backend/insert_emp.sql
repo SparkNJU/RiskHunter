@@ -1,3 +1,17 @@
+DROP TABLE IF EXISTS risk_signal;
+CREATE TABLE risk_signal(
+                            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                            base_currency INT NOT NULL,
+                            target_currency INT NOT NULL,
+                            time DATETIME NOT NULL,
+                            emp DOUBLE NOT NULL,
+                            exchange_rate DOUBLE NOT NULL,
+                            interest_rate DOUBLE NOT NULL,
+                            fx_reserves DOUBLE NOT NULL,
+                            news DOUBLE NOT NULL,
+                            analysis VARCHAR(5000) NOT NULL,
+                            advice VARCHAR(5000) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 INSERT INTO risk_signal (
     base_currency,
     target_currency,

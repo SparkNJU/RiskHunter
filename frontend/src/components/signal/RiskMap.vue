@@ -33,6 +33,9 @@ import { getRiskMap } from '../../api/signal';
 // 直接导入本地GeoJSON数据
 import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
 
+// Ensure the type is "FeatureCollection"
+(worldGeoJson as any).type = "FeatureCollection";
+
 const props = defineProps({
   height: {
     type: String,
@@ -71,7 +74,7 @@ const loadRiskMapData = async () => {
     isMapLoading.value = true;
 
     // 注册地图数据到echarts
-    echarts.registerMap('world', worldGeoJson);
+    echarts.registerMap('world', worldGeoJson as any);
 
     getRiskMap().then((res: any) => {
       riskMapData.value = res.data

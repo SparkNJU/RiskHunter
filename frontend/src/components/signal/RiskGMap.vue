@@ -335,7 +335,7 @@
     // 使用任意类型避免TypeScript错误
     const gmapComponent = (chart as any).getModel().getComponent('gmap');
     if (gmapComponent && typeof gmapComponent.getGoogleMap === 'function') {
-      const gmap = gmapComponent.getGoogleMap();
+      //const gmap = gmapComponent.getGoogleMap();
       // 可以添加额外的谷歌地图配置
       console.log('Google Map 实例加载成功');
     }

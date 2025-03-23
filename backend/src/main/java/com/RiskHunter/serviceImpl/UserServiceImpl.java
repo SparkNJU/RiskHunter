@@ -58,8 +58,8 @@ public class UserServiceImpl implements UserService {
         if (userVO.getUsername()!=null){
             user.setUsername(userVO.getUsername());
         }
-        if (userVO.getAddress()!=null){
-            user.setAddress(userVO.getAddress());
+        if (userVO.getDescription()!=null){
+            user.setDescription(userVO.getDescription());
         }
         userRepository.save(user);
         return true;

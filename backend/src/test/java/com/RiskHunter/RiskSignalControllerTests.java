@@ -59,6 +59,7 @@ public class RiskSignalControllerTests {
         testSignal.setInterestRate(0.03);
         testSignal.setBaseCurrency(1);
         testSignal.setTargetCurrency(2);
+        testSignal.setNews(0.1);
         testSignal.setAnalysis("Initial Test Analysis");
         testSignal.setAdvice("Initial Test Advice");
 
@@ -82,6 +83,7 @@ public class RiskSignalControllerTests {
         newSignal.setInterestRate(0.02);
         newSignal.setBaseCurrency(1);
         newSignal.setTargetCurrency(2);
+        newSignal.setNews(0.2);
         newSignal.setAnalysis("New Risk Analysis");
         newSignal.setAdvice("New Risk Advice");
 

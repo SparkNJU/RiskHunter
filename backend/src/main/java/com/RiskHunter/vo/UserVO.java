@@ -18,7 +18,7 @@ public class UserVO {
 
     private String password;
 
-    private String address;
+    private String description;
 
     private Integer role;
 
@@ -26,7 +26,7 @@ public class UserVO {
     public User toPO(){
         User user=new User();
         user.setId(this.id);
-        user.setAddress(this.address);
+        user.setDescription(this.description);
         user.setUsername(this.username);
         user.setPhone(this.phone);
         user.setRole(this.role);
