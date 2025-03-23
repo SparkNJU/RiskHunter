@@ -34,7 +34,7 @@ public class CalculateController {
 
     @ApiOperation(value = "获取预警信息", notes = "获取预警信息")
     @GetMapping("/alert")
-    public AlertVO getAlert() {
+    public List<AlertVO> getAlert() {
         return calculateService.getAlert();
     }
 

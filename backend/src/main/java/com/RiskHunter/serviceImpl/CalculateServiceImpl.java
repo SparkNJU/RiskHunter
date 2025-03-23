@@ -51,23 +51,28 @@ public class CalculateServiceImpl implements CalculateService {
     }
 
     @Override
-    public AlertVO getAlert() {
-        // 根据风险信号计算预警级别
-        String level = calculateAlertLevel();
+    public List<AlertVO> getAlert() {
+        List<AlertVO> alertList = new ArrayList<>();
+        for (int q = 0;q < 3;q++){
+            // 根据风险信号计算预警级别
+            String level = calculateAlertLevel();
 
-        // 生成预警标题和内容
-        String title = generateAlertTitle(level);
-        String content = generateAlertContent(level);
+            // 生成预警标题和内容
+            String title = generateAlertTitle(level);
+            String content = generateAlertContent(level);
 
-        // 获取当前时间
-        String updateTime = LocalDateTime.now().format(formatter);
+            // 获取当前时间
+            String updateTime = LocalDateTime.now().format(formatter);
 
-        return AlertVO.builder()
-                .level(level)
-                .title(title)
-                .content(content)
-                .updateTime(updateTime)
-                .build();
+            alertList.add(AlertVO.builder()
+                    .level(level)
+                    .title(title)
+                    .content(content)
+                    .updateTime(updateTime)
+                    .build());
+        }
+        return alertList;
+
     }
 
     @Override
@@ -86,17 +91,59 @@ public class CalculateServiceImpl implements CalculateService {
     public List<ExposureMatrixVO> getExposure() {
         List<ExposureMatrixVO> result = new ArrayList<>();
 
-        // 从用户数据获取敞口信息（模拟数据）
-        List<ExposureMatrixVO.Term> terms1 = new ArrayList<>();
-        terms1.add(createTerm(1, "30天", 500000, 2));
-        terms1.add(createTerm(1, "60天", 300000, 1));
 
-        List<ExposureMatrixVO.Term> terms2 = new ArrayList<>();
-        terms2.add(createTerm(2, "30天", 400000, 3));
-        terms2.add(createTerm(2, "90天", 200000, 2));
 
-        result.add(ExposureMatrixVO.builder().terms(terms1).build());
-        result.add(ExposureMatrixVO.builder().terms(terms2).build());
+        // Customer 1
+        List<ExposureMatrixVO.Term> customer1 = new ArrayList<>();
+        customer1.add(new ExposureMatrixVO.Term(1,"30天", 275000, 3));
+        customer1.add(new ExposureMatrixVO.Term(1,"120天", 410000, 1));
+
+
+        // Customer 2
+        List<ExposureMatrixVO.Term> customer2 = new ArrayList<>();
+        customer2.add(new ExposureMatrixVO.Term(2,"60天", 150000, 2));
+
+        // Customer 3
+        List<ExposureMatrixVO.Term> customer3 = new ArrayList<>();
+        customer3.add(new ExposureMatrixVO.Term(3,"90天", 380000, 2));
+        customer3.add(new ExposureMatrixVO.Term(3,"30天", 120000, 1));
+        customer3.add(new ExposureMatrixVO.Term(3,"180天", 500000, 3));
+
+        // Customer 4
+        List<ExposureMatrixVO.Term> customer4 = new ArrayList<>();
+        customer4.add(new ExposureMatrixVO.Term(4,"60天", 320000, 3));
+
+        // Customer 5
+        List<ExposureMatrixVO.Term> customer5 = new ArrayList<>();
+        customer5.add(new ExposureMatrixVO.Term(5,"30天", 450000, 2));
+        customer5.add(new ExposureMatrixVO.Term(5,"90天", 200000, 1));
+
+        // Customer 6
+        List<ExposureMatrixVO.Term> customer6 = new ArrayList<>();
+        customer6.add(new ExposureMatrixVO.Term(6,"120天", 180000, 1));
+        customer6.add(new ExposureMatrixVO.Term(6,"30天", 350000, 2));
+
+
+        // Customer 7
+        List<ExposureMatrixVO.Term> customer7 = new ArrayList<>();
+        customer7.add(new ExposureMatrixVO.Term(7,"60天", 290000, 1));
+        customer7.add(new ExposureMatrixVO.Term(7,"180天", 85000, 3));
+        customer7.add(new ExposureMatrixVO.Term(7,"90天", 420000, 2));
+
+
+        // Customer 8
+        List<ExposureMatrixVO.Term> customer8 = new ArrayList<>();
+        customer8.add(new ExposureMatrixVO.Term(8,"30天", 100000, 2));
+
+
+        result.add(ExposureMatrixVO.builder().terms(customer1).build());
+        result.add(ExposureMatrixVO.builder().terms(customer2).build());
+        result.add(ExposureMatrixVO.builder().terms(customer3).build());
+        result.add(ExposureMatrixVO.builder().terms(customer4).build());
+        result.add(ExposureMatrixVO.builder().terms(customer5).build());
+        result.add(ExposureMatrixVO.builder().terms(customer6).build());
+        result.add(ExposureMatrixVO.builder().terms(customer7).build());
+        result.add(ExposureMatrixVO.builder().terms(customer8).build());
 
         return result;
     }

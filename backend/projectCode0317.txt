@@ -1,0 +1,1976 @@
+================================================================================File Name: establishChatTable.sqlFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\establishChatTable.sqlLine Count: 24File Content:DROP TABLE IF EXISTS chat_record;
+DROP TABLE IF EXISTS chat_session;
+
+CREATE TABLE chat_record (
+                             id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+                             session_id BIGINT NOT NULL COMMENT '会话ID',
+                             user_id BIGINT NOT NULL COMMENT '用户ID',
+                             direction BOOLEAN NOT NULL COMMENT '消息方向：true=用户消息，false=AI消息',
+                             content MEDIUMTEXT NOT NULL COMMENT '消息内容',
+                             create_time DATETIME NOT NULL COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天记录表';
+
+CREATE TABLE chat_session (
+                              id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+                              user_id BIGINT NOT NULL COMMENT '用户ID',
+                              title TEXT NOT NULL COMMENT '标题',
+                              create_time DATETIME NOT NULL COMMENT '创建时间',
+                              update_time DATETIME NOT NULL COMMENT '更新时间'
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天会话表';
+
+CREATE INDEX idx_session_id ON chat_record (session_id);
+CREATE INDEX idx_user_id ON chat_record (user_id);
+CREATE INDEX idx_user_id ON chat_session (user_id);================================================================================File Name: establishTable.sqlFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\establishTable.sqlLine Count: 64File Content:-- 删除并重新创建 riskhunter 数据库
+DROP DATABASE IF EXISTS riskhunter;
+CREATE DATABASE IF NOT EXISTS riskhunter;
+
+-- 使用 riskhunter 数据库
+USE riskhunter;
+
+-- 删除并重新创建 risk_signal 表
+DROP TABLE IF EXISTS risk_signal;
+CREATE TABLE risk_signal(
+                            id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                            base_currency INT NOT NULL,
+                            target_currency INT NOT NULL,
+                            time DATETIME NOT NULL,
+                            emp DOUBLE NOT NULL,
+                            exchange_rate DOUBLE NOT NULL,
+                            interest_rate DOUBLE NOT NULL,
+                            fx_reserves DOUBLE NOT NULL,
+                            analysis VARCHAR(5000) NOT NULL,
+                            advice VARCHAR(5000) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 插入 risk_signal 数据
+INSERT INTO risk_signal (base_currency, target_currency, time, emp, exchange_rate, interest_rate, fx_reserves, analysis, advice) VALUES
+                                                                                                                                     (1, 2, '2023-01-01 00:00:00', 100.5, 1.12, 2.5, 500.0, 'Initial analysis: Stable economy.', 'Monitor inflation closely.'),
+                                                                                                                                     (1, 2, '2023-01-15 00:00:00', 101.0, 1.11, 2.6, 505.0, 'Slight increase in EMP, exchange rate stable.', 'Consider gradual interest rate adjustments.'),
+                                                                                                                                     (1, 2, '2023-02-01 00:00:00', 101.5, 1.10, 2.7, 510.0, 'EMP increasing, exchange rate decreasing.', 'Evaluate impact of currency fluctuations.'),
+                                                                                                                                     (1, 3, '2023-02-15 00:00:00', 102.0, 1.09, 2.8, 515.0, 'EMP continues to rise, exchange rate decline accelerates.', 'Implement measures to stabilize the currency.'),
+                                                                                                                                     (1, 4, '2023-03-01 00:00:00', 102.5, 1.08, 2.9, 520.0, 'Further increase in EMP, exchange rate under pressure.', 'Strengthen FX reserves and consider capital controls.'),
+                                                                                                                                     (1, 3, '2023-03-15 00:00:00', 103.0, 1.07, 3.0, 525.0, 'Significant increase in EMP, exchange rate volatility.', 'Implement aggressive monetary tightening.'),
+                                                                                                                                     (1, 2, '2023-04-01 00:00:00', 103.5, 1.06, 3.1, 530.0, 'EMP nearing critical level, exchange rate instability.', 'Urgent action required to restore confidence.'),
+                                                                                                                                     (1, 5, '2023-04-15 00:00:00', 104.0, 1.05, 3.2, 535.0, 'EMP surpasses critical level, exchange rate collapse imminent.', 'Intervene heavily in the FX market.'),
+                                                                                                                                     (1, 3, '2023-05-01 00:00:00', 104.5, 1.04, 3.3, 540.0, 'EMP remains high, exchange rate continues downward trend.', 'Seek external assistance if necessary.'),
+                                                                                                                                     (2, 3, '2023-05-15 00:00:00', 105.0, 1.03, 3.4, 545.0, 'EMP at peak, exchange rate severely depreciated.', 'Implement structural reforms to address underlying issues.'),
+                                                                                                                                     (1, 2, '2023-06-01 00:00:00', 104.8, 1.035, 3.4, 540.0, 'Slight decrease in EMP, exchange rate showing signs of stability.', 'Continue monitoring closely and maintain cautious stance.'),
+                                                                                                                                     (2, 5, '2023-06-15 00:00:00', 104.5, 1.04, 3.3, 535.0, 'EMP decreasing gradually, exchange rate recovering slightly.', 'Begin easing monetary policy cautiously.'),
+                                                                                                                                     (2, 5, '2023-07-01 00:00:00', 104.0, 1.05, 3.2, 530.0, 'EMP continues to decline, exchange rate stabilizing.', 'Focus on attracting foreign investment.'),
+                                                                                                                                     (2, 5, '2023-07-15 00:00:00', 103.5, 1.06, 3.1, 525.0, 'EMP approaching normal levels, exchange rate relatively stable.', 'Promote exports to improve trade balance.'),
+                                                                                                                                     (2, 4, '2023-08-01 00:00:00', 103.0, 1.07, 3.0, 520.0, 'EMP within acceptable range, exchange rate under control.', 'Improve infrastructure to enhance competitiveness.'),
+                                                                                                                                     (2, 3, '2023-08-15 00:00:00', 102.5, 1.08, 2.9, 515.0, 'EMP well below previous peak, exchange rate strengthening.', 'Invest in education and training.'),
+                                                                                                                                     (2, 4, '2023-09-01 00:00:00', 102.0, 1.09, 2.8, 510.0, 'Economy showing signs of recovery, exchange rate appreciation.', 'Reduce government debt to improve fiscal sustainability.'),
+                                                                                                                                     (3, 4, '2023-09-15 00:00:00', 101.5, 1.10, 2.7, 505.0, 'Economic outlook positive, exchange rate remains strong.', 'Strengthen regulatory framework to prevent future crises.'),
+                                                                                                                                     (4, 5, '2023-10-01 00:00:00', 101.0, 1.11, 2.6, 500.0, 'Stable economic conditions, exchange rate holding steady.', 'Diversify the economy to reduce vulnerability to shocks.'),
+                                                                                                                                     (3, 4, '2023-10-15 00:00:00', 100.5, 1.12, 2.5, 495.0, 'Economy returning to normal, exchange rate stabilizing.', 'Maintain prudent fiscal and monetary policies.');
+
+-- 删除并重新创建 user 表
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE IF NOT EXISTS `user` (
+                                      `id` INT NOT NULL,
+                                      `address` VARCHAR(255) NULL,
+                                      `username` VARCHAR(255) NULL,
+                                      `password` VARCHAR(255) NULL,
+                                      `phone` VARCHAR(255) NULL,
+                                      `role` INT NULL,
+                                      PRIMARY KEY (`id`)
+);
+
+-- 插入 user 数据
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (1, 'China, Nanjing, Gulou district', 'seecoder', '123456', '13545687101', 1);
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (2, null, 'seecoder', '123456789', '13333333333', 2);
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (3, null, 'CEO', '123456', '13444444444', 3);
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (4, 'China, Nanjing, Qixia district', 'user4', '123456', '13512345678', 4);
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (5, 'China, Nanjing, Qixia district', 'user4', '123456', '13512345677', 4);
+INSERT INTO riskhunter.user (id, address, username, password, phone, role) VALUES (6, 'China, Nanjing, Qixia district', 'user3', '123456', '13512345674', 3);================================================================================File Name: pom.xmlFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\pom.xmlLine Count: 117File Content:<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.4.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.github.SparkNJU</groupId>
+	<artifactId>RiskHunter</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>RiskHunter</name>
+	<description>2025花旗杯</description>
+	<properties>
+		<java.version>8</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+		<!-- MyBatis-Plus -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>3.5.3.1</version>  <!--  确保这个版本号是正确的 -->
+		</dependency>
+
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>8.0.31</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>3.10.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor.netty</groupId>
+			<artifactId>reactor-netty</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-transport-native-epoll</artifactId>
+			<classifier>linux-x86_64</classifier>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+================================================================================File Name: RiskHunterApplication.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\RiskHunterApplication.javaLine Count: 13File Content:package com.RiskHunter;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RiskHunterApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RiskHunterApplication.class, args);
+	}
+
+}
+================================================================================File Name: CorsFilter.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\configure\CorsFilter.javaLine Count: 54File Content:package com.RiskHunter.configure;
+
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 19:17 2023/12/5
+ * 在SpringBoot过滤器中配置跨域，
+ * 跨域配置不能和拦截器写一起，
+ * 会造成冲突，
+ * 需要在过滤器中配置跨域，
+ * 过滤器在拦截器前进行。
+ * 在“Access-Control-Allow-Headers”中，
+ * 需要添加上token，
+ * 因为前端要传输token到后端，不能过滤掉。
+*/
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@WebFilter("/*")
+public class CorsFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletResponse response = (HttpServletResponse) res;
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, token");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        if ("OPTIONS".equalsIgnoreCase(((HttpServletRequest) req).getMethod())){
+            response.setStatus(200);
+        }else {
+            chain.doFilter(req, res);
+        }
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) {
+    }
+
+}
+================================================================================File Name: LoginInterceptor.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\configure\LoginInterceptor.javaLine Count: 40File Content:package com.RiskHunter.configure;
+
+import com.RiskHunter.exception.RiskHunterException;
+import com.RiskHunter.util.TokenUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 0:17 2023/11/26
+ * 这个类定制了一个登录的拦截器，
+ * SpringBoot的拦截器标准为HandlerInterceptor接口，
+ * 这个类实现了这个接口，表示是SpringBoot标准下的，
+ * 在preHandle方法中，通过获取请求头Header中的token，
+ * 判断了token是否合法，如果不合法则抛异常，
+ * 合法则将用户信息存储到request的session中。
+*/
+@Component
+public class LoginInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    TokenUtil tokenUtil;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String token = request.getHeader("token");
+        if (token != null && tokenUtil.verifyToken(token)) {
+            request.getSession().setAttribute("currentUser",tokenUtil.getUser(token));
+            return true;
+        }else {
+            return true;
+            //throw RiskHunterException.notLogin();
+        }
+    }
+
+}
+================================================================================File Name: MyWebMvcConfig.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\configure\MyWebMvcConfig.javaLine Count: 42File Content:package com.RiskHunter.configure;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 0:17 2023/11/26
+ *
+ * 这个类实现了WebMvcConfigurer接口，
+ * 表示会被SpringBoot接受，
+ * 这个类的作用是配置拦截器。
+ * addInterceptors方法配置了拦截器，
+ * 添加了loginInterceptor作为拦截器，
+ * 并且设置除了register和login的所有接口都需要通过该拦截器。
+*/
+@Configuration
+public class MyWebMvcConfig implements WebMvcConfigurer {
+    @Autowired
+    LoginInterceptor loginInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/api/users/register")
+                .excludePathPatterns("/api/users/login")
+                .order(1);
+    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+
+}
+================================================================================File Name: ChatController.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\controller\ChatController.javaLine Count: 160File Content:package com.RiskHunter.controller;/*
+                                  * @date 03/02 15:18
+                                  */
+
+import com.RiskHunter.DTO.ChatRequestDTO;
+import com.RiskHunter.po.ChatRecord;
+import com.RiskHunter.po.ChatSession;
+import com.RiskHunter.service.ChatService;
+import com.RiskHunter.vo.ResultVO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/chat")
+@RequiredArgsConstructor
+public class ChatController {
+    private final ChatService chatService;
+
+    /**
+     * 创建会话接口
+     * 
+     * @param userId 用户唯一标识符（必须大于0）
+     * @return ResultVO<Long> 包含新创建会话ID的响应对象
+     * @apiNote 前端请求示例：
+     *          POST /session?userId=12345
+     */
+    @PostMapping("/session")
+    public ResultVO<Long> createSession(@RequestParam Long userId) {
+        return ResultVO.buildSuccess(chatService.createSession(userId));
+    }
+
+    // , produces = MediaType.TEXT_EVENT_STREAM_VALUE
+    @GetMapping(path = "/stream")
+    public Flux<ServerSentEvent<String>> streamChat(
+            @RequestParam("sessionId") Long sessionId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("message") String message,
+            @RequestParam(value = "modelName", required = false) String modelName) {
+        log.info("sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
+        // 将请求参数封装成 DTO
+        // ChatRequestDTO chatRequestDTO = new ChatRequestDTO();
+        // chatRequestDTO.setSessionId(sessionId);
+        // chatRequestDTO.setUserId(userId);
+        // chatRequestDTO.setMessage(message);
+
+        /*
+            * 可选的modelName：
+            * deepseek-r1（默认）
+            * qwq-plus-latest
+            * deepseek-v3
+            * deepseek-r1-distill-qwen-32b
+         */
+        modelName = modelName == null ? "" : modelName;
+        return chatService.chatWithStream(sessionId, message, userId,modelName)
+                .map(chunk -> ServerSentEvent.<String>builder()
+                        .data(chunk)
+                        .build());
+    }
+
+    @PostMapping("/noStream")
+    public ResultVO<String> noStreamChat(@RequestBody ChatRequestDTO chatRequestDTO) {
+        Long sessionId = sessionId = chatRequestDTO.getSessionId();
+        String message = chatRequestDTO.getMessage();
+        Long userId = chatRequestDTO.getUserId();
+        return ResultVO.buildSuccess(chatService.chatWithoutStream(sessionId, message, userId));
+    }
+
+
+    //0313
+    // RAG流式对话接口
+    @GetMapping(path = "/ragChat")
+    public Flux<ServerSentEvent<String>> ragChatStream(
+            @RequestParam("sessionId") Long sessionId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("message") String message) {
+        log.info("RAG Chat sessionId: {}, userId: {}, message: {}", sessionId, userId, message);
+        return chatService.ragChatWithStream(sessionId, message, userId)
+                .map(chunk -> ServerSentEvent.<String>builder()
+                        .data(chunk)
+                        .build());
+    }
+
+    // RAG知识库搜索接口
+    @PostMapping("/ragSearch")
+    public ResultVO<String> ragSearch(@RequestBody ChatRequestDTO chatRequestDTO) {
+        return ResultVO.buildSuccess(chatService.ragSearch(
+                chatRequestDTO.getSessionId(),
+                chatRequestDTO.getMessage(),
+                chatRequestDTO.getUserId()));
+    }
+
+
+    @GetMapping("/history/{sessionId}")
+    public ResultVO<List<ChatRecord>> getHistory(
+            @PathVariable Long sessionId,
+            @RequestParam Long userId) {
+        return ResultVO.buildSuccess(chatService.getHistory(sessionId, userId));
+    }
+
+    /**
+     * 获取用户的所有会话ID
+     * 
+     * @param userId 用户ID
+     * @return 该用户所有会话ID的列表
+     * @apiNote 前端请求示例：
+     *          GET /sessions?userId=12345
+     *  前端收到数据示例：
+     *  {
+     *   "code": 200,
+     *   "message": "success", // 或者其他成功消息
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "userId": 12345,
+     *       "title": "关于保险的会话",
+     *       "createTime": "2024-02-03T15:00:00",
+     *       "updateTime": "2024-02-03T15:30:00"
+     *     },
+     *     {
+     *       "id": 2,
+     *       "userId": 12345,
+     *       "title": "投资理财咨询",
+     *       "createTime": "2024-02-02T10:00:00",
+     *       "updateTime": "2024-02-02T12:00:00"
+     *     }
+     *   ]
+     * }
+     */
+    @GetMapping("/sessions")
+    public ResultVO<List<ChatSession>> getUserSessions(@RequestParam Long userId) {
+        log.info("Getting all sessions for userId: {}", userId);
+        return ResultVO.buildSuccess(chatService.getSessionsByUserId(userId));
+    }
+
+    /**
+     * 更新会话标题
+     * 
+     * @param sessionId 会话ID
+     * @param userId    用户ID
+     * @param title     新标题
+     * @return 更新结果
+     * @apiNote 前端请求示例：
+     *          PUT /session/123/title?userId=12345&title=新标题
+     */
+    @PutMapping("/session/{sessionId}/title")
+    public ResultVO<Boolean> updateSessionTitle(
+            @PathVariable Long sessionId,
+            @RequestParam Long userId,
+            @RequestParam String title) {
+        return ResultVO.buildSuccess(chatService.updateSessionTitle(sessionId, userId, title));
+    }
+}================================================================================File Name: RiskSignalController.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\controller\RiskSignalController.javaLine Count: 130File Content:package com.RiskHunter.controller;/*
+ * @date 02/23 18:05
+ */
+
+import com.RiskHunter.DTO.RiskSignalQueryDTO;
+import com.RiskHunter.po.RiskSignal;
+import com.RiskHunter.service.RiskSignalService;
+import com.RiskHunter.vo.ResultVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping("/api/risk-signals")
+@RequiredArgsConstructor
+public class RiskSignalController {
+    @Autowired
+    private RiskSignalService riskSignalService;
+
+    /**
+     * 创建 RiskSignal
+     *
+     * @param signal RiskSignal 对象，通过 RequestBody 传递
+     * @return ResultVO 包含创建的 RiskSignal 对象的 ResultVO
+     */
+    @PostMapping
+    public ResultVO<RiskSignal> create(@RequestBody RiskSignal signal) {
+        riskSignalService.save(signal);
+        return ResultVO.buildSuccess(signal);
+    }
+
+    /**
+     * 根据时间范围分页查询 RiskSignal 列表
+     *
+     * @param startTime  可选，开始时间，LocalDateTime 类型
+     * @param endTime    可选，结束时间，LocalDateTime 类型
+     * @param page       可选，页码，默认为 1
+     * @param size       可选，每页大小，默认为 10
+     * @return ResultVO 包含分页 RiskSignal 列表的 ResultVO
+
+     */
+    @GetMapping
+    public ResultVO<Page<RiskSignal>> list(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
+            LocalDateTime startTime,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // 使用 ISO 标准
+            LocalDateTime endTime,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        // 设置默认开始时间为1900年1月1日
+        if(startTime == null) {
+            startTime = LocalDateTime.of(1900, 1, 1, 0, 0, 0);
+        }
+
+        // 设置默认结束时间为当前时间
+        if(endTime == null) {
+            endTime = LocalDateTime.now();
+        }
+        return ResultVO.buildSuccess(riskSignalService.getByTimeRange(startTime, endTime, page, size));
+    }
+
+    /**
+     * 根据 ID 更新 RiskSignal
+     *
+     * @param id     RiskSignal 的 ID，通过 PathVariable 传递
+     * @param signal RiskSignal 对象，包含要更新的信息，通过 RequestBody 传递
+     * @return ResultVO 包含更新后的 RiskSignal 对象的 ResultVO
+     */
+    @PutMapping("/{id}")
+    public ResultVO<RiskSignal> update(@PathVariable Long id, @RequestBody RiskSignal signal) {
+        signal.setId(id);
+        riskSignalService.updateById(signal);
+        return ResultVO.buildSuccess(signal);
+    }
+
+    /**
+     * 根据 ID 删除 RiskSignal
+     *
+     * @param id RiskSignal 的 ID，通过 PathVariable 传递
+     * @return ResultVO 包含操作结果的 ResultVO
+     */
+    @DeleteMapping("/{id}")
+    public ResultVO<Void> delete(@PathVariable Long id) {
+        riskSignalService.removeById(id);
+        return ResultVO.buildSuccess(null);
+    }
+    /**
+     * 高级查询 RiskSignal 列表
+     *
+     * @param queryDTO RiskSignalQueryDTO 对象，包含查询条件，通过 RequestBody 传递
+     * @return ResultVO 包含分页 RiskSignal 列表的 ResultVO
+     * * 前端需要传递的 JSON 格式如下：
+     *      *
+     *      * {
+     *      *   "startTime": "2024-02-23T10:00:00",  // 开始时间，ISO 8601格式的日期时间字符串
+     *      *   "endTime": "2024-02-23T18:00:00",    // 结束时间，ISO 8601格式的日期时间字符串
+     *      *   "minEmp": 0.5,                       // 最小EMP值，可选
+     *      *   "maxEmp": 1.5,                       // 最大EMP值，可选
+     *      *   "minExchangeRate": 6.5,              // 最小汇率值，可选
+     *      *   "keyword": "风险",                    // 分析内容关键词，可选
+     *      *   "page": 1,                           // 页码，默认值为1
+     *      *   "size": 10                           // 每页记录数，默认值为10
+     *      * }
+     *      * 所有字段都是可选的。如果不需要某个条件，可以省略相应的字段或传 null。例如，一个最简单的查询可以是：
+     *      *
+     *      * {
+     *      *   "page": 1,
+     *      *   "size": 10
+     *      * }
+     *      * 或者只按时间范围查询：
+     *      *
+     *      * {
+     *      *   "startTime": "2024-02-23T00:00:00",
+     *      *   "endTime": "2024-02-23T23:59:59",
+     *      *   "page": 1,
+     *      *   "size": 10
+     *      * }
+     */
+    @PostMapping("/search")
+    public ResultVO<Page<RiskSignal>> advancedSearch(@RequestBody RiskSignalQueryDTO queryDTO) {
+        return ResultVO.buildSuccess(riskSignalService.advancedSearch(queryDTO));
+    }
+
+}================================================================================File Name: UserController.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\controller\UserController.javaLine Count: 35File Content:package com.RiskHunter.controller;
+
+import com.RiskHunter.service.UserService;
+import com.RiskHunter.vo.ResultVO;
+import com.RiskHunter.vo.UserVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+
+    @Autowired
+    UserService userService;
+
+    @PostMapping("/register")
+    public ResultVO<Boolean> register(@RequestBody UserVO userVO){
+        return ResultVO.buildSuccess(userService.register(userVO));
+    }
+
+    @PostMapping("/login")
+    public ResultVO<String> login(@RequestParam("phone") String phone, @RequestParam("password") String password){
+        return ResultVO.buildSuccess(userService.login(phone, password));
+    }
+
+    @GetMapping
+    public ResultVO<UserVO> getInformation(){
+        return ResultVO.buildSuccess(userService.getInformation());
+    }
+
+    @PostMapping
+    public ResultVO<Boolean> updateInformation(@RequestBody UserVO userVO){
+        return ResultVO.buildSuccess(userService.updateInformation(userVO));
+    }
+}
+================================================================================File Name: ChatRequestDTO.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\DTO\ChatRequestDTO.javaLine Count: 12File Content:package com.RiskHunter.DTO;/*
+ * @date 03/02 16:14
+ */
+
+import lombok.Data;
+
+@Data
+public class ChatRequestDTO {
+    private Long sessionId;
+    private String message;
+    private Long userId;
+}================================================================================File Name: RiskSignalQueryDTO.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\DTO\RiskSignalQueryDTO.javaLine Count: 22File Content:package com.RiskHunter.DTO;/*
+ * @date 02/23 18:14
+ */
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+// 查询DTO
+@Data
+public class RiskSignalQueryDTO {
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private Integer baseCurrency;
+    private Integer targetCurrency;
+    private Double minEmp;
+    private Double maxEmp;
+    private Double minExchangeRate;
+    private String keyword;
+    private Integer page = 1;
+    private Integer size = 10;
+}================================================================================File Name: GlobalExceptionHandler.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\exception\GlobalExceptionHandler.javaLine Count: 22File Content:package com.RiskHunter.exception;
+
+import com.RiskHunter.vo.ResultVO;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 0:26 2023/11/26
+ * 这个类能够接住项目中所有抛出的异常，
+ * 使用了RestControllerAdvice切面完成，
+ * 表示所有异常出现后都会通过这里。
+ * 这个类将异常信息封装到ResultVO中进行返回。
+*/
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(value = RiskHunterException.class)
+    public ResultVO<String> handleAIExternalException(RiskHunterException e) {
+        e.printStackTrace();
+        return ResultVO.buildFailure(e.getMessage());
+    }
+}
+================================================================================File Name: RiskHunterException.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\exception\RiskHunterException.javaLine Count: 25File Content:package com.RiskHunter.exception;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 0:26 2023/11/26
+ * 你可以在这里自定义Exception
+*/
+public class RiskHunterException extends RuntimeException{
+
+    public RiskHunterException(String message){
+        super(message);
+    }
+    public static RiskHunterException phoneAlreadyExists(){
+        return new RiskHunterException("手机号已经存在!");
+    }
+
+    public static RiskHunterException notLogin(){
+        return new RiskHunterException("未登录!");
+    }
+
+    public static RiskHunterException phoneOrPasswordError(){
+        return new RiskHunterException("手机号或密码错误!");
+    }
+
+}
+================================================================================File Name: ChatRecordMapper.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\Mapper\ChatRecordMapper.javaLine Count: 9File Content:package com.RiskHunter.Mapper;
+
+import com.RiskHunter.po.ChatRecord;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface ChatRecordMapper extends BaseMapper<ChatRecord> {
+}================================================================================File Name: ChatSessionMapper.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\Mapper\ChatSessionMapper.javaLine Count: 9File Content:package com.RiskHunter.Mapper;
+
+import com.RiskHunter.po.ChatSession;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface ChatSessionMapper extends BaseMapper<ChatSession> {
+}================================================================================File Name: RiskSignalMapper.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\Mapper\RiskSignalMapper.javaLine Count: 9File Content:package com.RiskHunter.Mapper;
+
+import com.RiskHunter.po.RiskSignal;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface RiskSignalMapper extends BaseMapper<RiskSignal> {
+}
+================================================================================File Name: ChatRecord.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\po\ChatRecord.javaLine Count: 21File Content:package com.RiskHunter.po;/*
+ * @date 03/02 15:10
+ */
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+@Data
+@TableName("chat_record")
+public class ChatRecord {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    private Long sessionId;
+    private Long userId;
+    private Boolean direction; // true=用户消息，false=AI消息
+    private String content;
+    private LocalDateTime createTime;
+}================================================================================File Name: ChatSession.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\po\ChatSession.javaLine Count: 22File Content:package com.RiskHunter.po;/*
+ * @date 03/02 15:10
+ */
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+@TableName("chat_session")
+public class ChatSession {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    private Long userId;
+    private String title;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
+}================================================================================File Name: RiskSignal.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\po\RiskSignal.javaLine Count: 32File Content:package com.RiskHunter.po;
+/*
+ * @date 02/23 17:59
+ */
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.Column;
+import java.time.LocalDateTime;
+import javax.persistence.Entity;
+@Data
+@TableName("risk_signal")
+public class RiskSignal {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @Column(nullable = false, updatable = false)  // 使用 @Column 注解
+    private Integer BaseCurrency;
+    private Integer TargetCurrency;
+    private LocalDateTime time;
+    private Double emp;
+    private Double exchangeRate;
+    private Double interestRate;
+    private Double fxReserves;
+    private String analysis;
+    private String advice;
+}================================================================================File Name: User.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\po\User.javaLine Count: 52File Content:package com.RiskHunter.po;
+
+import com.RiskHunter.vo.UserVO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+public class User {
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @Column(name = "id")
+    private Integer id;
+
+    @Basic
+    @Column(name = "username")
+    private String username;
+
+    @Basic
+    @Column(name = "phone")
+    private String phone;
+
+    @Basic
+    @Column(name = "password")
+    private String password;
+
+
+    @Basic
+    @Column(name = "address")
+    private String address;
+
+    @Basic
+    @Column(name = "role")
+    private Integer role;
+
+    public UserVO toVO(){
+        UserVO userVO=new UserVO();
+        userVO.setId(this.id);
+        userVO.setAddress(this.address);
+        userVO.setUsername(this.username);
+        userVO.setRole(this.role);
+        userVO.setPhone(this.phone);
+        userVO.setPassword(this.password);
+        return userVO;
+    }
+}
+================================================================================File Name: UserRepository.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\repository\UserRepository.javaLine Count: 10File Content:package com.RiskHunter.repository;
+
+import com.RiskHunter.po.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface UserRepository extends JpaRepository<User, Integer> {
+    User findByPhone(String phone);
+    User findByPhoneAndPassword(String phone, String password);
+}
+================================================================================File Name: ChatService.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\service\ChatService.javaLine Count: 27File Content:package com.RiskHunter.service;
+
+import com.RiskHunter.po.ChatRecord;
+import com.RiskHunter.po.ChatSession;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ChatService {
+    public Long createSession(Long userId);
+
+    public Flux<String> chatWithStream(Long sessionId, String message, Long userId, String modelName);
+
+    public String chatWithoutStream(Long sessionId, String message, Long userId);
+
+    public List<ChatRecord> getHistory(Long sessionId, Long userId);
+
+    public List<ChatSession> getSessionsByUserId(Long userId);
+
+    public Boolean updateSessionTitle(Long sessionId, Long userId, String title);
+
+    public Flux<String> ragChatWithStream(Long sessionId, String message, Long userId);
+
+    public String ragSearch(Long sessionId, String message, Long userId);
+}================================================================================File Name: RiskSignalService.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\service\RiskSignalService.javaLine Count: 15File Content:package com.RiskHunter.service;
+
+import com.RiskHunter.DTO.RiskSignalQueryDTO;
+import com.RiskHunter.po.RiskSignal;
+import com.RiskHunter.serviceImpl.RiskSignalServiceImpl;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.time.LocalDateTime;
+
+public interface RiskSignalService extends IService<RiskSignal> {
+    public Page<RiskSignal> getByTimeRange(LocalDateTime start, LocalDateTime end, Integer page, Integer size);
+
+    public Page<RiskSignal> advancedSearch(RiskSignalQueryDTO queryDTO) ;
+}================================================================================File Name: UserService.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\service\UserService.javaLine Count: 13File Content:package com.RiskHunter.service;
+
+import com.RiskHunter.vo.UserVO;
+
+public interface UserService {
+    Boolean register(UserVO userVO);
+
+    String login(String phone,String password);
+
+    UserVO getInformation();
+
+    Boolean updateInformation(UserVO userVO);
+}
+================================================================================File Name: ChatServiceImpl.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\serviceImpl\ChatServiceImpl.javaLine Count: 540File Content:package com.RiskHunter.serviceImpl;
+
+import com.RiskHunter.Mapper.ChatRecordMapper;
+import com.RiskHunter.Mapper.ChatSessionMapper;
+import com.RiskHunter.po.ChatRecord;
+import com.RiskHunter.po.ChatSession;
+import com.RiskHunter.service.ChatService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
+
+import javax.annotation.PostConstruct;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ChatServiceImpl implements ChatService {
+    private final ChatSessionMapper sessionMapper;
+    private final ChatRecordMapper recordMapper;
+
+    @Value("${model.api-key}")
+    private String apiKey;
+
+    @Value("${model.deepseek.base-url}")
+    private String deepseekBaseUrl;
+
+    @Value("${model.dashscope.base-url}")
+    private String dashscopeBaseUrl;
+
+    @Value("${model.dashscope.app-id}")
+    private String appId;
+
+    // 创建两个WebClient实例
+    private WebClient deepseekClient;
+    private WebClient dashscopeClient;
+
+    @PostConstruct
+    public void init() {
+        // 普通对话客户端
+        this.deepseekClient = WebClient.builder()
+                .baseUrl(deepseekBaseUrl)
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .build();
+
+        // RAG对话客户端
+        this.dashscopeClient = WebClient.builder()
+                .baseUrl(dashscopeBaseUrl)
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .build();
+    }
+
+    @Override
+    public Long createSession(Long userId) {
+        ChatSession session = new ChatSession();
+        session.setTitle("");
+        session.setUserId(userId);
+        session.setCreateTime(LocalDateTime.now());
+        session.setUpdateTime(LocalDateTime.now());
+        sessionMapper.insert(session);
+        log.info("user {} 创建新会话: {}", userId, session.getId());
+        return session.getId();
+    }
+
+    @Override
+    public String chatWithoutStream(Long sessionId, String message, Long userId) {
+        // 检查三个参数都合法
+        if (sessionId == null || userId == null || message == null) {
+            throw new IllegalArgumentException("参数不完整");
+        }
+        log.info("Chat Without Stream");
+        // 调用大模型API
+        String fullResponse = "";
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", "deepseek-r1");
+
+            List<Map<String, String>> messages = buildMessageHistory(sessionId, userId, message);
+            log.info("API请求消息体: {}", messages);
+            requestBody.put("messages", messages);
+            requestBody.put("stream", false);
+            Map<String, Boolean> parameters = new HashMap<>();
+            parameters.put("has_thoughts", true);
+            requestBody.put("parameters", parameters);
+
+            JsonNode response = deepseekClient.post()
+                    .uri("/chat/completions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block(Duration.ofSeconds(300));
+            fullResponse = parseResponse(response);
+
+        } catch (Exception e) {
+            log.error("大模型调用失败: {}", e.getMessage(), e);
+            fullResponse = "当前服务繁忙，请稍后再试";
+        }
+        log.info("API响应: {}", fullResponse);
+        // 保存用户消息
+        saveChatRecord(sessionId, userId, message, true);
+        // 保存AI响应
+        saveChatRecord(sessionId, userId, fullResponse, false);
+
+        return fullResponse;
+    }
+
+    @Override
+    public Flux<String> chatWithStream(Long sessionId, String message, Long userId,String modelName) {
+        // cz 0304 18:44 version
+        // 检查三个参数都合法
+        if (sessionId == null || userId == null || message == null) {
+            throw new IllegalArgumentException("参数不完整");
+        }
+        log.info("Chat With Stream");
+        Map<String, Object> requestBody = new HashMap<>();
+        if (modelName == null || modelName.isEmpty()) {
+            modelName = "deepseek-r1";
+        }
+        requestBody.put("model", modelName);
+        List<Map<String, String>> messages = buildMessageHistory(sessionId, userId, message);
+        log.info("API请求消息体: {}", messages);
+        requestBody.put("messages", messages);
+        requestBody.put("stream", true);
+
+        // 添加stream_options参数
+        Map<String, Object> streamOptions = new HashMap<>();
+        streamOptions.put("include_usage", true);
+        requestBody.put("stream_options", streamOptions);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("incremental_output", true);
+        parameters.put("has_thoughts", true);
+        requestBody.put("parameters", parameters);
+
+        // 保存用户消息
+        saveChatRecord(sessionId, userId, message, true);
+
+        // 用于收集完整响应的StringBuilder
+        StringBuilder fullResponse = new StringBuilder();
+
+        return deepseekClient.post()
+                .uri("/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("X-DashScope-SSE", "enable")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToFlux(String.class) // 修改为接收String类型
+                .filter(rawData -> {
+                    // 过滤掉 "data: [DONE]" 这种特殊标记
+                    return !rawData.trim().equals("[DONE]") && !rawData.trim().isEmpty();
+                })
+                .map(rawData -> {
+                    try {
+                        // 尝试解析为JSON
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode node = mapper.readTree(rawData);
+                        return parseStreamResponse(node);
+                    } catch (Exception e) {
+                        log.warn("无法解析为JSON: {}, 错误: {}", rawData, e.getMessage());
+                        return "";
+                    }
+                })
+                .filter(chunk -> chunk != null && !chunk.isEmpty()) // 过滤掉空响应
+                .doOnNext(chunk -> {
+                    // 打印每次返回的流式消息片段 经过测试，这里的chunk是每次返回的消息片段 所以加上注释
+                    // log.info("Received stream chunk: {}", chunk);
+                    // 累积响应内容
+                    fullResponse.append(chunk);
+                })
+                .doOnComplete(() -> {
+                    // 流结束时保存完整的AI响应
+                    saveChatRecord(sessionId, userId, fullResponse.toString(), false);
+                    log.info("流式响应完成，已保存完整回复");
+                })
+                .doOnError(e ->
+                {
+                    log.warn("流式对话异常: {}", e.getMessage());
+                    // 保存错误信息作为AI响应
+                    saveChatRecord(sessionId, userId, "处理请求时发生错误，请稍后再试", false);
+                })
+                .onErrorResume(e -> {
+                    // 出错时返回错误信息
+                    return Flux.just("处理请求时发生错误，请稍后再试");
+                })
+                .timeout(Duration.ofSeconds(60)); // 添加超时处理
+    }
+
+    private String parseStreamResponse(JsonNode response) {
+        if (response == null || response.isEmpty()) {
+            return "";
+        }
+
+        // 如果是结束标志或usage统计信息
+        if (!response.has("choices") || response.get("choices").isEmpty()) {
+            return "";
+        }
+
+        JsonNode choices = response.get("choices");
+        if (choices.size() == 0) {
+            return "";
+        }
+
+        JsonNode delta = choices.get(0).get("delta");
+        if (delta == null) {
+            return "";
+        }
+
+        // 处理思考过程
+        if (delta.has("reasoning_content") && !delta.get("reasoning_content").isNull()) {
+            String thoughtContent = delta.get("reasoning_content").asText();
+            if (!thoughtContent.isEmpty()) {
+                return "<thought>" + thoughtContent + "</thought>";
+            }
+        }
+
+        // 处理实际回答内容
+        if (delta.has("content") && !delta.get("content").isNull()) {
+            String content = delta.get("content").asText();
+            if (content != null && !content.isEmpty()) {
+                return content;
+            }
+        }
+
+        return "";
+    }
+
+    private void saveChatRecord(Long sessionId, Long userId, String content, boolean isUser) {
+        ChatRecord record = new ChatRecord();
+        record.setSessionId(sessionId);
+        record.setUserId(userId);
+        record.setDirection(isUser);
+        // 在保存之前清理思考标记
+        content = keepFirstAndLastThought(content);
+        log.info("保存消息: {}", content);
+        record.setContent(content);
+        record.setCreateTime(LocalDateTime.now());
+        recordMapper.insert(record);
+    }
+
+    public static String keepFirstAndLastThought(String input) {
+        int firstThoughtStart = input.indexOf("<thought>");
+        int lastThoughtEnd = input.lastIndexOf("</thought>");
+
+        if (firstThoughtStart == -1 || lastThoughtEnd == -1 || firstThoughtStart >= lastThoughtEnd) {
+            return input; // 如果没有找到完整的thought标签对，返回原字符串
+        }
+        // 提取第一个<thought>之后的内容
+        String beforeFirstThought = input.substring(0, firstThoughtStart);
+        // 提取最后一个</thought>之后的内容
+        String afterLastThought = "";
+        if (lastThoughtEnd + 10 < input.length()) {
+            afterLastThought = input.substring(lastThoughtEnd + 10);
+        }
+        // 将所有thought标签内的内容连接起来
+        String contentWithinThoughts = input.substring(firstThoughtStart + 9, lastThoughtEnd);
+        // 移除中间所有的<thought>和</thought>标签
+        contentWithinThoughts = contentWithinThoughts.replaceAll("</?thought>", "");
+        // 构建最终结果
+        return beforeFirstThought + "<thought>" + contentWithinThoughts + "</thought>" + afterLastThought;
+    }
+
+    @Override
+    public List<ChatRecord> getHistory(Long sessionId, Long userId) {
+        return recordMapper.selectList(new QueryWrapper<ChatRecord>()
+                .eq("session_id", sessionId)
+                .eq("user_id", userId)
+                .orderByAsc("create_time"));
+    }
+
+    private List<Map<String, String>> buildMessageHistory(Long sessionId, Long userId, String currentMessage) {
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(createMessageEntry("user", "现在你是RiskHunter AI，Risk Hunter 是一个前沿的统计与AI工具，能" +
+                "够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。"));
+        for (ChatRecord record : getHistory(sessionId, userId)) {
+            messages.add(createMessageEntry(record.getDirection() ? "user" : "assistant", record.getContent()));
+        }
+        messages.add(createMessageEntry("user", currentMessage));
+        return messages;
+    }
+
+    private Map<String, String> createMessageEntry(String role, String content) {
+        Map<String, String> entry = new HashMap<>();
+        entry.put("role", role);
+        entry.put("content", content);
+        return entry;
+    }
+
+    private String parseResponse(JsonNode response) {
+        if (response == null || !response.has("choices")) {
+            throw new RuntimeException("无效的API响应格式");
+        }
+
+        JsonNode choices = response.get("choices");
+        if (!choices.isArray() || choices.size() == 0) {
+            throw new RuntimeException("空的API响应结果");
+        }
+
+        JsonNode messageNode = choices.get(0).path("message");
+        if (messageNode.isMissingNode() || !messageNode.has("content")) {
+            throw new RuntimeException("响应中缺少消息内容");
+        }
+
+        return messageNode.get("content").asText();
+    }
+
+    @Override
+    public Boolean updateSessionTitle(Long sessionId, Long userId, String title) {
+        // 使用QueryWrapper查询指定sessionId和userId的会话
+        ChatSession session = sessionMapper.selectOne(
+                new QueryWrapper<ChatSession>()
+                        .eq("id", sessionId)
+                        .eq("user_id", userId));
+
+        if (session != null) {
+            // 设置新标题并更新
+            session.setTitle(title);
+            session.setUpdateTime(LocalDateTime.now());
+            int updated = sessionMapper.updateById(session);
+            return updated > 0;
+        }
+        return false;
+    }
+
+
+    private void updateSessionTitleIfEmpty(Long sessionId, Long userId, String message) {
+        // 使用QueryWrapper查询指定sessionId和userId的会话
+        ChatSession session = sessionMapper.selectOne(
+                new QueryWrapper<ChatSession>()
+                        .eq("id", sessionId)
+                        .eq("user_id", userId));
+
+        if (session != null && (session.getTitle() == null || session.getTitle().isEmpty())) {
+            // 从消息中提取前几个字作为标题
+            String title = extractTitleFromMessage(message);
+            session.setTitle(title);
+            session.setUpdateTime(LocalDateTime.now());
+            sessionMapper.updateById(session);
+        }
+    }
+
+    private String extractTitleFromMessage(String message) {
+        // 从消息中提取前10个字符作为标题，避免过长
+        int titleLength = Math.min(10, message.length());
+        String title = message.substring(0, titleLength);
+
+        // 如果截断了单词，可以添加省略号
+        if (message.length() > titleLength) {
+            title += "...";
+        }
+
+        return title;
+    }
+
+    @Override
+    public List<ChatSession> getSessionsByUserId(Long userId) {
+        // 使用QueryWrapper查询指定userId的所有会话，按更新时间降序排列
+        List<ChatSession> sessions = sessionMapper.selectList(
+                new QueryWrapper<ChatSession>()
+                        .eq("user_id", userId)
+                        .orderByDesc("update_time") // 修改为按更新时间降序排列
+        );
+        return sessions.stream()
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public Flux<String> ragChatWithStream(Long sessionId, String message, Long userId) {
+        if (sessionId == null || userId == null || message == null) {
+            return Flux.error(new IllegalArgumentException("参数不完整"));
+        }
+
+        // 构建符合阿里云API规范的请求体
+        Map<String, Object> requestBody = new HashMap<>();
+
+        // 输入参数结构
+        Map<String, Object> input = new HashMap<>();
+        input.put("prompt", message);
+        requestBody.put("input", input);
+
+        // 参数配置
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("incremental_output", true); // 增量输出
+        parameters.put("has_thoughts", true);       // 显示思考过程
+
+        // RAG配置（根据实际知识库ID修改）
+        //Map<String, Object> ragOptions = new HashMap<>();
+        //ragOptions.put("pipeline_ids", Collections.singletonList("your_pipeline_id"));
+        //parameters.put("rag_options", ragOptions);
+
+        requestBody.put("parameters", parameters);
+
+        // 调试参数（可选）
+        requestBody.put("debug", Collections.emptyMap());
+
+        // 保存用户消息
+        saveChatRecord(sessionId, userId, message, true);
+
+        StringBuilder fullResponse = new StringBuilder();
+
+        return dashscopeClient.post()
+                .uri("/api/v1/apps/{appId}/completion", "fe21741cec104e6a83226e989de14eb6")
+                .header("X-DashScope-SSE", "enable")
+                .header("Content-Type", "application/json")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .filter(rawData -> {
+                    // 过滤结束标记和空数据
+                    return !rawData.trim().equals("[DONE]") && !rawData.trim().isEmpty();
+                })
+                .map(rawData -> {
+                    try {
+                        // 处理SSE格式前缀并解析
+                        String jsonStr = rawData.replaceFirst("^data: ", "");
+                        JsonNode node = new ObjectMapper().readTree(jsonStr);
+
+                        // 解析响应内容
+                        if (node.has("output") && node.get("output").has("text")) {
+                            return node.get("output").get("text").asText();
+                        }
+                        // 处理知识库引用
+                        if (node.has("doc_references")) {
+                            return formatDocReferences(node.get("doc_references"));
+                        }
+                        return "";
+                    } catch (Exception e) {
+                        log.warn("SSE数据解析失败: {}", rawData);
+                        return "";
+                    }
+                })
+                .filter(chunk -> !chunk.isEmpty()) // 过滤空片段
+                .doOnNext(chunk -> {
+                    if (chunk.contains("<ref>")) {
+                        log.info("检测到知识引用: {}", chunk);
+                    }
+                    fullResponse.append(chunk);
+                })
+                .doOnComplete(() -> {
+                    // 保存完整对话记录
+                    saveChatRecord(sessionId, userId, fullResponse.toString(), false);
+                    log.info("RAG流式对话完成");
+                })
+                .onErrorResume(e -> {
+                    log.error("RAG服务异常: {} {}", e.getMessage(),e.toString());
+                    return Flux.just("【系统提示】知识库服务暂时不可用，请稍后重试");
+                })
+                .timeout(Duration.ofSeconds(300)); // 超时控制
+    }
+
+    // 格式化知识库引用
+    private String formatDocReferences(JsonNode references) {
+        StringBuilder sb = new StringBuilder("\n【知识来源】");
+        references.forEach(ref -> {
+            sb.append("\n- ").append(ref.path("doc_name").asText())
+                    .append(": ").append(ref.path("text").asText().substring(0, 100)).append("...");
+        });
+        return sb.toString();
+    }
+
+
+    @Override
+    public String ragSearch(Long sessionId, String message, Long userId) {
+        // 构建符合API规范的请求体
+        Map<String, Object> requestBody = new HashMap<>();
+
+        // 输入参数结构
+        Map<String, Object> input = new HashMap<>();
+        input.put("prompt", message);
+        requestBody.put("input", input);
+
+        // 参数配置
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("has_thoughts", true);  // 需要获取检索过程
+
+        // RAG配置（根据实际知识库ID修改）
+        Map<String, Object> ragOptions = new HashMap<>();
+        ragOptions.put("pipeline_ids", Collections.singletonList("wwzvnuysgw")); // 替换实际知识库ID
+        ragOptions.put("top_k", 1); // 返回最相关的一条
+        parameters.put("rag_options", ragOptions);
+
+        requestBody.put("parameters", parameters);
+
+        // 调试参数（可选）
+        requestBody.put("debug", Collections.emptyMap());
+
+        try {
+            JsonNode response = dashscopeClient.post()
+                    .uri("/api/v1/apps/{appId}/completion", "fe21741cec104e6a83226e989de14eb6") // 修正URI路径
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block(Duration.ofSeconds(300));
+
+            return parseKnowledgeResponse(response);
+        } catch (Exception e) {
+            log.error("知识库搜索失败: {}", e.getMessage());
+            return "知识检索服务暂时不可用，错误原因：" + e.getMessage();
+        }
+    }
+
+    private String parseKnowledgeResponse(JsonNode response) {
+        if (response == null) return "未获取到有效响应";
+
+        // 检查错误响应
+        if (response.has("code") && response.get("code").asInt() != 200) {
+            String errorMsg = response.path("message").asText();
+            log.error("API返回错误: {}", errorMsg);
+            return "服务异常：" + errorMsg;
+        }
+
+        // 解析知识库引用
+        JsonNode docs = response.path("output").path("doc_references");
+        if (docs.isArray() && docs.size() > 0) {
+            // 获取第一个文档的完整文本
+            JsonNode firstDoc = docs.get(0);
+            StringBuilder result = new StringBuilder();
+
+            result.append("【文档名称】").append(firstDoc.path("doc_name").asText()).append("\n");
+            result.append("【匹配内容】").append(firstDoc.path("text").asText());
+
+            return result.toString();
+        }
+        return "未找到相关知识点";
+    }
+}================================================================================File Name: RiskSignalServiceImpl.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\serviceImpl\RiskSignalServiceImpl.javaLine Count: 70File Content:package com.RiskHunter.serviceImpl;
+
+import com.RiskHunter.DTO.RiskSignalQueryDTO;
+import com.RiskHunter.Mapper.RiskSignalMapper;
+import com.RiskHunter.po.RiskSignal;
+import com.RiskHunter.service.RiskSignalService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+@RequiredArgsConstructor
+public class RiskSignalServiceImpl extends ServiceImpl<RiskSignalMapper, RiskSignal> implements RiskSignalService {
+
+    @Override
+    public Page<RiskSignal> getByTimeRange(LocalDateTime start, LocalDateTime end, Integer page, Integer size) {
+        QueryWrapper<RiskSignal> wrapper = new QueryWrapper<>();
+        if (start != null) {
+            wrapper.ge("time", start);
+        }
+        if (end != null) {
+            wrapper.le("time", end);
+        }
+        return page(new Page<>(page, size), wrapper);
+    }
+
+    @Override
+    public Page<RiskSignal> advancedSearch(RiskSignalQueryDTO queryDTO) {
+        Page<RiskSignal> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
+        QueryWrapper<RiskSignal> wrapper = new QueryWrapper<>();
+        
+        if (queryDTO.getMinEmp() != null) {
+            wrapper.ge("emp", queryDTO.getMinEmp());
+        }
+        if (queryDTO.getMaxEmp() != null) {
+            wrapper.le("emp", queryDTO.getMaxEmp());
+        }
+        if (queryDTO.getMinExchangeRate() != null) {
+            wrapper.ge("exchange_rate", queryDTO.getMinExchangeRate());
+        }
+        if (queryDTO.getStartTime() != null && queryDTO.getEndTime() != null) {
+            wrapper.between("time", queryDTO.getStartTime(), queryDTO.getEndTime());
+        }
+        if (StringUtils.isNotBlank(queryDTO.getKeyword())) {
+            wrapper.like("analysis", queryDTO.getKeyword());
+        }
+        if (queryDTO.getBaseCurrency() != null) {
+            wrapper.eq("base_currency", queryDTO.getBaseCurrency());
+        }
+        if (queryDTO.getTargetCurrency() != null) {
+            wrapper.eq("target_currency", queryDTO.getTargetCurrency());
+        }
+        
+        wrapper.orderByDesc("time");
+
+        // 获取总记录数
+        long total = count(wrapper);
+        page.setTotal(total);
+
+        // 获取分页数据
+        page.setRecords(baseMapper.selectPage(page, wrapper).getRecords());
+
+        return page;
+    }
+}================================================================================File Name: UserServiceImpl.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\serviceImpl\UserServiceImpl.javaLine Count: 68File Content:package com.RiskHunter.serviceImpl;
+
+import com.RiskHunter.exception.RiskHunterException;
+import com.RiskHunter.repository.UserRepository;
+import com.RiskHunter.util.SecurityUtil;
+import com.RiskHunter.util.TokenUtil;
+import com.RiskHunter.vo.UserVO;
+import com.RiskHunter.po.User;
+import com.RiskHunter.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    UserRepository userRepository;
+    
+    @Autowired
+    TokenUtil tokenUtil;
+
+    @Autowired
+    SecurityUtil securityUtil;
+
+
+    @Override
+    public Boolean register(UserVO userVO) {
+        User user = userRepository.findByPhone(userVO.getPhone());
+        if (user != null) {
+            throw RiskHunterException.phoneAlreadyExists();
+        }
+        User newUser = userVO.toPO();
+        userRepository.save(newUser);
+        return true;
+    }
+
+    @Override
+    public String login(String phone, String password) {
+        User user = userRepository.findByPhoneAndPassword(phone, password);
+        if (user == null) {
+            throw RiskHunterException.phoneOrPasswordError();
+        }
+        return tokenUtil.getToken(user);
+    }
+
+    @Override
+    public UserVO getInformation() {
+        User user=securityUtil.getCurrentUser();
+        return user.toVO();
+    }
+
+    @Override
+    public Boolean updateInformation(UserVO userVO) {
+        User user=securityUtil.getCurrentUser();
+        if (userVO.getPassword()!=null){
+            user.setPassword(userVO.getPassword());
+        }
+        if (userVO.getUsername()!=null){
+            user.setUsername(userVO.getUsername());
+        }
+        if (userVO.getAddress()!=null){
+            user.setAddress(userVO.getAddress());
+        }
+        userRepository.save(user);
+        return true;
+    }
+
+}
+================================================================================File Name: SecurityUtil.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\util\SecurityUtil.javaLine Count: 18File Content:package com.RiskHunter.util;
+
+import com.RiskHunter.po.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpServletRequest;
+
+@Component
+public class SecurityUtil {
+
+    @Autowired
+    HttpServletRequest httpServletRequest;
+
+    public User getCurrentUser(){
+        return (User)httpServletRequest.getSession().getAttribute("currentUser");
+    }
+}
+================================================================================File Name: TokenUtil.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\util\TokenUtil.javaLine Count: 54File Content:package com.RiskHunter.util;
+
+import com.RiskHunter.repository.UserRepository;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.RiskHunter.po.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+/**
+ * @Author: DingXiaoyu
+ * @Date: 0:28 2023/11/26
+ * 这是一个token的工具类，
+ * 设置了过期时间为1天。
+ * getToken方法用来获取token，
+ * token中包含了用户的Id、密码信息以及到期时间。
+ * verifyToken方法用来检验token是否正确。
+ * getUser方法用来从token中获得用户信息。
+*/
+@Component
+public class TokenUtil {
+    private static final long EXPIRE_TIME = 24 * 60 * 60 * 1000;
+
+    @Autowired
+    UserRepository userRepository;
+
+    public String getToken(User user) {
+        Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
+        return JWT.create()
+                .withAudience(String.valueOf(user.getId()))
+                .withExpiresAt(date)
+                .sign(Algorithm.HMAC256(user.getPassword()));
+    }
+
+    public boolean verifyToken(String token) {
+        try {
+            Integer userId=Integer.parseInt(JWT.decode(token).getAudience().get(0));
+            User user= userRepository.findById(userId).get();
+            JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
+            jwtVerifier.verify(token);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public User getUser(String token){
+        Integer userId=Integer.parseInt(JWT.decode(token).getAudience().get(0));
+        return userRepository.findById(userId).get();
+    }
+}
+================================================================================File Name: ResultVO.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\vo\ResultVO.javaLine Count: 29File Content:package com.RiskHunter.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.io.Serializable;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class ResultVO<T> implements Serializable {
+
+    private String code;
+
+    private String msg;
+
+    private T result;
+
+    public static <T> ResultVO<T> buildSuccess(T result) {
+        return new ResultVO<T>("000", null, result);
+    }
+
+    public static <T> ResultVO<T> buildFailure(String msg) {
+        return new ResultVO<T>("400", msg, null);
+    }
+}================================================================================File Name: UserVO.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\main\java\com\RiskHunter\vo\UserVO.javaLine Count: 36File Content:package com.RiskHunter.vo;
+
+import com.RiskHunter.po.User;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class UserVO {
+
+    private Integer id;
+
+    private String username;
+
+    private String phone;
+
+    private String password;
+
+    private String address;
+
+    private Integer role;
+
+
+    public User toPO(){
+        User user=new User();
+        user.setId(this.id);
+        user.setAddress(this.address);
+        user.setUsername(this.username);
+        user.setPhone(this.phone);
+        user.setRole(this.role);
+        user.setPassword(this.password);
+        return user;
+    }
+}
+================================================================================File Name: RiskHunterApplicationTests.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\test\java\com\RiskHunter\RiskHunterApplicationTests.javaLine Count: 23File Content:package com.RiskHunter;
+
+import com.RiskHunter.util.TokenUtil;
+import com.RiskHunter.po.User;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class RiskHunterApplicationTests {
+
+	@Autowired
+    TokenUtil tokenUtil;
+
+	@Test
+	void contextLoads() {
+		User user=new User();
+		user.setId(1);
+		user.setPassword("123456");
+		System.out.println(tokenUtil.getToken(user));
+	}
+
+}
+================================================================================File Name: RiskSignalControllerTests.javaFile Path: C:\Users\HP\Desktop\大二下学期\花旗杯\RiskHunter\backend\src\test\java\com\RiskHunter\RiskSignalControllerTests.javaLine Count: 175File Content:package com.RiskHunter;/*
+ * @date 02/23 18:54
+ */
+
+
+import com.RiskHunter.DTO.RiskSignalQueryDTO;
+import com.RiskHunter.po.RiskSignal;
+import com.RiskHunter.po.User;
+import com.RiskHunter.service.RiskSignalService;
+import com.RiskHunter.util.TokenUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import static org.hamcrest.Matchers.*;
+        import static org.junit.jupiter.api.Assertions.*;
+        import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+        import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+public class RiskSignalControllerTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private RiskSignalService riskSignalService;
+
+    @Autowired
+    private TokenUtil tokenUtil;
+
+    private RiskSignal testSignal;
+    private String token;
+
+    @BeforeEach
+    void setUp() {
+        // 初始化测试数据
+        testSignal = new RiskSignal();
+        testSignal.setAnalysis("Initial Test Analysis");
+        testSignal.setTime(LocalDateTime.now());
+        testSignal.setEmp(1.0);
+        testSignal.setExchangeRate(7.2);
+        testSignal.setFxReserves(1000.0);
+        testSignal.setInterestRate(0.03);
+        testSignal.setBaseCurrency(1);
+        testSignal.setTargetCurrency(2);
+        testSignal.setAnalysis("Initial Test Analysis");
+        testSignal.setAdvice("Initial Test Advice");
+
+        riskSignalService.save(testSignal);
+
+        // 生成Token
+        User user = new User();
+        user.setId(1);
+        user.setPassword("123456");
+        token = tokenUtil.getToken(user);
+    }
+
+    @Test
+    void createRiskSignal() throws Exception {
+        RiskSignal newSignal = new RiskSignal();
+        newSignal.setAnalysis("New Risk Analysis");
+        newSignal.setEmp(1.5);
+        newSignal.setTime(LocalDateTime.now());
+        newSignal.setExchangeRate(6.8);
+        newSignal.setFxReserves(2000.0);
+        newSignal.setInterestRate(0.02);
+        newSignal.setBaseCurrency(1);
+        newSignal.setTargetCurrency(2);
+        newSignal.setAnalysis("New Risk Analysis");
+        newSignal.setAdvice("New Risk Advice");
+
+        mockMvc.perform(post("/api/risk-signals")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("token", token)
+                        .content(objectMapper.writeValueAsString(newSignal)))
+                .andExpect(status().isOk());
+        // 验证数据库
+        RiskSignal saved = riskSignalService.getById(newSignal.getId());
+        //assertNotNull(saved);
+        //assertEquals(1.5, saved.getEmp());
+    }
+
+    @Test
+    void listRiskSignalsWithDefaultParams() throws Exception {
+        mockMvc.perform(get("/api/risk-signals")
+                        .header("token", token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void listRiskSignalsWithTimeRange() throws Exception {
+        String startTime = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_DATE_TIME);
+        String endTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+
+        mockMvc.perform(get("/api/risk-signals")
+                        .param("startTime", startTime)
+                        .param("endTime", endTime)
+                        .param("page", "1")
+                        .param("size", "5")
+                        .header("token", token))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateRiskSignal() throws Exception {
+        testSignal.setAnalysis("Updated Analysis");
+
+        mockMvc.perform(put("/api/risk-signals/{id}", testSignal.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("token", token)
+                        .content(objectMapper.writeValueAsString(testSignal)))
+                .andExpect(status().isOk());
+
+        RiskSignal updated = riskSignalService.getById(testSignal.getId());
+        assertEquals("Updated Analysis", updated.getAnalysis());
+    }
+
+    @Test
+    void deleteRiskSignal() throws Exception {
+        mockMvc.perform(delete("/api/risk-signals/{id}", testSignal.getId())
+                        .header("token", token))
+                .andExpect(status().isOk());
+
+        RiskSignal deleted = riskSignalService.getById(testSignal.getId());
+        assertNull(deleted);
+    }
+
+    @Test
+    void advancedSearch() throws Exception {
+        RiskSignalQueryDTO queryDTO = new RiskSignalQueryDTO();
+        queryDTO.setKeyword("Test");
+        queryDTO.setMinEmp(0.5);
+        queryDTO.setMaxEmp(1.5);
+        queryDTO.setPage(1);
+        queryDTO.setSize(10);
+
+        mockMvc.perform(post("/api/risk-signals/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("token", token)
+                        .content(objectMapper.writeValueAsString(queryDTO)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void advancedSearchWithDateRange() throws Exception {
+        RiskSignalQueryDTO queryDTO = new RiskSignalQueryDTO();
+        queryDTO.setStartTime(LocalDateTime.now().minusHours(1));
+        queryDTO.setEndTime(LocalDateTime.now());
+        queryDTO.setMinExchangeRate(7.0);
+        queryDTO.setPage(1);
+        queryDTO.setSize(10);
+
+        mockMvc.perform(post("/api/risk-signals/search")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("token", token)
+                        .content(objectMapper.writeValueAsString(queryDTO)))
+                .andExpect(status().isOk());
+    }
+}================================================================================Total Line Count: 1992Total File Count: 34
