@@ -54,6 +54,7 @@ declare module 'vue' {
     ExposureMatrix: typeof import('./src/components/signal/ExposureMatrix.vue')['default']
     Gauge: typeof import('./src/components/Gauge.vue')['default']
     Header: typeof import('./src/components/layout/Header.vue')['default']
+    IndexList: typeof import('./src/components/layout/IndexList.vue')['default']
     Layout: typeof import('./src/components/layout/Layout.vue')['default']
     PredictionAndAdvice: typeof import('./src/components/signal/PredictionAndAdvice.vue')['default']
     RiskAMap: typeof import('./src/components/signal/RiskAMap.vue')['default']
@@ -62,6 +63,7 @@ declare module 'vue' {
     RiskScore: typeof import('./src/components/signal/RiskScore.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Top: typeof import('./src/components/layout/Top.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

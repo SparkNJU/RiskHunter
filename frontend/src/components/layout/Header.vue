@@ -153,10 +153,16 @@ const handleLogout = () => {
   height: var(--el-header-height);
   display: flex;
   justify-content: space-between;
-  /* 取消导航栏底部分界线 */
-  /* border-bottom: none !important; */
+  /* 自定义菜单活动项颜色 */
+  --el-menu-active-color: white;
+  --el-menu-hover-text-color: white;
+  /* 可选：添加底部边框颜色 */
+  --el-menu-active-border-color: #6a56c6;
+  /* 添加背景颜色变量 */
+  --el-menu-hover-bg-color: rgba(106, 86, 198, 0.1);
 }
 
+/* 其他样式保持不变 */
 .nav-group {
   display: flex;
   align-items: center;
@@ -168,16 +174,29 @@ const handleLogout = () => {
   transition: all 0.2s;
 }
 
+/* 添加选中菜单项的自定义样式 - 包括背景颜色 */
+:deep(.el-menu-item.is-active) {
+  color: white !important;
+  background-color: #6a56c6cf !important;
+  border-bottom-color: #6a56c6c3 !important;
+}
+
+/* 定义悬停效果 */
+:deep(.el-menu-item:hover:not(.is-active)) {
+  color: #6a56c6 !important;
+  background-color: rgba(106, 86, 198, 0.1) !important;
+}
+
 .header-item {
   display: flex;
   align-items: center;
-  color: var(--el-menu-text-color);
+  color: var(--el-text-color-primary);
   transition: all 0.2s;
   padding: 0 4px;
   
   &:hover {
-    color: var(--el-menu-hover-text-color);
-    background-color: var(--el-menu-hover-bg-color);
+    color: white;
+    background-color: #6a56c6;
   }
   
   .el-icon {
@@ -198,8 +217,8 @@ const handleLogout = () => {
   padding: 12px 20px;
 
   &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-color-primary-light-9);
+    color: white;
+    background: #6a56c6b9;
   }
 }
 </style>

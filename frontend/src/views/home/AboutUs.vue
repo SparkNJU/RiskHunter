@@ -141,7 +141,7 @@ const techTeam = [
     {
         name: '龙彦宇',
         title: '神经网络模型训练与分析',
-        description: '南京大学人工智能学院2023级本科生，曾获2023-2024年度人民奖学金一等奖、2024年全国大学生数学竞赛江苏省一等奖、百度"星河杯"三等奖、最佳人气奖等。负责外汇风险预测模型的训练、分析和优化，对外汇风险信号的指标和预测模型进行了关键优化。',
+        description: '南京大学人工智能学院2023级本科生，曾获2023-2024年度人民奖学金一等奖、2024年全国大学生数学竞赛江苏省一等奖、百度"星河杯"三等奖、最佳人气奖等。负责外汇风险预测模型的训练、分析和优化，对外汇风险信号的指标和预测模型的信号构建进行了关键优化。',
         avatar: techImages.lyy
     },
 ];
@@ -515,7 +515,7 @@ const techTeam = [
 }
 
 .business-card {
-    width: calc(25% - 1.5rem);
+    width: calc(25% - 3rem);
     margin-bottom: 1.5rem;
     background-color: #ebedfA;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
