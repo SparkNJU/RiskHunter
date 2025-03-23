@@ -51,23 +51,28 @@ public class CalculateServiceImpl implements CalculateService {
     }
 
     @Override
-    public AlertVO getAlert() {
-        // 根据风险信号计算预警级别
-        String level = calculateAlertLevel();
+    public List<AlertVO> getAlert() {
+        List<AlertVO> alertList = new ArrayList<>();
+        for (int q = 0;q < 3;q++){
+            // 根据风险信号计算预警级别
+            String level = calculateAlertLevel();
 
-        // 生成预警标题和内容
-        String title = generateAlertTitle(level);
-        String content = generateAlertContent(level);
+            // 生成预警标题和内容
+            String title = generateAlertTitle(level);
+            String content = generateAlertContent(level);
 
-        // 获取当前时间
-        String updateTime = LocalDateTime.now().format(formatter);
+            // 获取当前时间
+            String updateTime = LocalDateTime.now().format(formatter);
 
-        return AlertVO.builder()
-                .level(level)
-                .title(title)
-                .content(content)
-                .updateTime(updateTime)
-                .build();
+            alertList.add(AlertVO.builder()
+                    .level(level)
+                    .title(title)
+                    .content(content)
+                    .updateTime(updateTime)
+                    .build());
+        }
+        return alertList;
+
     }
 
     @Override

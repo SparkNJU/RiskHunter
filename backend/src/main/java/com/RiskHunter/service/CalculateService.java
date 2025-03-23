@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CalculateService {
     RiskDashboardVO getRiskDashboard();
-    AlertVO getAlert();
+    List<AlertVO> getAlert();
     RiskMapVO getRiskMap();
     List<ExposureMatrixVO> getExposure();
 }
