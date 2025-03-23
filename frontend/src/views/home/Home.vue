@@ -108,7 +108,7 @@ const funcs = [
             <el-icon class="contact-icon">
               <Location />
             </el-icon>
-            <span>地址：中国江苏省南京市栖霞区南京大学</span>
+            <span>地址：中国江苏省南京市栖霞区仙林大道163号南京大学仙林校区</span>
           </div>
         </div>
       </div>

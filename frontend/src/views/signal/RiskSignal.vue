@@ -4,7 +4,6 @@ import { searchRiskSignals, type RiskSignal, type RiskSignalQueryDTO } from '../
 import { parseTime, parseCurrencyName, CurrencyList } from '../../utils'
 import { Search, Refresh, ArrowDown, Warning } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import Dashboard from '../../components/Dashboard.vue' // 导入 Dashboard 组件
 
 // 表格数据和分页
 const loading = ref(false)
@@ -113,11 +112,19 @@ loadData()
 </script>
 
 <template>
-  <el-main>
-    <!-- 导入并展示 Dashboard 组件 -->
-    <Dashboard />
-
+  <el-card>
     <!-- 筛选栏 -->
+    <template #header>
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <el-icon class="header-icon">
+            <Warning />
+          </el-icon>
+         信号列表 
+        </h3>
+      </div>
+    </template>
+
     <el-card class="signal-card" :body-style="{ padding: '20px' }">
       <template #header>
         <div class="signal-header">
@@ -292,12 +299,11 @@ loadData()
           @current-change="handleCurrentChange" />
       </div>
     </el-card>
-  </el-main>
+  </el-card>
 </template>
 
 <style scoped>
 .signal-card {
-  width: 75vw;
   margin-bottom: 1rem;
 }
 
