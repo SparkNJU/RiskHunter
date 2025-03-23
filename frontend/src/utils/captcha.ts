@@ -1,6 +1,6 @@
 class CaptchaGenerator {
     private readonly width: number = 120;
-    private readonly height: number = 40;
+    private readonly height: number = 54;
     private readonly captchaLength: number = 4;
     private code: string = '';
     

@@ -23,7 +23,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #f8fafc;
+  /* background: #f8fafc; */
+  background: linear-gradient(135deg, #e0f7fa 0%, #cfb0d4 100%);
 }
 
 .el-form-item {
