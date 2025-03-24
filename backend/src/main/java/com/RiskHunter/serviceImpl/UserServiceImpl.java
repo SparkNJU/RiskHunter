@@ -55,6 +55,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean updateInformation(UserVO userVO) {
         User user=securityUtil.getCurrentUser();
+        if (user == null) {
+            // 处理 user 为 null 的情况，例如记录日志或者返回 false
+            System.err.println("当前用户为空，无法更新信息。");
+            return false;
+        }
         if (userVO.getPassword()!=null){
             user.setPassword(userVO.getPassword());
         }
