@@ -283,6 +283,11 @@ loadData()
             {{ row.fxReserves.toFixed(2) }}
           </template>
         </el-table-column>
+        <el-table-column prop="news" label="新闻因子">
+          <template #default="{ row }">
+            {{ row.news.toFixed(2) }}
+          </template>
+        </el-table-column>
 
 
         <!-- 展开行 -->

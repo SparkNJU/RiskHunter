@@ -12,7 +12,7 @@
 
 **Version**:v1
 
-**Time**: 2025.3.22 
+**Time**: 2025.3.24
 
 **URL**:/v2/api-docs
 
@@ -367,6 +367,63 @@ data: RiskHunter AI...
   "code": "000",
   "msg": null,
   "result": 6
+}
+```
+## Delete Session Interface
+
+
+**url**:`/api/chat/session/{sessionId}`
+
+
+**method**:`DELETE`
+
+
+**produces**:`application/x-www-form-urlencoded`
+
+
+**consumes**:`*/*`
+
+
+**Note**:<p>Delete session by id</p>
+
+
+
+**Params**:
+
+
+| name | description | in    | require | type | schema |
+| -------- | -------- | ----- | -------- | -------- | ------ |
+|sessionId|session ID|path|false|integer(int64)||
+|userId|user ID|query|false|integer(int64)||
+
+
+**Status**:
+
+
+| code | description | schema |
+| -------- | -------- | ----- | 
+|200|OK|ResultVO«boolean»|
+|204|No Content||
+|401|Unauthorized||
+|403|Forbidden||
+
+
+**Response Params**:
+
+
+| name | description | type | schema |
+| -------- | -------- | ----- |----- | 
+|code||string||
+|msg||string||
+|result||boolean||
+
+
+**Response Example**:
+```javascript
+{
+	"code": "",
+	"msg": "",
+	"result": true
 }
 ```
 
@@ -895,7 +952,7 @@ None
 ```
 
 
-# Risk Signal Related Interfaces
+# Risk Signal related Interfaces
 
 
 ## Paged Query Risk Signals
@@ -1419,5 +1476,275 @@ None
   "code": "000",
   "msg": null,
   "result": null
+}
+```
+
+# Risk Cauculation related Interfaces
+
+
+## Get Alert Information
+
+
+**url**:`/api/calculate/alert`
+
+
+**method**:`GET`
+
+
+**produces**:`application/x-www-form-urlencoded`
+
+
+**consumes**:`*/*`
+
+
+**Note**:<p>Get Alert Information</p>
+
+
+
+**Params**:
+
+null
+
+
+**Status**:
+
+
+| code | description | schema |
+| -------- | -------- | ----- | 
+|200|OK|AlertVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**Response Params**:
+
+
+| name | description | type | schema |
+| -------- | -------- | ----- |----- | 
+|content||string||
+|level||string||
+|title||string||
+|updateTime||string||
+
+
+**Response Example**:
+```javascript
+[
+	{
+		"content": "",
+		"level": "",
+		"title": "",
+		"updateTime": ""
+	}
+]
+```
+
+
+## Get Risk Dashboard Information
+
+
+**url**:`/api/calculate/dashboard`
+
+
+**method**:`GET`
+
+
+**produces**:`application/x-www-form-urlencoded`
+
+
+**consumes**:`*/*`
+
+
+**Note**:<p>Get Risk Dashboard data</p>
+
+
+
+**Params**:
+
+
+null
+
+
+**Status**:
+
+
+| code | description | schema |
+| -------- | -------- | ----- | 
+|200|OK|RiskDashboardVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**Response Params**:
+
+
+| name | description | type | schema |
+| -------- | -------- | ----- |----- | 
+|factorBreakdown||array|RiskFactor|
+|&emsp;&emsp;name||string||
+|&emsp;&emsp;value||number(double)||
+|name||string||
+|riskStatus||string||
+|score||number(double)|number(double)|
+|trend||ScoreTrend|ScoreTrend|
+|&emsp;&emsp;direction||string||
+|&emsp;&emsp;value||number(double)||
+|updateTime||string||
+
+
+**Response Example**:
+```javascript
+{
+	"factorBreakdown": [
+		{
+			"name": "",
+			"value": 0
+		}
+	],
+	"name": "",
+	"riskStatus": "",
+	"score": 0,
+	"trend": {
+		"direction": "",
+		"value": 0
+	},
+	"updateTime": ""
+}
+```
+
+
+## Get Exposure Analysis Information
+
+
+**url**:`/api/calculate/exposure`
+
+
+**method**:`GET`
+
+
+**produces**:`application/x-www-form-urlencoded`
+
+
+**consumes**:`*/*`
+
+
+**Note**:<p>Get Exposure Analysis data</p>
+
+
+
+**Params**:
+
+
+null
+
+
+**Status**:
+
+
+| code | description | schema |
+| -------- | -------- | ----- | 
+|200|OK|ExposureMatrixVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**Response Params**:
+
+
+| name | description | type | schema |
+| -------- | -------- | ----- |----- | 
+|terms||array|Term|
+|&emsp;&emsp;amount||number(double)||
+|&emsp;&emsp;currency||integer(int32)||
+|&emsp;&emsp;range||string||
+|&emsp;&emsp;riskLevel||integer(int32)||
+
+
+**Response Example**:
+```javascript
+[
+	{
+		"terms": [
+			{
+				"amount": 0,
+				"currency": 0,
+				"range": "",
+				"riskLevel": 0
+			}
+		]
+	}
+]
+```
+
+
+## Get Risk Map Information
+
+
+**url**:`/api/calculate/map`
+
+
+**method**:`GET`
+
+
+**produces**:`application/x-www-form-urlencoded`
+
+
+**consumes**:`*/*`
+
+
+**Note**:<p>Get Risk Map data</p>
+
+
+
+**Params**:
+
+
+null
+
+
+**Status**:
+
+
+| code | description | schema |
+| -------- | -------- | ----- | 
+|200|OK|RiskMapVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**Response Params**:
+
+
+| name | description | type | schema |
+| -------- | -------- | ----- |----- | 
+|regions||RegionRisk|RegionRisk|
+|&emsp;&emsp;currencyPair||integer(int32)||
+|&emsp;&emsp;currentRate||number(double)||
+|&emsp;&emsp;hotNews||array|NewsItem|
+|&emsp;&emsp;&emsp;&emsp;date||string||
+|&emsp;&emsp;&emsp;&emsp;title||string||
+|&emsp;&emsp;&emsp;&emsp;url||string||
+|&emsp;&emsp;rateChange||number(double)||
+|&emsp;&emsp;riskLevel||integer(int32)||
+|&emsp;&emsp;suggestions||array|string|
+
+
+**Response Example**:
+```javascript
+{
+	"regions": {
+		"additionalProperties1": {
+			"currencyPair": 0,
+			"currentRate": 0,
+			"hotNews": [],
+			"rateChange": 0,
+			"riskLevel": 0,
+			"suggestions": []
+		}
+	}
 }
 ```

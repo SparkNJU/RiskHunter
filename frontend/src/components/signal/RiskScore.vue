@@ -38,14 +38,14 @@ const initGaugeChart = () => {
         type: 'gauge',
         startAngle: 180,
         endAngle: 0,
-        center: ['50%', '75%'],
-        radius: '90%',
+        center: ['50%', '60%'], // 调整中心位置
+        radius: '110%', // 增大半径
         min: 0,
         max: 100,
         splitNumber: 10,
         axisLine: {
           lineStyle: {
-            width: 6,
+            width: 8, // 稍微加粗仪表盘轮廓
             color: [
               [0.3, '#67C23A'],
               [0.7, '#E6A23C'],
@@ -55,22 +55,22 @@ const initGaugeChart = () => {
         },
         pointer: {
           icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-          length: '12%',
-          width: 10,
+          length: '15%', // 稍微增大指针长度
+          width: 12, // 增大指针宽度
           offsetCenter: [0, '-60%'],
           itemStyle: {
             color: 'auto'
           }
         },
         axisTick: {
-          length: 12,
+          length: 14, // 增大刻度长度
           lineStyle: {
             color: 'auto',
             width: 2
           }
         },
         splitLine: {
-          length: 20,
+          length: 22, // 增大分割线长度
           lineStyle: {
             color: 'auto',
             width: 2
@@ -88,14 +88,14 @@ const initGaugeChart = () => {
           }
         },
         title: {
-          offsetCenter: [0, '-20%'],
-          fontSize: 20
+          offsetCenter: [0, '-25%'],
+          fontSize: 16 // 减小标题字体大小
         },
         detail: {
           valueAnimation: true,
           formatter: '{value}',
           color: 'inherit',
-          fontSize: 30,
+          fontSize: 26, // 减小详情字体大小
           offsetCenter: [0, '0%']
         },
         data: [
@@ -175,7 +175,7 @@ onUnmounted(() => {
     <div class="risk-score-content">
       <div ref="chartRef" class="gauge-chart"></div>
 
-      <div class="risk-breakdo wn">
+      <div class="risk-breakdown">
         <h4 class="breakdown-title">风险分解</h4>
         <div class="factor-list">
           <div v-for="(factor, index) in riskData.factorBreakdown" :key="index" class="factor-item">
@@ -223,7 +223,7 @@ onUnmounted(() => {
 }
 
 .gauge-chart {
-  height: 200px;
+  height: 280px; /* 增大高度 */
   width: 100%;
 }
 

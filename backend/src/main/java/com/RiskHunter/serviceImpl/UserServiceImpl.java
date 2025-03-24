@@ -30,6 +30,9 @@ public class UserServiceImpl implements UserService {
             throw RiskHunterException.phoneAlreadyExists();
         }
         User newUser = userVO.toPO();
+        if(newUser.getDescription() == null){
+            newUser.setDescription("这个人很懒，什么都没留下");
+        }
         userRepository.save(newUser);
         return true;
     }

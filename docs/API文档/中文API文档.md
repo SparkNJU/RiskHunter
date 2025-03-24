@@ -420,6 +420,64 @@ data:环境。
   "result": 6
 }
 ```
+## 删除会话接口
+
+
+**接口地址**:`/api/chat/session/{sessionId}`
+
+
+**请求方式**:`DELETE`
+
+
+**请求数据类型**:`application/x-www-form-urlencoded`
+
+
+**响应数据类型**:`*/*`
+
+
+**接口描述**:<p>删除指定的会话</p>
+
+
+
+**请求参数**:
+
+
+| 参数名称 | 参数说明 | 请求类型    | 是否必须 | 数据类型 | schema |
+| -------- | -------- | ----- | -------- | -------- | ------ |
+|sessionId|会话ID|path|false|integer(int64)||
+|userId|用户ID|query|false|integer(int64)||
+
+
+**响应状态**:
+
+
+| 状态码 | 说明 | schema |
+| -------- | -------- | ----- | 
+|200|OK|ResultVO«boolean»|
+|204|No Content||
+|401|Unauthorized||
+|403|Forbidden||
+
+
+**响应参数**:
+
+
+| 参数名称 | 参数说明 | 类型 | schema |
+| -------- | -------- | ----- |----- | 
+|code||string||
+|msg||string||
+|result||boolean||
+
+
+**响应示例**:
+```javascript
+{
+	"code": "",
+	"msg": "",
+	"result": true
+}
+```
+
 
 
 ## 更新会话标题
@@ -1510,5 +1568,275 @@ data:解答～🌟
   "code": "000",
   "msg": null,
   "result": null
+}
+```
+# 风险计算接口
+
+
+## 获取预警信息
+
+
+**接口地址**:`/api/calculate/alert`
+
+
+**请求方式**:`GET`
+
+
+**请求数据类型**:`application/x-www-form-urlencoded`
+
+
+**响应数据类型**:`*/*`
+
+
+**接口描述**:<p>获取预警信息</p>
+
+
+
+**请求参数**:
+
+
+暂无
+
+
+**响应状态**:
+
+
+| 状态码 | 说明 | schema |
+| -------- | -------- | ----- | 
+|200|OK|AlertVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**响应参数**:
+
+
+| 参数名称 | 参数说明 | 类型 | schema |
+| -------- | -------- | ----- |----- | 
+|content||string||
+|level||string||
+|title||string||
+|updateTime||string||
+
+
+**响应示例**:
+```javascript
+[
+	{
+		"content": "",
+		"level": "",
+		"title": "",
+		"updateTime": ""
+	}
+]
+```
+
+
+## 获取风险仪表盘数据
+
+
+**接口地址**:`/api/calculate/dashboard`
+
+
+**请求方式**:`GET`
+
+
+**请求数据类型**:`application/x-www-form-urlencoded`
+
+
+**响应数据类型**:`*/*`
+
+
+**接口描述**:<p>获取风险仪表盘数据</p>
+
+
+
+**请求参数**:
+
+
+暂无
+
+
+**响应状态**:
+
+
+| 状态码 | 说明 | schema |
+| -------- | -------- | ----- | 
+|200|OK|RiskDashboardVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**响应参数**:
+
+
+| 参数名称 | 参数说明 | 类型 | schema |
+| -------- | -------- | ----- |----- | 
+|factorBreakdown||array|RiskFactor|
+|&emsp;&emsp;name||string||
+|&emsp;&emsp;value||number(double)||
+|name||string||
+|riskStatus||string||
+|score||number(double)|number(double)|
+|trend||ScoreTrend|ScoreTrend|
+|&emsp;&emsp;direction||string||
+|&emsp;&emsp;value||number(double)||
+|updateTime||string||
+
+
+**响应示例**:
+```javascript
+{
+	"factorBreakdown": [
+		{
+			"name": "",
+			"value": 0
+		}
+	],
+	"name": "",
+	"riskStatus": "",
+	"score": 0,
+	"trend": {
+		"direction": "",
+		"value": 0
+	},
+	"updateTime": ""
+}
+```
+
+
+## 获取敞口分析数据
+
+
+**接口地址**:`/api/calculate/exposure`
+
+
+**请求方式**:`GET`
+
+
+**请求数据类型**:`application/x-www-form-urlencoded`
+
+
+**响应数据类型**:`*/*`
+
+
+**接口描述**:<p>获取敞口分析数据</p>
+
+
+
+**请求参数**:
+
+
+暂无
+
+
+**响应状态**:
+
+
+| 状态码 | 说明 | schema |
+| -------- | -------- | ----- | 
+|200|OK|ExposureMatrixVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**响应参数**:
+
+
+| 参数名称 | 参数说明 | 类型 | schema |
+| -------- | -------- | ----- |----- | 
+|terms||array|Term|
+|&emsp;&emsp;amount||number(double)||
+|&emsp;&emsp;currency||integer(int32)||
+|&emsp;&emsp;range||string||
+|&emsp;&emsp;riskLevel||integer(int32)||
+
+
+**响应示例**:
+```javascript
+[
+	{
+		"terms": [
+			{
+				"amount": 0,
+				"currency": 0,
+				"range": "",
+				"riskLevel": 0
+			}
+		]
+	}
+]
+```
+
+
+## 获取风险地图数据
+
+
+**接口地址**:`/api/calculate/map`
+
+
+**请求方式**:`GET`
+
+
+**请求数据类型**:`application/x-www-form-urlencoded`
+
+
+**响应数据类型**:`*/*`
+
+
+**接口描述**:<p>获取风险地图数据</p>
+
+
+
+**请求参数**:
+
+
+暂无
+
+
+**响应状态**:
+
+
+| 状态码 | 说明 | schema |
+| -------- | -------- | ----- | 
+|200|OK|RiskMapVO|
+|401|Unauthorized||
+|403|Forbidden||
+|404|Not Found||
+
+
+**响应参数**:
+
+
+| 参数名称 | 参数说明 | 类型 | schema |
+| -------- | -------- | ----- |----- | 
+|regions||RegionRisk|RegionRisk|
+|&emsp;&emsp;currencyPair||integer(int32)||
+|&emsp;&emsp;currentRate||number(double)||
+|&emsp;&emsp;hotNews||array|NewsItem|
+|&emsp;&emsp;&emsp;&emsp;date||string||
+|&emsp;&emsp;&emsp;&emsp;title||string||
+|&emsp;&emsp;&emsp;&emsp;url||string||
+|&emsp;&emsp;rateChange||number(double)||
+|&emsp;&emsp;riskLevel||integer(int32)||
+|&emsp;&emsp;suggestions||array|string|
+
+
+**响应示例**:
+```javascript
+{
+	"regions": {
+		"additionalProperties1": {
+			"currencyPair": 0,
+			"currentRate": 0,
+			"hotNews": [],
+			"rateChange": 0,
+			"riskLevel": 0,
+			"suggestions": []
+		}
+	}
 }
 ```

@@ -1,7 +1,7 @@
 # Risk Hunter V1.0 User Manual
 **Version**: v1.0.5
 **Author**: NJU-SagaCiti
-**Last Updated**: 2025.3.21
+**Last Updated**: 2025.3.24
 
 [TOC]
 
@@ -89,12 +89,40 @@ c. Flexibility
 
 #### 4.2.3 Input Examples
 
-##### Investment Advice Query:
+##### User Registration and Login:
+![alt text](image-3.png)
+- Username (Enter text): TEST
+- Identity (Select): Enterprise
+- Phone Number (Enter text): 13333333332
+- Password (Enter text, minimum 6 characters): 123456
+- Confirm Password (Enter text, minimum 6 characters): 123456
+- Verification Code (Enter text, dynamically generated): sqjc
 
-- Type (Select): Balanced
+![alt text](image-4.png)
+- Phone Number (Enter text): 13333333332
+- Password (Enter text, minimum 6 characters): 123456
+- Verification Code (Enter text, dynamically generated): rzc5
 
+##### Modify Investment Preferences
+![alt text](image-5.png)
+- Maximum Drawdown (Enter number, unit %): 50.00
+- Trading Period (Select): 3 years
+- Total Capital (Enter number, unit yuan): 5,000,000
+- Risk Preference (Select): Conservative
+- Capital Adequacy Ratio (Enter number, unit %): 48.00
+- Liquidity (Select): High
+- Currency Exposure (Multiple selection with percentage input):
+- USD: 25%
+- CNY: 30%
+- EUR: 15%
+- JPY: 10%
+- GBP: 14%
+- AUD: 12%
+- HKD: 5%
+- CHF: 5%
+Click the "Update" button to save your investment preference settings. The system will provide personalized risk management recommendations based on these parameters.
 ##### Risk Signal Query:
-
+![alt text](image-2.png)
 - Base Currency (Select): EUR-Euro
 - Quote Currency (Select): JPY-Japanese Yen
 - Start Time (Select): 2023-01-01 00:00:00
@@ -109,7 +137,7 @@ c. Flexibility
 - End Time (Select): 2024-03-01 00:00:00
 
 ##### Intelligent Assistant Dialogue:
-
+![alt text](智能助手——欢迎.png)
 - Question (Can insert risk signal): Please analyze risk signal: Base currency: USD, Quote currency: GBP, Time: 2023-07-01 00:00:00, EMP: 104, Exchange rate: 1.05, Interest rate: 3.2, Foreign exchange reserves: 530.
 - Model (Select): DeepSeek-R1 (Default)
 - Output Mode (Select): Streaming output
@@ -145,18 +173,20 @@ Balanced Investment Advice
 
 ##### Risk Signal List:
 
-| Base Currency | Quote Currency |        Time         |   EMP    | Exchange Rate | Interest Rate | FX Reserves |
-| :-----------: | :------------: | :-----------------: | :------: | :-----------: | :-----------: | :---------: |
-|      EUR      |      JPY       | 2023-10-15 00:00:00 | 100.5000 |    1.1200     |    2.5000     |   495.00    |
+| Base Currency | Quote Currency |        Time         |   EMP    | Exchange Rate | Interest Rate | FX Reserves | News |
+| :-----------: | :------------: | :-----------------: | :------: | :-----------: | :-----------: | :---------: |:---------: |
+|   EUR    |   JPY    | 2025-10-15 | 100.5000 | 1.1200 | 2.5000 |  495.00  | 0.10 |
 
 - Analysis Text: Economy returning to normal, exchange rate stabilizing.
 - Recommendation Text: Maintain prudent fiscal and monetary policies.
 
 ##### Foreign Exchange Data Line Chart:
 
-![Foreign Exchange Data Line Chart](https://p.inari.site/guest/25-03/18/67d8fbe246312.png)
+![alt text](image-1.png)
 
 ##### Intelligent Assistant Reply:
+![alt text](智能助手——思考.png)
+![alt text](智能助手——回答.png)
 
 - Based on the provided parameters and risk model analysis, USD/GBP in July 2023 shows the following risk signals:
   1. **Exchange Rate Overshooting Risk**: The current exchange rate of 1.05 is approaching the shadow exchange rate critical value[1]. According to the international reserves dynamic model, when foreign exchange reserves (530 billion) do not match domestic credit growth, there is a risk of short-term exchange rate overshooting. It is recommended to monitor whether the reserve consumption rate exceeds the safety threshold of 2.3% per month[1].
@@ -356,7 +386,7 @@ f. **Other Matters**:
 
 1. Click "Personal Information" in the navigation bar in the top right corner
 2. In the personal information card, click the "Modify Personal Information" button
-3. Enter new username and address, click "Update"
+3. Enter new username and new transaction strategies, click "Update"
 4. Click "Change Password" to switch to the password modification interface
 5. Enter new password and confirm, click "Update"
 6. Log back into the system after confirmation prompt
