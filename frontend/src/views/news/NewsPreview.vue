@@ -171,33 +171,45 @@ onMounted(async () => {
 }
 
 .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 25px;
+}
 
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--el-color-primary);
-    font-size: 1.4rem;
-    margin: 0 0 12px;
+.section-header .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6a56c6; /* 更改为紫色 */
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
 
-    .el-icon {
-      font-size: 1.6rem;
-    }
-  }
+.section-header .section-title .el-icon {
+  font-size: 1.6rem;
+  color: #6a56c6; /* 确保图标也是紫色 */
+}
 
-  .more-link {
-    margin-left: auto;
-    font-size: 0.9rem;
-    color: var(--el-color-primary-light-3);
-    text-decoration: none;
-    transition: color 0.2s;
+/* 增强更多按钮样式 */
+.section-header .more-link {
+  color: white;
+  background-color: #6a56c6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 2px 6px rgba(106, 86, 198, 0.2);
+}
 
-    &:hover {
-      color: var(--el-color-primary);
-      text-decoration: underline;
-    }
-  }
+.section-header .more-link:hover {
+  background-color: #7b68d7;
+  box-shadow: 0 4px 10px rgba(106, 86, 198, 0.3);
+  transform: translateY(-2px);
+  text-decoration: none;
 }
 
 .custom-carousel {
@@ -235,11 +247,13 @@ onMounted(async () => {
     }
   }
 
+  /* 更改标题颜色 */
   .carousel-title {
-    color: var(--el-color-primary);
+    color: #6a56c6;
     font-size: 1.6rem;
     line-height: 1.4;
     margin: 0 0 15px;
+    font-weight: 600;
   }
 
   .carousel-content {
@@ -249,7 +263,6 @@ onMounted(async () => {
     overflow: hidden;
     display: -webkit-box;
     margin-bottom: 15px;
-    /* 保持与按钮的间距 */
   }
 
   .card-content {
@@ -259,11 +272,21 @@ onMounted(async () => {
     padding-bottom: 60px;
   }
 
+  /* 修改阅读全文按钮 */
   .read-more {
     position: absolute;
     left: 25px;
     bottom: 25px;
     margin-top: 0;
+    background-color: #6a56c6;
+    border-color: #6a56c6;
+    color: white;
+    font-weight: 500;
+  }
+
+  .read-more:hover {
+    background-color: #7b68d7;
+    border-color: #7b68d7;
   }
 }
 
@@ -282,6 +305,7 @@ onMounted(async () => {
 .news-card {
   height: 120px;
   transition: transform 0.3s var(--el-transition-function-fast-bezier);
+  cursor: pointer;
 
   :deep(.el-card__body) {
     padding: 18px;
@@ -295,6 +319,7 @@ onMounted(async () => {
     justify-content: space-between;
   }
 
+  /* 修改新闻标题样式 */
   .news-title {
     font-size: 1.1rem;
     line-height: 1.4;
@@ -302,11 +327,17 @@ onMounted(async () => {
     color: var(--el-text-color-primary);
     display: -webkit-box;
     overflow: hidden;
+    transition: color 0.2s;
   }
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: var(--el-box-shadow) !important;
+    box-shadow: 0 10px 20px rgba(106, 86, 198, 0.1) !important;
+    border-color: #6a56c6;
+  }
+  
+  &:hover .news-title {
+    color: #6a56c6;
   }
 }
 
@@ -314,6 +345,17 @@ onMounted(async () => {
   color: var(--el-text-color-secondary);
   font-size: 0.85rem;
   margin-top: 8px;
+}
+
+/* 自定义按钮样式 */
+:deep(.el-button--primary) {
+  background-color: #6a56c6;
+  border-color: #6a56c6;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #7b68d7;
+  border-color: #7b68d7;
 }
 
 @media (max-width: 768px) {
@@ -324,6 +366,12 @@ onMounted(async () => {
     &:last-child {
       margin-bottom: 0;
     }
+  }
+
+  /* 移动版增加更多按钮的明显度 */
+  .section-header .more-link {
+    padding: 6px 12px;
+    font-size: 0.9rem;
   }
 
   .carousel-card {

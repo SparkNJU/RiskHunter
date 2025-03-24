@@ -21,7 +21,7 @@ const funcs = [
       <!-- 介绍栏 -->
       <div class="intro">
         <div class="intro-header">
-          <h1 class="intro-title">Risk Hunter</h1>
+          <h1 class="intro-title">RiskHunter</h1>
           <p class="intro-subtitle">您身边的外汇风险管理助手</p>
         </div>
         <div class="intro-about">
@@ -31,7 +31,7 @@ const funcs = [
           <span>关于RiskHunter</span>
         </div>
         <p class="intro-description">
-          Risk Hunter 是一个前沿的统计与AI工具，能够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。
+          RiskHunter 是一个前沿的统计与AI工具，能够整合分析过往趋势，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。
         </p>
       </div>
 

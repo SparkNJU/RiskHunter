@@ -32,9 +32,9 @@ public class CalculateServiceImpl implements CalculateService {
 
         // 创建风险因子分解
         List<RiskFactor> factorBreakdown = Arrays.asList(
-                new RiskFactor("汇率波动", 0.7),
-                new RiskFactor("敞口集中度", 0.5),
-                new RiskFactor("对冲缺口", 0.3)
+                new RiskFactor("汇率波动", 0.5 + Math.random() * 0.1),
+                new RiskFactor("敞口集中度", 0.2 + Math.random() * 0.05),
+                new RiskFactor("对冲缺口", 0.3 + Math.random() * 0.1)
         );
 
         // 模拟趋势计算（实际应该根据历史数据计算）

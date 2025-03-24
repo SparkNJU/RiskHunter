@@ -57,12 +57,30 @@ loadData()
 
   .back-button {
     margin-bottom: 15px;
+    
+    /* 更明显的按钮样式 */
+    :deep(.el-button) {
+      background-color: #6a56c6; /* 紫色背景 */
+      color: white; /* 白色文字 */
+      border-color: #6a56c6; /* 紫色边框 */
+      font-weight: 500; /* 更粗的字体 */
+      
+      &:hover {
+        background-color: #7b68d7; /* 悬停时稍微亮一点 */
+        border-color: #7b68d7;
+      }
+      
+      .el-icon {
+        color: white; /* 确保图标也是白色 */
+      }
+    }
   }
 
   h1 {
     font-size: 24px;
     margin-bottom: 15px;
-    color: #333;
+    color: #6a56c6; /* 修改标题为紫色 */
+    font-weight: 600; /* 稍微加粗 */
   }
 
   .meta {
@@ -76,11 +94,18 @@ loadData()
     }
 
     .original-link {
-      color: #409eff;
+      color: #6a56c6; /* 修改链接为紫色 */
       text-decoration: none;
+      font-weight: 500; /* 加粗 */
+      padding: 5px 10px; /* 添加内边距 */
+      border: 1px solid #6a56c6; /* 添加边框 */
+      border-radius: 4px; /* 圆角边框 */
+      transition: all 0.3s; /* 平滑过渡效果 */
 
       &:hover {
-        text-decoration: underline;
+        background-color: #6a56c6; /* 悬停时背景变紫 */
+        color: white; /* 悬停时文字变白 */
+        text-decoration: none; /* 不需要下划线 */
       }
     }
   }
@@ -93,6 +118,20 @@ loadData()
       max-width: 100%;
       height: auto;
       margin: 15px 0;
+    }
+    
+    /* 内容中的标题也使用紫色 */
+    :deep(h2), :deep(h3), :deep(h4) {
+      color: #6a56c6;
+    }
+    
+    /* 内容中的链接使用紫色 */
+    :deep(a) {
+      color: #6a56c6;
+      
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }

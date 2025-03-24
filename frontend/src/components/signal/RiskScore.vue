@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
 import { type RiskScoreVO } from '../../types/signal';
 import { ArrowUp, ArrowDown, Star } from '@element-plus/icons-vue';
@@ -7,6 +7,7 @@ import { getRiskScore } from '../../api/signal';
 
 const chartRef = ref<HTMLElement | null>(null);
 let chartInstance: echarts.ECharts | null = null;
+let updateTimer: number | null = null;
 
 const loading = ref(false);
 
@@ -134,6 +135,28 @@ const loadData = async () => {
 }
 
 loadData()
+// 组件挂载时启动定时更新
+onMounted(() => {
+  // 设置4秒间隔的定时器
+  updateTimer = window.setInterval(() => {
+    loadData();
+  }, 10000);
+});
+
+// 组件卸载时清除定时器
+onUnmounted(() => {
+  if (updateTimer !== null) {
+    clearInterval(updateTimer);
+    updateTimer = null;
+  }
+
+  // 清理图表实例
+  if (chartInstance) {
+    chartInstance.dispose();
+    chartInstance = null;
+  }
+});
+
 </script>
 
 <template>

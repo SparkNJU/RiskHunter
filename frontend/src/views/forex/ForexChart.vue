@@ -49,6 +49,20 @@ const getChartOption = (): echarts.EChartsOption => {
   })
 
   return {
+          legend: {
+      data: ['实际数据', '预测数据'],
+      textStyle: {
+        color: '#6a56c6'
+      },
+      itemStyle: {
+        borderColor: '#6a56c6'
+      },
+      // 将图例放置在右上角
+      right: '5%',
+      top: '5%',
+      orient: 'horizontal',
+      padding: [5, 10]
+    },
     title: {
       text: `${props.chartData.meta.name} `,
       subtext: [
@@ -56,7 +70,14 @@ const getChartOption = (): echarts.EChartsOption => {
         `数据来源：${props.chartData.meta.source}`,
         `指标ID：${props.chartData.meta.indicatorId}`
       ].filter(Boolean).join(', '),
-      left: 'center'
+
+      left: 'center',
+      textStyle: {
+        color: '#6a56c6'
+      },
+      subtextStyle: {
+        color: '#8a7bd1'
+      }
     },
     tooltip: {
       trigger: 'axis',
@@ -67,18 +88,40 @@ const getChartOption = (): echarts.EChartsOption => {
           ${data.axisValue}<br/>
           ${props.chartData.meta.name}${seriesType}：${data.value[1]} ${props.chartData.meta.unit}
         `
+      },
+      backgroundColor: 'rgba(106, 86, 198, 0.8)',
+      borderColor: '#6a56c6',
+      textStyle: {
+        color: '#ffffff'
       }
     },
     xAxis: {
       type: 'category',
       data: props.chartData.xData,
       axisLabel: {
-        formatter: (value: string) => value.replace('-', '年') + '月'
+        formatter: (value: string) => value.replace('-', '年') + '月',
+        color: '#6a56c6'
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#d4cdf3'
+        }
       }
     },
     yAxis: {
       type: 'value',
-      name: props.chartData.meta.unit || ''
+      name: props.chartData.meta.unit || '',
+      nameTextStyle: {
+        color: '#6a56c6'
+      },
+      axisLabel: {
+        color: '#6a56c6'
+      },
+      splitLine: {
+        lineStyle: {
+          color: '#eae7f8'
+        }
+      }
     },
     series: [
       {
@@ -87,12 +130,16 @@ const getChartOption = (): echarts.EChartsOption => {
         data: actualData,
         smooth: true,
         itemStyle: {
-          color: '#66b1ff' // 浅蓝色
+          color: '#6a56c6' // 主紫色
+        },
+        lineStyle: {
+          width: 3,
+          color: '#6a56c6'
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(102, 177, 255, 0.6)' },
-            { offset: 1, color: 'rgba(102, 177, 255, 0.01)' }
+            { offset: 0, color: 'rgba(106, 86, 198, 0.5)' },
+            { offset: 1, color: 'rgba(106, 86, 198, 0.05)' }
           ])
         }
       },
@@ -102,16 +149,30 @@ const getChartOption = (): echarts.EChartsOption => {
         data: predictData,
         smooth: true,
         itemStyle: {
-          color: '#ffa940' // 浅橙色
+          color: '#9e8be0' // 浅紫色
+        },
+        lineStyle: {
+          width: 3,
+          color: '#9e8be0',
+          type: 'dashed'
         },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 169, 64, 0.6)' },
-            { offset: 1, color: 'rgba(255, 169, 64, 0.01)' }
+            { offset: 0, color: 'rgba(158, 139, 224, 0.5)' },
+            { offset: 1, color: 'rgba(158, 139, 224, 0.05)' }
           ])
         }
       }
-    ]
+    ],
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    color: ['#6a56c6', '#9e8be0'],
+    backgroundColor: 'rgba(234, 231, 248, 0.1)'
   }
 }
 
@@ -137,5 +198,8 @@ watch(() => props.chartData, () => {
 .chart-container {
   width: 100%;
   height: 700px;
+  background-color: rgba(234, 231, 248, 0.1);
+  border-radius: 8px;
+  padding: 16px;
 }
 </style>

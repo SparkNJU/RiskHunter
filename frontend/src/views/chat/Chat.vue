@@ -164,8 +164,8 @@ const loadChatHistory = async (sessionId: number) => {
   getHistory(sessionId, userId.value).then(res => {
     if (res.data.code === '000') {
       messages.value = res.data.result.map((msg: ChatRecord) => ({
-      ...msg,
-      content: replaceRefTags(msg.content)
+        ...msg,
+        content: replaceRefTags(msg.content)
       }))
       scrollToBottom()
     } else {
@@ -187,11 +187,11 @@ const editingTitle = ref('')
 const handleEditSession = (event: Event, session: SessionRecord) => {
   // 阻止事件冒泡，避免触发 select 事件
   event.stopPropagation()
-  
+
   editingSessionId.value = session.id
   editingTitle.value = session.title
   isEditing.value = true
-  
+
   // 使用nextTick确保DOM已更新后聚焦输入框
   nextTick(() => {
     const inputEl = document.getElementById(`session-title-input-${session.id}`)
@@ -206,15 +206,15 @@ const saveSessionTitle = async () => {
     isEditing.value = false
     return
   }
-  
+
   try {
     const res = await updateSessionTitle(userId.value, editingSessionId.value, editingTitle.value)
-    
+
     if (res.data.code === '000') {
       const sessionIndex = sessions.value.findIndex(s => s.id === editingSessionId.value)
       if (sessionIndex !== -1) {
         sessions.value[sessionIndex].title = editingTitle.value
-        
+
         // 如果正在编辑的是当前会话，更新当前会话标题
         if (currentSessionId.value === editingSessionId.value) {
           currentSessionTitle.value = editingTitle.value
@@ -242,7 +242,7 @@ const cancelTitleEdit = () => {
 const handleDeleteSession = async (event: Event, sessionId: number) => {
   // 阻止事件冒泡
   event.stopPropagation()
-  
+
   try {
     await ElMessageBox.confirm(
       '确定要删除这个会话吗？此操作不可恢复。',
@@ -253,20 +253,20 @@ const handleDeleteSession = async (event: Event, sessionId: number) => {
         type: 'warning',
       }
     )
-    
+
     const res = await deleteSession(sessionId, userId.value)
-    
+
     if (res.data.code === '000') {
       // 从会话列表中移除
       sessions.value = sessions.value.filter(s => s.id !== sessionId)
-      
+
       // 如果删除的是当前会话，重置当前会话
       if (currentSessionId.value === sessionId) {
         currentSessionId.value = 0
         currentSessionTitle.value = ''
         messages.value = []
       }
-      
+
       ElMessage.success('会话已删除')
     } else {
       ElMessage.error(res.data.msg || '删除失败')
@@ -360,10 +360,17 @@ const handleStreamMessage = async (messageToSend: string) => {
   // 根据 knowledgeBaseEnabled 状态设置 CHAT_STREAM 的值
   const CHAT_STREAM = knowledgeBaseEnabled.value ? CHAT_STREAM_RAG : CHAT_STREAM_DEFAULT;
 
+  // 构建查询参数，正确编码所有值
+  const params = new URLSearchParams({
+    sessionId: currentSessionId.value.toString(),
+    message: messageToSend, // URLSearchParams 会自动编码
+    userId: userId.value.toString(),
+    modelName: selectedModel.value
+  });
   try {
     let thought = '';
     let content = '';
-    await fetchEventSource(`${CHAT_STREAM}?sessionId=${currentSessionId.value}&message=${messageToSend}&userId=${userId.value}&modelName=${selectedModel.value}`, {
+    await fetchEventSource(`${CHAT_STREAM}?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -418,7 +425,39 @@ const handleStopStream = () => {
     isStreaming.value = false
   }
 }
+// 预设问题列表
+const suggestionQuestions = [
+  '如何为小微企业设计针对外汇波动的套期保值方案？',
+  '如何量化风险控制措施的成本收益比？',
+  '汇率波动对企业短期现金流的影响如何量化？',
+  '风险偏好差异如何影响企业选择风险自留与风险转移的决策边界？'
+]
 
+// 处理点击预设问题
+interface SuggestionQuestion {
+  question: string;
+}
+
+const insertSuggestion = (question: SuggestionQuestion['question']) => {
+  inputMessage.value = question
+  // 如果已选中会话，自动聚焦输入框
+  if (currentSessionId.value !== 0) {
+    nextTick(() => {
+      const inputEl = document.querySelector('.chat-input .el-textarea__inner')
+      if (inputEl) (inputEl as HTMLInputElement).focus()
+    })
+  } else {
+    // 如果没有选中会话，自动创建新会话
+    handleCreateSession().then(() => {
+      inputMessage.value = question
+    })
+  }
+}
+
+// 添加显示欢迎卡片的计算属性
+const showWelcomeCard = computed(() => {
+  return currentSessionId.value === 0 || (currentSessionId.value !== 0 && messages.value.length === 0)
+})
 // 更新会话
 const updateSession = (message: string) => {
   const sessionIndex = sessions.value.findIndex(s => s.id === currentSessionId.value)
@@ -488,115 +527,121 @@ const scrollToBottom = () => {
 
 <template>
   <el-container>
-  <!-- 桌面端侧边栏 - 修改会话列表项 -->
-  <el-aside v-if="!viewport.isMobile.value" class="chat-aside" :width="sidebarOpen ? '220px' : '0'">
-    <!-- 头部不变 -->
-    <div class="chat-aside-header">
-      <el-button type="primary" @click="handleCreateSession" :loading="isLoading" round>
-        <el-icon><Plus /></el-icon>新对话
-      </el-button>
-      <el-button plain round @click="sidebarOpen = !sidebarOpen" :icon="ChatLineSquare" class="sidebar-toggle" />
-    </div>
-    <el-scrollbar class="chat-sessions">
-      <el-menu :default-active="String(currentSessionId)" @select="handleSelectSession" class="session-list">
-        <el-menu-item v-for="session in sessions" :key="session.id" :index="String(session.id)"
-          :class="{ 'is-active': session.id === currentSessionId }">
-          <!-- 非编辑状态 -->
-          <template v-if="!(isEditing && editingSessionId === session.id)">
-            <div class="session-item">
-              <div class="session-info">
-                <el-icon><ChatLineRound /></el-icon>
-                <span class="session-title">{{ session.title === '' ? '新会话' : session.title }}</span>
+    <!-- 桌面端侧边栏 - 修改会话列表项 -->
+    <el-aside v-if="!viewport.isMobile.value" class="chat-aside" :width="sidebarOpen ? '220px' : '0'">
+      <!-- 头部不变 -->
+      <div class="chat-aside-header">
+        <el-button type="primary" @click="handleCreateSession" :loading="isLoading" round>
+          <el-icon>
+            <Plus />
+          </el-icon>新对话
+        </el-button>
+        <el-button plain round @click="sidebarOpen = !sidebarOpen" :icon="ChatLineSquare" class="sidebar-toggle" />
+      </div>
+      <el-scrollbar class="chat-sessions">
+        <el-menu :default-active="String(currentSessionId)" @select="handleSelectSession" class="session-list">
+          <el-menu-item v-for="session in sessions" :key="session.id" :index="String(session.id)"
+            :class="{ 'is-active': session.id === currentSessionId }">
+            <!-- 非编辑状态 -->
+            <template v-if="!(isEditing && editingSessionId === session.id)">
+              <div class="session-item">
+                <div class="session-info">
+                  <el-icon>
+                    <ChatLineRound />
+                  </el-icon>
+                  <span class="session-title">{{ session.title === '' ? '新会话' : session.title }}</span>
+                </div>
+                <div class="session-actions" @click.stop>
+                    <el-button type="text" size="small" @click="(e: Event) => handleEditSession(e, session)"
+                    class="action-button">
+                    <el-icon>
+                      <Edit />
+                    </el-icon>
+                    </el-button>
+                  <el-button type="text" size="small" @click="(e: Event) => handleDeleteSession(e, session.id)"
+                    class="action-button delete-button">
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
+                  </el-button>
+                </div>
               </div>
-              <div class="session-actions" @click.stop>
-                <el-button type="text" size="small" @click="(e) => handleEditSession(e, session)" class="action-button">
-                  <el-icon><Edit /></el-icon>
-                </el-button>
-                <el-button type="text" size="small" @click="(e) => handleDeleteSession(e, session.id)" class="action-button delete-button">
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-              </div>
-            </div>
-          </template>
-          
-          <!-- 编辑状态 -->
-          <template v-else>
-            <div class="session-edit">
-              <el-input 
-                v-model="editingTitle" 
-                size="small" 
-                :id="`session-title-input-${session.id}`"
-                @keyup.enter="saveSessionTitle"
-                @keyup.esc="cancelTitleEdit"
-                @click.stop
-              />
-              <div class="edit-actions">
-                <el-button type="text" size="small" @click="saveSessionTitle" class="action-button">
-                  确定
-                </el-button>
-                <el-button type="text" size="small" @click="cancelTitleEdit" class="action-button">
-                  取消
-                </el-button>
-              </div>
-            </div>
-          </template>
-        </el-menu-item>
-      </el-menu>
-    </el-scrollbar>
-  </el-aside>
+            </template>
 
-  <!-- 移动端侧边栏 - 同样需要修改 -->
-  <el-drawer v-else v-model="sidebarOpen" :with-header="false" direction="ltr">
-    <div class="chat-aside-header">
-      <el-button type="primary" @click="handleCreateSession" :icon="Plus" :loading="isLoading" round />
-    </div>
-    <el-scrollbar>
-      <el-menu :default-active="String(currentSessionId)" @select="handleSelectSession" class="session-list">
-        <el-menu-item v-for="session in sessions" :key="session.id" :index="String(session.id)"
-          :class="{ 'is-active': session.id === currentSessionId }">
-          <!-- 非编辑状态 -->
-          <template v-if="!(isEditing && editingSessionId === session.id)">
-            <div class="session-item">
-              <div class="session-info">
-                <el-icon><ChatLineRound /></el-icon>
-                <span class="session-title">{{ session.title === '' ? '新会话' : session.title }}</span>
+            <!-- 编辑状态 -->
+            <template v-else>
+              <div class="session-edit">
+                <el-input v-model="editingTitle" size="small" :id="`session-title-input-${session.id}`"
+                  @keyup.enter="saveSessionTitle" @keyup.esc="cancelTitleEdit" @click.stop />
+                <div class="edit-actions">
+                  <el-button type="text" size="small" @click="saveSessionTitle" class="action-button">
+                    确定
+                  </el-button>
+                  <el-button type="text" size="small" @click="cancelTitleEdit" class="action-button">
+                    取消
+                  </el-button>
+                </div>
               </div>
-              <div class="session-actions" @click.stop>
-                <el-button type="text" size="small" @click="(e) => handleEditSession(e, session)" class="action-button">
-                  <el-icon><Edit /></el-icon>
-                </el-button>
-                <el-button type="text" size="small" @click="(e) => handleDeleteSession(e, session.id)" class="action-button delete-button">
-                  <el-icon><Delete /></el-icon>
-                </el-button>
+            </template>
+          </el-menu-item>
+        </el-menu>
+      </el-scrollbar>
+    </el-aside>
+
+    <!-- 移动端侧边栏 - 同样需要修改 -->
+    <el-drawer v-else v-model="sidebarOpen" :with-header="false" direction="ltr">
+      <div class="chat-aside-header">
+        <el-button type="primary" @click="handleCreateSession" :icon="Plus" :loading="isLoading" round />
+      </div>
+      <el-scrollbar>
+        <el-menu :default-active="String(currentSessionId)" @select="handleSelectSession" class="session-list">
+          <el-menu-item v-for="session in sessions" :key="session.id" :index="String(session.id)"
+            :class="{ 'is-active': session.id === currentSessionId }">
+            <!-- 非编辑状态 -->
+            <template v-if="!(isEditing && editingSessionId === session.id)">
+              <div class="session-item">
+                <div class="session-info">
+                  <el-icon>
+                    <ChatLineRound />
+                  </el-icon>
+                  <span class="session-title">{{ session.title === '' ? '新会话' : session.title }}</span>
+                </div>
+                <div class="session-actions" @click.stop>
+                  <el-button type="text" size="small" @click="(e: Event) => handleEditSession(e, session)"
+                    class="action-button">
+                    <el-icon>
+                      <Edit />
+                    </el-icon>
+                  </el-button>
+                  <el-button type="text" size="small" @click="(e: Event) => handleDeleteSession(e, session.id)"
+                    class="action-button delete-button">
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
+                  </el-button>
+                </div>
               </div>
-            </div>
-          </template>
-          
-          <!-- 编辑状态 -->
-          <template v-else>
-            <div class="session-edit">
-              <el-input 
-                v-model="editingTitle" 
-                size="small" 
-                :id="`session-title-input-mobile-${session.id}`"
-                @keyup.enter="saveSessionTitle"
-                @keyup.esc="cancelTitleEdit"
-                @click.stop
-              />
-              <div class="edit-actions">
-                <el-button type="text" size="small" @click="saveSessionTitle" class="action-button">
-                  确定
-                </el-button>
-                <el-button type="text" size="small" @click="cancelTitleEdit" class="action-button">
-                  取消
-                </el-button>
+            </template>
+
+            <!-- 编辑状态 -->
+            <template v-else>
+              <div class="session-edit">
+                <el-input v-model="editingTitle" size="small" :id="`session-title-input-mobile-${session.id}`"
+                  @keyup.enter="saveSessionTitle" @keyup.esc="cancelTitleEdit" @click.stop />
+                <div class="edit-actions">
+                  <el-button type="text" size="small" @click="saveSessionTitle" class="action-button">
+                    确定
+                  </el-button>
+                  <el-button type="text" size="small" @click="cancelTitleEdit" class="action-button">
+                    取消
+                  </el-button>
+                </div>
               </div>
-            </div>
-          </template>
-        </el-menu-item>
-      </el-menu>
-    </el-scrollbar>
-  </el-drawer>
+            </template>
+          </el-menu-item>
+        </el-menu>
+      </el-scrollbar>
+    </el-drawer>
 
     <el-main>
       <!-- 右侧聊天主区域 -->
@@ -609,7 +654,7 @@ const scrollToBottom = () => {
         </div>
 
         <!-- 消息区 -->
-        <el-scrollbar v-if="currentSessionId != 0" class="chat-messages" ref="messagesContainer">
+        <el-scrollbar v-if="currentSessionId != 0 && messages.length > 0" class="chat-messages" ref="messagesContainer">
           <div v-for="(msg, index) in messages" :key="index">
             <el-row :justify="msg.direction ? 'end' : 'start'">
               <el-col>
@@ -633,11 +678,23 @@ const scrollToBottom = () => {
             </el-row>
           </div>
         </el-scrollbar>
-        <div v-else class="no-session">
-          <el-icon class="empty-icon">
-            <ChatLineRound />
-          </el-icon>
-          <p class="empty-text">{{ currentSessionId == 0 ? '请选择或新建会话' : '您可以询问任何外汇风险相关问题' }}</p>
+        <!-- 将现有的 no-session 替换为以下内容 -->
+        <div v-else-if="showWelcomeCard" class="welcome-container">
+          <div class="welcome-card">
+            <div class="welcome-header">
+  <img src="/logo_with_name.png" alt="RiskHunter AI" class="welcome-logo">
+  <p class="welcome-greeting">你好，我是RiskHunter AI!<br>你可以问我有关外汇风险管理的任何问题</p>
+</div>
+            <div class="suggestion-cards">
+              <div v-for="(question, index) in suggestionQuestions" :key="index" class="suggestion-card"
+                @click="insertSuggestion(question)">
+                <p>{{ question }}</p>
+                <el-icon>
+                  <ArrowUp />
+                </el-icon>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 输入区域 -->
@@ -668,17 +725,15 @@ const scrollToBottom = () => {
               {{ viewport.isMobile.value ? '' : '输入问题后按 Enter 发送，或点击发送按钮' }}
             </div>
             <div class="button-group">
-              <el-select v-if="streamOutput" v-model="selectedModel" 
-                :style="{ 'width': viewport.isMobile.value ? '100px' : '180px' }"
-                :disabled="inputDisabled"
+              <el-select v-if="streamOutput" v-model="selectedModel"
+                :style="{ 'width': viewport.isMobile.value ? '100px' : '180px' }" :disabled="inputDisabled"
                 :suffix-icon="ArrowUp">
                 <el-option v-for="model in availableModels" :key="model.value" :label="model.label"
                   :value="model.value">
                 </el-option>
               </el-select>
               <el-switch v-model="streamOutput" :inactive-text="viewport.isMobile.value ? '标准' : '标准输出'"
-                :active-text="viewport.isMobile.value ? '流式' : '流式输出'"
-                :disabled="isLoading" />
+                :active-text="viewport.isMobile.value ? '流式' : '流式输出'" :disabled="isLoading" />
               <el-checkbox v-model="knowledgeBaseEnabled" :disabled="isLoading">知识库</el-checkbox>
               <el-button v-if="isStreaming" type="danger" @click="handleStopStream">中止</el-button>
               <el-button v-else type="primary" @click="handleSendMessage" :loading="isLoading"
@@ -828,6 +883,113 @@ const scrollToBottom = () => {
   }
 }
 
+/* 欢迎卡片样式 */
+.welcome-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.welcome-card {
+  max-width: 800px;
+  width: 100%;
+  background-color: var(--el-bg-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.welcome-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+}
+
+.welcome-logo {
+  max-width: 280px;
+  height: auto;
+}
+
+.welcome-greeting {
+  font-size: 1.4rem;
+  color: var(--el-text-color-primary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.suggestion-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.suggestion-card {
+  background-color: rgba(106, 86, 198, 0.05);
+  border: 1px solid rgba(106, 86, 198, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestion-card:hover {
+  background-color: rgba(106, 86, 198, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(106, 86, 198, 0.15);
+}
+
+.suggestion-card p {
+  margin: 0;
+  color: var(--el-text-color-primary);
+  font-size: 1rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.suggestion-card .el-icon {
+  color: #6a56c6;
+  font-size: 16px;
+  margin-left: 12px;
+  opacity: 0.7;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .welcome-card {
+    padding: 20px;
+  }
+
+  .welcome-logo {
+    max-width: 220px;
+  }
+
+  .welcome-greeting {
+    font-size: 1.2rem;
+  }
+
+  .suggestion-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .suggestion-card {
+    padding: 12px;
+  }
+
+  .suggestion-card p {
+    font-size: 0.9rem;
+  }
+}
+
 .chat-input {
   padding: 20px;
   border-top: 1px solid var(--el-border-color-light);
@@ -859,6 +1021,7 @@ const scrollToBottom = () => {
   font-size: 0.8em;
   color: var(--el-text-color-secondary);
 }
+
 /* 添加新样式 */
 .session-item {
   display: flex;
@@ -928,5 +1091,46 @@ const scrollToBottom = () => {
 .session-edit .el-input {
   flex: 1;
   min-width: 0;
+}
+
+/* 添加紫色主题按钮样式 */
+:deep(.el-button--primary) {
+  background-color: #6a56c6;
+  border-color: #6a56c6;
+}
+
+:deep(.el-button--primary:hover),
+:deep(.el-button--primary:focus) {
+  background-color: #7b68d7;
+  border-color: #7b68d7;
+}
+
+:deep(.el-button--primary.is-disabled) {
+  background-color: rgba(106, 86, 198, 0.5);
+  border-color: rgba(106, 86, 198, 0.5);
+}
+
+/* 确保开关组件匹配紫色主题 */
+:deep(.el-switch.is-checked .el-switch__core) {
+  background-color: #6a56c6;
+  border-color: #6a56c6;
+}
+
+/* 选中的菜单项样式 */
+:deep(.el-menu-item.is-active) {
+  color: #6a56c6;
+  background-color: rgba(106, 86, 198, 0.1);
+}
+
+/* 增强删除/编辑按钮的可见性 */
+.action-button:hover {
+  color: #6a56c6;
+  background-color: rgba(106, 86, 198, 0.1);
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  color: var(--el-color-danger);
+  background-color: rgba(245, 108, 108, 0.1);
 }
 </style>
