@@ -69,8 +69,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Money } from '@element-plus/icons-vue';
-import Gauge from './Gauge.vue';
-
 // 模拟风险指数
 const riskIndex = ref(65);
 

@@ -101,11 +101,13 @@ onUnmounted(() => {
   align-items: center;
   padding: 0 16px;
   font-weight: 500;
+  width: 174px;
   color: #ffffff;
   background-color: #6a56c6a2;
   border-right: 1px solid var(--el-border-color-lighter);
   height: 100%;
-  min-width: 180px; /* 增加宽度以适应时间格式 */
+  font-size: 15px;
+  min-width: 174px; /* 增加宽度以适应时间格式 */
 }
 
 .ticker-title .el-icon {

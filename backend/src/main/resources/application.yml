@@ -22,6 +22,7 @@ mybatis-plus:
       id-type: auto
 
 model:
+  # 由于资金问题，RiskHunter的Token额度有限，我们建议您使用自己的app-id和api-key
   api-key: sk-b8a9162d68384b82aefde24d2218966f
   # 普通对话服务配置
   deepseek:

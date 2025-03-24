@@ -12,11 +12,12 @@ const md = new MarkdownIt({
   typographer: true
 });
 
-// 使用URL构造器处理所有图片路径
 const teacherImages = {
   jiangY: new URL('../../assets/teamMembers/JiangY.jpg', import.meta.url).href,
-  maoYL: new URL('../../assets/teamMembers/MaoYL.jpg', import.meta.url).href
+  maoYL: new URL('../../assets/teamMembers/MaoYL.jpg', import.meta.url).href,
+  zhongS: new URL('../../assets/teamMembers/ZhongS.jpg', import.meta.url).href // 需要添加仲盛教授的照片
 };
+
 
 const techImages = {
   cz: new URL('../../assets/teamMembers/IT1_cz.jpg', import.meta.url).href,
@@ -39,7 +40,7 @@ const FinaImages = {
 const teachers = [
     {
         name: '蒋彧',
-        title: '南京大学商学院',
+        title: '商业组指导教师',
         description: `**南京大学商学院金融与保险学系教授、博士生导师**，江苏高校"青蓝工程"中青年学术带头人。
 
 **教育背景**
@@ -67,8 +68,8 @@ const teachers = [
     },
     {
         name: '毛云龙',
-        title: '南京大学软件学院',
-        description: `**南京大学准聘副教授**，南京大学计算机科学与技术系获学士学位和博士学位。导师为**仲盛教授**。
+        title: '技术组指导教师',
+        description: `**南京大学软件学院准聘副教授**，南京大学计算机科学与技术系获学士学位和博士学位。
 
 **研究方向**：
 - 网络安全
@@ -89,6 +90,51 @@ const teachers = [
 
 **产业合作**：长期保持和**华为、字节跳动、美团、百度等**企业的研究合作，工作成果在企业实践中得到了应用和验证。`,
         avatar: teacherImages.maoYL
+    },
+    {
+        name: '仲盛',
+        title: '技术专家顾问',
+        description: `**南京大学软件学院院长，二级教授、博士生导师**，电气电子工程师学会会士（IEEE Fellow），中国计算机学会会士，国家杰出青年科学基金获得者。
+
+**教育背景**：
+- 1996年 南京大学计算机系学士学位
+- 1999年 南京大学计算机系硕士学位
+- 2004年 耶鲁大学博士学位
+
+**工作经历**：
+- 2005年-2012年 美国纽约州立大学布法罗分校计算机系任教
+- 2012年至今 南京大学计算机系教授
+- 现任 南京大学软件学院院长
+
+**研究方向**：
+- 网络空间安全
+- 信息安全与隐私保护
+- 密码学和博弈论在计算机网络中的应用
+- 分布式系统安全
+- 移动安全与数据安全
+
+**学术成果**：
+- 在CCS、MOBICOM等国际学术会议发表论文
+- 在IEEE TDSC、IEEE TIFS等期刊发表论文100余篇
+- 授权发明专利2项
+
+**荣誉奖项**：
+- 2014年 获得国家杰出青年科学基金资助
+- 2015年 入选江苏省双创人才
+- 2023年 当选为电气电子工程师学会会士（IEEE Fellow）
+- 2024年 当选为中国计算机学会会士
+
+**学术兼职**：
+- 江苏省归国华侨联合会副主席
+- 中国人民政治协商会议江苏省第十三届委员会委员
+- 《IEEE信息取证与安全》《IEEE车载技术汇刊》《信息科学》等多个期刊编委
+- 全国证券标准化技术委员会委员
+- 工信部商用密码应用推进专家委员会委员
+
+**人才培养**：
+- 2021年获江苏省教学成果一等奖
+- 2022年获高等教育国家级教学成果二等奖`,
+        avatar: teacherImages.zhongS
     },
 ];
 

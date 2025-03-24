@@ -55,7 +55,6 @@ declare module 'vue' {
     ExchangeRate: typeof import('./src/components/ExchangeRate.vue')['default']
     ExchangeRateBoard: typeof import('./src/components/signal/ExchangeRateBoard.vue')['default']
     ExposureMatrix: typeof import('./src/components/signal/ExposureMatrix.vue')['default']
-    Gauge: typeof import('./src/components/Gauge.vue')['default']
     Header: typeof import('./src/components/layout/Header.vue')['default']
     IndexList: typeof import('./src/components/layout/IndexList.vue')['default']
     Layout: typeof import('./src/components/layout/Layout.vue')['default']
