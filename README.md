@@ -2,6 +2,8 @@
 [TOC]
 
 ## 项目概述
+**本项目已经同步部署至[www.riskhunter.xyz](http://www.riskhunter.xyz)**
+
 RiskHunter 是一个前后端分离的项目，前端基于 Vite + Vue3 框架搭建，后端采用 Spring Boot 构建。该项目整合了先进的统计与 AI 技术，能够对过往趋势进行整合分析，通过多维度的数据模型精准捕捉汇率风险信号，为企业提供更具前瞻性、科学性的风险管理支持。
 
 ## 本地部署指南
